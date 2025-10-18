@@ -20,16 +20,25 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-details">
-                    <span class="user-name">Cliente</span>
-                    <span class="user-email">cliente@ejemplo.com</span>
+                    <span class="user-name" data-i18n="dashboard.client">Cliente</span>
+                    <span class="user-email" data-i18n="dashboard.clientEmail">cliente@ejemplo.com</span>
                 </div>
                 <button class="admin-btn" onclick="window.location.href='admin-dashboard.html'">
                     <i class="fas fa-cog"></i>
-                    Admin
+                    <span data-i18n="admin.panel">Admin</span>
                 </button>
                 <button class="logout-btn" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
+                <!-- Language Switcher -->
+                <div class="language-switcher" id="languageSwitcher">
+                    <button class="lang-btn" data-lang="es">
+                        🇪🇸 ES
+                    </button>
+                    <button class="lang-btn active" data-lang="en">
+                        🇺🇸 EN
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -39,27 +48,27 @@
         <nav class="sidebar-nav">
             <a href="#overview" class="nav-item active" data-section="overview">
                 <i class="fas fa-chart-pie"></i>
-                <span>Resumen</span>
+                <span data-i18n="dashboard.overview">Resumen</span>
             </a>
             <a href="#projects" class="nav-item" data-section="projects">
                 <i class="fas fa-folder"></i>
-                <span>Mis Proyectos</span>
+                <span data-i18n="dashboard.myProjects">Mis Proyectos</span>
             </a>
             <a href="#messages" class="nav-item" data-section="messages">
                 <i class="fas fa-envelope"></i>
-                <span>Mensajes</span>
+                <span data-i18n="dashboard.messages">Mensajes</span>
             </a>
             <a href="#files" class="nav-item" data-section="files">
                 <i class="fas fa-file-alt"></i>
-                <span>Archivos</span>
+                <span data-i18n="dashboard.files">Archivos</span>
             </a>
             <a href="#gallery" class="nav-item" data-section="gallery">
                 <i class="fas fa-images"></i>
-                <span>Galería</span>
+                <span data-i18n="dashboard.gallery">Galería</span>
             </a>
             <a href="#settings" class="nav-item" data-section="settings">
                 <i class="fas fa-cog"></i>
-                <span>Configuración</span>
+                <span data-i18n="dashboard.settings">Configuración</span>
             </a>
         </nav>
     </aside>
@@ -69,8 +78,8 @@
         <!-- Overview Section -->
         <section id="overview" class="dashboard-section active">
             <div class="section-header">
-                <h1>Resumen del Proyecto</h1>
-                <p>Bienvenido a tu dashboard personalizado</p>
+                <h1 data-i18n="dashboard.projectSummary">Resumen del Proyecto</h1>
+                <p data-i18n="dashboard.welcomeMessage">Bienvenido a tu dashboard personalizado</p>
             </div>
 
             <!-- Stats Cards -->
@@ -81,7 +90,7 @@
                     </div>
                     <div class="stat-content">
                         <h3>3</h3>
-                        <p>Proyectos Activos</p>
+                        <p data-i18n="dashboard.activeProjects">Proyectos Activos</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -90,7 +99,7 @@
                     </div>
                     <div class="stat-content">
                         <h3>15</h3>
-                        <p>Días Restantes</p>
+                        <p data-i18n="dashboard.daysRemaining">Días Restantes</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -99,7 +108,7 @@
                     </div>
                     <div class="stat-content">
                         <h3>75%</h3>
-                        <p>Progreso Total</p>
+                        <p data-i18n="dashboard.totalProgress">Progreso Total</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -108,23 +117,23 @@
                     </div>
                     <div class="stat-content">
                         <h3>$12,500</h3>
-                        <p>Inversión Total</p>
+                        <p data-i18n="dashboard.totalInvestment">Inversión Total</p>
                     </div>
                 </div>
             </div>
 
             <!-- Recent Activity -->
             <div class="activity-section">
-                <h2>Actividad Reciente</h2>
+                <h2 data-i18n="dashboard.recentActivity">Actividad Reciente</h2>
                 <div class="activity-list">
                     <div class="activity-item">
                         <div class="activity-icon">
                             <i class="fas fa-code"></i>
                         </div>
                         <div class="activity-content">
-                            <h4>Nueva funcionalidad agregada</h4>
-                            <p>Se implementó el sistema de autenticación</p>
-                            <span class="activity-time">Hace 2 horas</span>
+                            <h4 data-i18n="dashboard.newFeature">Nueva funcionalidad agregada</h4>
+                            <p data-i18n="dashboard.authSystem">Se implementó el sistema de autenticación</p>
+                            <span class="activity-time" data-i18n="dashboard.twoHoursAgo">Hace 2 horas</span>
                         </div>
                     </div>
                     <div class="activity-item">
@@ -132,9 +141,9 @@
                             <i class="fas fa-bug"></i>
                         </div>
                         <div class="activity-content">
-                            <h4>Bug corregido</h4>
-                            <p>Se solucionó el problema de carga de imágenes</p>
-                            <span class="activity-time">Hace 1 día</span>
+                            <h4 data-i18n="dashboard.bugFixed">Bug corregido</h4>
+                            <p data-i18n="dashboard.imageLoadFixed">Se solucionó el problema de carga de imágenes</p>
+                            <span class="activity-time" data-i18n="dashboard.oneDayAgo">Hace 1 día</span>
                         </div>
                     </div>
                     <div class="activity-item">
@@ -142,9 +151,9 @@
                             <i class="fas fa-upload"></i>
                         </div>
                         <div class="activity-content">
-                            <h4>Archivos subidos</h4>
-                            <p>Se agregaron 5 nuevos archivos al proyecto</p>
-                            <span class="activity-time">Hace 3 días</span>
+                            <h4 data-i18n="dashboard.filesUploaded">Archivos subidos</h4>
+                            <p data-i18n="dashboard.fiveNewFiles">Se agregaron 5 nuevos archivos al proyecto</p>
+                            <span class="activity-time" data-i18n="dashboard.threeDaysAgo">Hace 3 días</span>
                         </div>
                     </div>
                 </div>
@@ -154,10 +163,10 @@
         <!-- Projects Section -->
         <section id="projects" class="dashboard-section">
             <div class="section-header">
-                <h1>Mis Proyectos</h1>
+                <h1 data-i18n="dashboard.myProjects">Mis Proyectos</h1>
                 <button class="btn-primary">
                     <i class="fas fa-plus"></i>
-                    Nuevo Proyecto
+                    <span data-i18n="dashboard.newProject">Nuevo Proyecto</span>
                 </button>
             </div>
 
@@ -165,51 +174,51 @@
                 <div class="project-card">
                     <div class="project-header">
                         <h3>E-commerce Website</h3>
-                        <span class="project-status active">En Progreso</span>
+                        <span class="project-status active" data-i18n="dashboard.inProgress">En Progreso</span>
                     </div>
                     <div class="project-progress">
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: 75%"></div>
                         </div>
-                        <span class="progress-text">75% Completado</span>
+                        <span class="progress-text" data-i18n="dashboard.seventyFivePercent">75% Completado</span>
                     </div>
                     <div class="project-details">
-                        <p><i class="fas fa-calendar"></i> Fecha límite: 15 de Enero</p>
-                        <p><i class="fas fa-user"></i> Desarrollador: Juan Pérez</p>
+                        <p><i class="fas fa-calendar"></i> <span data-i18n="dashboard.deadline">Fecha límite</span>: 15 de Enero</p>
+                        <p><i class="fas fa-user"></i> <span data-i18n="dashboard.developer">Desarrollador</span>: Juan Pérez</p>
                     </div>
                 </div>
 
                 <div class="project-card">
                     <div class="project-header">
                         <h3>Mobile App</h3>
-                        <span class="project-status pending">Pendiente</span>
+                        <span class="project-status pending" data-i18n="dashboard.pending">Pendiente</span>
                     </div>
                     <div class="project-progress">
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: 30%"></div>
                         </div>
-                        <span class="progress-text">30% Completado</span>
+                        <span class="progress-text" data-i18n="dashboard.thirtyPercent">30% Completado</span>
                     </div>
                     <div class="project-details">
-                        <p><i class="fas fa-calendar"></i> Fecha límite: 28 de Febrero</p>
-                        <p><i class="fas fa-user"></i> Desarrollador: María García</p>
+                        <p><i class="fas fa-calendar"></i> <span data-i18n="dashboard.deadline">Fecha límite</span>: 28 de Febrero</p>
+                        <p><i class="fas fa-user"></i> <span data-i18n="dashboard.developer">Desarrollador</span>: María García</p>
                     </div>
                 </div>
 
                 <div class="project-card">
                     <div class="project-header">
                         <h3>Landing Page</h3>
-                        <span class="project-status completed">Completado</span>
+                        <span class="project-status completed" data-i18n="dashboard.completed">Completado</span>
                     </div>
                     <div class="project-progress">
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: 100%"></div>
                         </div>
-                        <span class="progress-text">100% Completado</span>
+                        <span class="progress-text" data-i18n="dashboard.hundredPercent">100% Completado</span>
                     </div>
                     <div class="project-details">
-                        <p><i class="fas fa-calendar"></i> Completado: 10 de Diciembre</p>
-                        <p><i class="fas fa-user"></i> Desarrollador: Carlos López</p>
+                        <p><i class="fas fa-calendar"></i> <span data-i18n="dashboard.completedOn">Completado</span>: 10 de Diciembre</p>
+                        <p><i class="fas fa-user"></i> <span data-i18n="dashboard.developer">Desarrollador</span>: Carlos López</p>
                     </div>
                 </div>
             </div>
@@ -218,10 +227,10 @@
         <!-- Messages Section -->
         <section id="messages" class="dashboard-section">
             <div class="section-header">
-                <h1>Mensajes</h1>
+                <h1 data-i18n="dashboard.messages">Mensajes</h1>
                 <button class="btn-primary">
                     <i class="fas fa-plus"></i>
-                    Nuevo Mensaje
+                    <span data-i18n="dashboard.newMessage">Nuevo Mensaje</span>
                 </button>
             </div>
 
@@ -233,9 +242,9 @@
                     <div class="message-content">
                         <div class="message-header">
                             <h4>Juan Pérez</h4>
-                            <span class="message-time">Hace 2 horas</span>
+                            <span class="message-time" data-i18n="dashboard.twoHoursAgo">Hace 2 horas</span>
                         </div>
-                        <p>Hola, he terminado la implementación de la funcionalidad de pagos. ¿Podrías revisarla?</p>
+                        <p data-i18n="dashboard.paymentMessage">Hola, he terminado la implementación de la funcionalidad de pagos. ¿Podrías revisarla?</p>
                     </div>
                 </div>
 
@@ -246,9 +255,9 @@
                     <div class="message-content">
                         <div class="message-header">
                             <h4>María García</h4>
-                            <span class="message-time">Ayer</span>
+                            <span class="message-time" data-i18n="dashboard.yesterday">Ayer</span>
                         </div>
-                        <p>El diseño de la app móvil está listo. Te envío los archivos por correo.</p>
+                        <p data-i18n="dashboard.mobileDesignMessage">El diseño de la app móvil está listo. Te envío los archivos por correo.</p>
                     </div>
                 </div>
 
@@ -259,9 +268,9 @@
                     <div class="message-content">
                         <div class="message-header">
                             <h4>Carlos López</h4>
-                            <span class="message-time">Hace 3 días</span>
+                            <span class="message-time" data-i18n="dashboard.threeDaysAgo">Hace 3 días</span>
                         </div>
-                        <p>La landing page ya está en producción. ¿Te parece bien el resultado?</p>
+                        <p data-i18n="dashboard.landingPageMessage">La landing page ya está en producción. ¿Te parece bien el resultado?</p>
                     </div>
                 </div>
             </div>
@@ -270,10 +279,10 @@
         <!-- Files Section -->
         <section id="files" class="dashboard-section">
             <div class="section-header">
-                <h1>Archivos del Proyecto</h1>
+                <h1 data-i18n="dashboard.projectFiles">Archivos del Proyecto</h1>
                 <button class="btn-primary" onclick="openFileUploadModal()">
                     <i class="fas fa-upload"></i>
-                    Subir Archivo
+                    <span data-i18n="dashboard.uploadFile">Subir Archivo</span>
                 </button>
             </div>
 
@@ -284,7 +293,7 @@
                     </div>
                     <div class="file-info">
                         <h4>index.html</h4>
-                        <p>Archivo principal del sitio web</p>
+                        <p data-i18n="dashboard.mainFile">Archivo principal del sitio web</p>
                         <span class="file-size">2.5 MB</span>
                     </div>
                     <div class="file-actions">
@@ -300,7 +309,7 @@
                     </div>
                     <div class="file-info">
                         <h4>logo.png</h4>
-                        <p>Logo de la empresa</p>
+                        <p data-i18n="dashboard.companyLogo">Logo de la empresa</p>
                         <span class="file-size">1.2 MB</span>
                     </div>
                     <div class="file-actions">
@@ -316,7 +325,7 @@
                     </div>
                     <div class="file-info">
                         <h4>propuesta.pdf</h4>
-                        <p>Propuesta del proyecto</p>
+                        <p data-i18n="dashboard.projectProposal">Propuesta del proyecto</p>
                         <span class="file-size">5.8 MB</span>
                     </div>
                     <div class="file-actions">
@@ -331,19 +340,19 @@
         <!-- Gallery Section -->
         <section id="gallery" class="dashboard-section">
             <div class="section-header">
-                <h1>Galería del Proyecto</h1>
+                <h1 data-i18n="dashboard.projectGallery">Galería del Proyecto</h1>
                 <button class="btn-primary">
                     <i class="fas fa-upload"></i>
-                    Subir Captura
+                    <span data-i18n="dashboard.uploadScreenshot">Subir Captura</span>
                 </button>
             </div>
 
             <!-- Gallery Filters -->
             <div class="gallery-filters">
-                <button class="filter-btn active" data-filter="all">Todas</button>
-                <button class="filter-btn" data-filter="desktop">Desktop</button>
-                <button class="filter-btn" data-filter="mobile">Móvil</button>
-                <button class="filter-btn" data-filter="tablet">Tablet</button>
+                <button class="filter-btn active" data-filter="all" data-i18n="dashboard.all">Todas</button>
+                <button class="filter-btn" data-filter="desktop" data-i18n="dashboard.desktop">Desktop</button>
+                <button class="filter-btn" data-filter="mobile" data-i18n="dashboard.mobile">Móvil</button>
+                <button class="filter-btn" data-filter="tablet" data-i18n="dashboard.tablet">Tablet</button>
             </div>
 
             <!-- Gallery Grid -->
@@ -361,9 +370,9 @@
                         </div>
                     </div>
                     <div class="gallery-info">
-                        <h4>Dashboard Principal</h4>
-                        <p>Vista desktop del dashboard principal</p>
-                        <span class="gallery-date">15 de Diciembre, 2024</span>
+                        <h4 data-i18n="dashboard.mainDashboard">Dashboard Principal</h4>
+                        <p data-i18n="dashboard.desktopView">Vista desktop del dashboard principal</p>
+                        <span class="gallery-date" data-i18n="dashboard.december15">15 de Diciembre, 2024</span>
                     </div>
                 </div>
 
@@ -380,9 +389,9 @@
                         </div>
                     </div>
                     <div class="gallery-info">
-                        <h4>App Móvil</h4>
-                        <p>Interfaz de la aplicación móvil</p>
-                        <span class="gallery-date">12 de Diciembre, 2024</span>
+                        <h4 data-i18n="dashboard.mobileApp">App Móvil</h4>
+                        <p data-i18n="dashboard.mobileInterface">Interfaz de la aplicación móvil</p>
+                        <span class="gallery-date" data-i18n="dashboard.december12">12 de Diciembre, 2024</span>
                     </div>
                 </div>
 
@@ -399,9 +408,9 @@
                         </div>
                     </div>
                     <div class="gallery-info">
-                        <h4>Tienda Online</h4>
-                        <p>Página de productos del e-commerce</p>
-                        <span class="gallery-date">10 de Diciembre, 2024</span>
+                        <h4 data-i18n="dashboard.onlineStore">Tienda Online</h4>
+                        <p data-i18n="dashboard.productPage">Página de productos del e-commerce</p>
+                        <span class="gallery-date" data-i18n="dashboard.december10">10 de Diciembre, 2024</span>
                     </div>
                 </div>
 
@@ -418,9 +427,9 @@
                         </div>
                     </div>
                     <div class="gallery-info">
-                        <h4>Vista Tablet</h4>
-                        <p>Interfaz optimizada para tablet</p>
-                        <span class="gallery-date">8 de Diciembre, 2024</span>
+                        <h4 data-i18n="dashboard.tabletView">Vista Tablet</h4>
+                        <p data-i18n="dashboard.tabletOptimized">Interfaz optimizada para tablet</p>
+                        <span class="gallery-date" data-i18n="dashboard.december8">8 de Diciembre, 2024</span>
                     </div>
                 </div>
 
@@ -437,9 +446,9 @@
                         </div>
                     </div>
                     <div class="gallery-info">
-                        <h4>Login Móvil</h4>
-                        <p>Pantalla de inicio de sesión móvil</p>
-                        <span class="gallery-date">5 de Diciembre, 2024</span>
+                        <h4 data-i18n="dashboard.mobileLogin">Login Móvil</h4>
+                        <p data-i18n="dashboard.mobileLoginScreen">Pantalla de inicio de sesión móvil</p>
+                        <span class="gallery-date" data-i18n="dashboard.december5">5 de Diciembre, 2024</span>
                     </div>
                 </div>
 
@@ -456,9 +465,9 @@
                         </div>
                     </div>
                     <div class="gallery-info">
-                        <h4>Panel de Administración</h4>
-                        <p>Interfaz de administración del sistema</p>
-                        <span class="gallery-date">3 de Diciembre, 2024</span>
+                        <h4 data-i18n="dashboard.adminPanel">Panel de Administración</h4>
+                        <p data-i18n="dashboard.adminInterface">Interfaz de administración del sistema</p>
+                        <span class="gallery-date" data-i18n="dashboard.december3">3 de Diciembre, 2024</span>
                     </div>
                 </div>
             </div>
@@ -477,11 +486,11 @@
                     <div class="modal-actions">
                         <button class="btn-primary" onclick="downloadCurrentImage()">
                             <i class="fas fa-download"></i>
-                            Descargar
+                            <span data-i18n="dashboard.download">Descargar</span>
                         </button>
                         <button class="btn-secondary" onclick="shareImage()">
                             <i class="fas fa-share"></i>
-                            Compartir
+                            <span data-i18n="dashboard.share">Compartir</span>
                         </button>
                     </div>
                 </div>
@@ -491,36 +500,36 @@
         <!-- Settings Section -->
         <section id="settings" class="dashboard-section">
             <div class="section-header">
-                <h1>Configuración</h1>
+                <h1 data-i18n="dashboard.settings">Configuración</h1>
             </div>
 
             <div class="settings-form">
                 <div class="form-group">
-                    <label for="userName">Nombre Completo</label>
+                    <label for="userName" data-i18n="auth.fullName">Nombre Completo</label>
                     <input type="text" id="userName" value="Cliente Ejemplo">
                 </div>
                 <div class="form-group">
-                    <label for="userEmail">Correo Electrónico</label>
+                    <label for="userEmail" data-i18n="auth.email">Correo Electrónico</label>
                     <input type="email" id="userEmail" value="cliente@ejemplo.com">
                 </div>
                 <div class="form-group">
-                    <label for="userPhone">Teléfono</label>
+                    <label for="userPhone" data-i18n="dashboard.phone">Teléfono</label>
                     <input type="tel" id="userPhone" value="+1 234 567 8900">
                 </div>
                 <div class="form-group">
-                    <label for="notifications">Notificaciones</label>
+                    <label for="notifications" data-i18n="dashboard.notifications">Notificaciones</label>
                     <div class="checkbox-group">
                         <label class="checkbox-label">
                             <input type="checkbox" checked>
-                            <span>Recibir notificaciones por email</span>
+                            <span data-i18n="dashboard.emailNotifications">Recibir notificaciones por email</span>
                         </label>
                         <label class="checkbox-label">
                             <input type="checkbox" checked>
-                            <span>Notificaciones de progreso</span>
+                            <span data-i18n="dashboard.progressNotifications">Notificaciones de progreso</span>
                         </label>
                     </div>
                 </div>
-                <button class="btn-primary">Guardar Cambios</button>
+                <button class="btn-primary" data-i18n="dashboard.saveChanges">Guardar Cambios</button>
             </div>
         </section>
     </main>
@@ -692,5 +701,6 @@
 
     <!-- Scripts -->
     <script src="dashboard-script.js"></script>
+    <script src="complete-translations.js"></script>
 </body>
 </html>

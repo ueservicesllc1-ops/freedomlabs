@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/i18next@23.7.6/dist/umd/i18next.min.js"></script>
+    <script src="https://unpkg.com/i18next-browser-languagedetector@7.2.0/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
 </head>
 <body class="home-page">
     <!-- Matrix Rain Effect -->
@@ -31,31 +33,31 @@
     <div class="page-content">
         <!-- Auth Buttons -->
         <div class="auth-buttons-container">
-            <button class="btn-login" onclick="openLoginModal()">Iniciar Sesión</button>
-            <button class="btn-register" onclick="openRegisterModal()">Registrarse</button>
+            <button class="btn-login" onclick="openLoginModal()" data-i18n="auth.login">Iniciar Sesión</button>
+            <button class="btn-register" onclick="openRegisterModal()" data-i18n="auth.register">Registrarse</button>
         </div>
 
     <!-- Login Modal -->
     <div class="auth-modal" id="loginModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Iniciar Sesión</h3>
+                <h3 data-i18n="auth.login">Iniciar Sesión</h3>
                 <button class="close-modal" onclick="closeLoginModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <form class="auth-form" id="loginForm">
                 <div class="form-group">
-                    <label for="loginEmail">Correo Electrónico</label>
+                    <label for="loginEmail" data-i18n="auth.email">Correo Electrónico</label>
                     <input type="email" id="loginEmail" name="email" required>
                 </div>
                 <div class="form-group">
-                    <label for="loginPassword">Contraseña</label>
+                    <label for="loginPassword" data-i18n="auth.password">Contraseña</label>
                     <input type="password" id="loginPassword" name="password" required>
                 </div>
                 <button type="submit" class="btn-auth">
                     <i class="fas fa-sign-in-alt"></i>
-                    Iniciar Sesión
+                    <span data-i18n="auth.loginButton">Iniciar Sesión</span>
                 </button>
                 <div class="divider">
                 </div>
@@ -71,31 +73,31 @@
     <div class="auth-modal" id="registerModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Crear Cuenta</h3>
+                <h3 data-i18n="auth.register">Crear Cuenta</h3>
                 <button class="close-modal" onclick="closeRegisterModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <form class="auth-form" id="registerForm">
                 <div class="form-group">
-                    <label for="registerName">Nombre Completo</label>
+                    <label for="registerName" data-i18n="auth.fullName">Nombre Completo</label>
                     <input type="text" id="registerName" name="name" required>
                 </div>
                 <div class="form-group">
-                    <label for="registerEmail">Correo Electrónico</label>
+                    <label for="registerEmail" data-i18n="auth.email">Correo Electrónico</label>
                     <input type="email" id="registerEmail" name="email" required>
                 </div>
                 <div class="form-group">
-                    <label for="registerPassword">Contraseña</label>
+                    <label for="registerPassword" data-i18n="auth.password">Contraseña</label>
                     <input type="password" id="registerPassword" name="password" required>
                 </div>
                 <div class="form-group">
-                    <label for="confirmPassword">Confirmar Contraseña</label>
+                    <label for="confirmPassword" data-i18n="auth.confirmPassword">Confirmar Contraseña</label>
                     <input type="password" id="confirmPassword" name="confirmPassword" required>
                 </div>
                 <button type="submit" class="btn-auth">
                     <i class="fas fa-user-plus"></i>
-                    Crear Cuenta
+                    <span data-i18n="auth.registerButton">Crear Cuenta</span>
                 </button>
                 <div class="divider">
                 </div>
@@ -182,11 +184,11 @@
                 </div>
                 <div class="hero-badge">
                     <i class="fas fa-code"></i>
-                    <span>Desarrollo Tecnológico</span>
+                    <span data-i18n="hero.badge">Desarrollo Tecnológico</span>
                 </div>
                 <p class="hero-subtitle">
-                    Transformamos ideas en <span class="highlight">soluciones digitales</span> 
-                    con las últimas tecnologías
+                    <span data-i18n="hero.transform">Transformamos ideas en</span> <span class="highlight" data-i18n="hero.solutions">soluciones digitales</span> 
+                    <span data-i18n="hero.technology">con las últimas tecnologías</span>
                 </p>
                 <div class="tech-stack">
                     <span class="tech-item tech-celeste">React</span>
@@ -196,11 +198,11 @@
                 </div>
                 <div class="hero-buttons">
                     <button class="btn-primary" onclick="openQuoteModal()">
-                        <span>Iniciar Proyecto</span>
+                        <span data-i18n="hero.startProject">Iniciar Proyecto</span>
                         <i class="fas fa-rocket"></i>
                     </button>
                     <button class="btn-secondary" onclick="scrollToContact()">
-                        <span>Contactar Ahora</span>
+                        <span data-i18n="nav.contact">Contactar Ahora</span>
                         <i class="fas fa-envelope"></i>
                     </button>
                 </div>
@@ -215,104 +217,104 @@
 
     <!-- Services Section -->
     <section class="services">
-        <h2>Nuestros Servicios</h2>
-        <p>Lo que hacemos para tu negocio</p>
+                <h2 data-i18n="services.title">Nuestros Servicios</h2>
+        <p data-i18n="services.subtitle">Lo que hacemos para tu negocio</p>
         
         <div class="services-grid">
                 <div class="service-card" onclick="openServiceModal('mobile')">
                     <i class="fas fa-mobile-alt"></i>
-                    <h3>Apps Móviles</h3>
-                    <p>Aplicaciones para iOS y Android</p>
+                    <h3 data-i18n="services.mobile">Apps Móviles</h3>
+                    <p data-i18n="services.mobile.desc">Aplicaciones para iOS y Android</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('website')">
                     <i class="fas fa-laptop-code"></i>
-                    <h3>Sitios Web</h3>
-                    <p>Páginas web profesionales</p>
+                    <h3 data-i18n="services.websites">Sitios Web</h3>
+                    <p data-i18n="services.websites.desc">Páginas web profesionales</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('software')">
                     <i class="fas fa-desktop"></i>
-                    <h3>Software</h3>
-                    <p>Software personalizado</p>
+                    <h3 data-i18n="services.software">Software</h3>
+                    <p data-i18n="services.software.desc">Software personalizado</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('taxi')">
                     <i class="fas fa-taxi"></i>
-                    <h3>Apps para Taxis</h3>
-                    <p>Sistemas de transporte</p>
+                    <h3 data-i18n="services.taxi">Apps para Taxis</h3>
+                    <p data-i18n="services.taxi.desc">Sistemas de transporte</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('restaurant')">
                     <i class="fas fa-utensils"></i>
-                    <h3>Apps para Restaurantes</h3>
-                    <p>Sistemas para restaurantes</p>
+                    <h3 data-i18n="services.restaurant">Apps para Restaurantes</h3>
+                    <p data-i18n="services.restaurant.desc">Sistemas para restaurantes</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('cafe')">
                     <i class="fas fa-coffee"></i>
-                    <h3>Apps para Cafeterías</h3>
-                    <p>Sistemas para cafeterías</p>
+                    <h3 data-i18n="services.cafe">Apps para Cafeterías</h3>
+                    <p data-i18n="services.cafe.desc">Sistemas para cafeterías</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('icecream')">
                     <i class="fas fa-ice-cream"></i>
-                    <h3>Apps para Heladerías</h3>
-                    <p>Sistemas para heladerías</p>
+                    <h3 data-i18n="services.icecream">Apps para Heladerías</h3>
+                    <p data-i18n="services.icecream.desc">Sistemas para heladerías</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('commercial')">
                     <i class="fas fa-store"></i>
-                    <h3>Apps Comerciales</h3>
-                    <p>Sistemas para comercios</p>
+                    <h3 data-i18n="services.commercial">Apps Comerciales</h3>
+                    <p data-i18n="services.commercial.desc">Sistemas para comercios</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('billing')">
                     <i class="fas fa-file-invoice"></i>
-                    <h3>Facturación</h3>
-                    <p>Sistemas de facturación</p>
+                    <h3 data-i18n="services.billing">Facturación</h3>
+                    <p data-i18n="services.billing.desc">Sistemas de facturación</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('sales')">
                     <i class="fas fa-chart-line"></i>
-                    <h3>Ventas</h3>
-                    <p>Sistemas de gestión de ventas</p>
+                    <h3 data-i18n="services.sales">Ventas</h3>
+                    <p data-i18n="services.sales.desc">Sistemas de gestión de ventas</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('ecommerce')">
                     <i class="fas fa-shopping-cart"></i>
-                    <h3>Tiendas Online</h3>
-                    <p>E-commerce y tiendas virtuales</p>
+                    <h3 data-i18n="services.online">Tiendas Online</h3>
+                    <p data-i18n="services.online.desc">E-commerce y tiendas virtuales</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('webapp')">
                     <i class="fas fa-globe"></i>
-                    <h3>Webs Apps</h3>
-                    <p>Aplicaciones web modernas</p>
+                    <h3 data-i18n="services.webapps">Webs Apps</h3>
+                    <p data-i18n="services.webapps.desc">Aplicaciones web modernas</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('betting')">
                     <i class="fas fa-futbol"></i>
-                    <h3>Casa de Apuestas</h3>
-                    <p>Plataformas de apuestas deportivas</p>
+                    <h3 data-i18n="services.betting">Casa de Apuestas</h3>
+                    <p data-i18n="services.betting.desc">Plataformas de apuestas deportivas</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('casino')">
                     <i class="fas fa-dice"></i>
-                    <h3>Casinos Online</h3>
-                    <p>Plataformas de casino virtual</p>
+                    <h3 data-i18n="services.casino">Casinos Online</h3>
+                    <p data-i18n="services.casino.desc">Plataformas de casino virtual</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('church_mobile')">
                     <i class="fas fa-church"></i>
-                    <h3>Apps para Iglesias</h3>
-                    <p>Aplicaciones móviles para iglesias</p>
+                    <h3 data-i18n="services.church_mobile">Apps para Iglesias</h3>
+                    <p data-i18n="services.church_mobile.desc">Aplicaciones móviles para iglesias</p>
                 </div>
                 
                 <div class="service-card" onclick="openServiceModal('church_web')">
                     <i class="fas fa-cross"></i>
-                    <h3>Webs para Iglesias</h3>
-                    <p>Sitios web para iglesias</p>
+                    <h3 data-i18n="services.church_web">Webs para Iglesias</h3>
+                    <p data-i18n="services.church_web.desc">Sitios web para iglesias</p>
                 </div>
         </div>
     </section>
@@ -322,13 +324,13 @@
         <div class="quote-modal-content">
             <span class="close" onclick="closeQuoteModal()">&times;</span>
             <div class="quote-modal-header">
-                <h2>Solicitar Cotización</h2>
-                <p>Cuéntanos sobre tu proyecto para darte la mejor cotización</p>
+                <h2 data-i18n="quote.title">Solicitar Cotización</h2>
+                <p data-i18n="quote.subtitle">Cuéntanos sobre tu proyecto para darte la mejor cotización</p>
             </div>
             <div class="quote-modal-body">
                 <form class="quote-form" onsubmit="submitQuoteForm(); return false;">
                     <div class="form-group">
-                        <label>¿Cuál es el tamaño de tu empresa?</label>
+                        <label data-i18n="quote.companySize">¿Cuál es el tamaño de tu empresa?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona una opción</option>
                             <option value="freelancer">Freelancer/Independiente</option>
@@ -341,7 +343,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿De qué se trata tu empresa? / ¿En qué industria operas?</label>
+                        <label data-i18n="quote.industry">¿De qué se trata tu empresa? / ¿En qué industria operas?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona una opción</option>
                             <option value="tecnologia">Tecnología</option>
@@ -360,7 +362,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Cuándo tienes pensado iniciar tu proyecto?</label>
+                        <label data-i18n="quote.startDate">¿Cuándo tienes pensado iniciar tu proyecto?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona una opción</option>
                             <option value="inmediato">Inmediatamente</option>
@@ -373,7 +375,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Cuál es tu presupuesto aproximado?</label>
+                        <label data-i18n="quote.budget">¿Cuál es tu presupuesto aproximado?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona un rango</option>
                             <option value="menos-1000">Menos de $1,000</option>
@@ -387,7 +389,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Qué tipo de proyecto necesitas?</label>
+                        <label data-i18n="quote.projectType">¿Qué tipo de proyecto necesitas?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona el tipo</option>
                             <option value="sitio-web">Sitio Web</option>
@@ -400,7 +402,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Tienes algún diseño o referencia visual?</label>
+                        <label data-i18n="quote.designRef">¿Tienes algún diseño o referencia visual?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona una opción</option>
                             <option value="si-diseno">Sí, tengo diseños</option>
@@ -411,7 +413,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Necesitas integración con sistemas existentes?</label>
+                        <label data-i18n="quote.integrations">¿Necesitas integración con sistemas existentes?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona una opción</option>
                             <option value="si-pagos">Sí, sistema de pagos</option>
@@ -424,7 +426,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Cuántos usuarios esperas que tenga tu aplicación?</label>
+                        <label data-i18n="quote.expectedUsers">¿Cuántos usuarios esperas que tenga tu aplicación?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona un rango</option>
                             <option value="menos-100">Menos de 100 usuarios</option>
@@ -437,32 +439,32 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Tu nombre completo</label>
-                        <input type="text" class="form-input" placeholder="Ej: Juan Pérez" required>
+                        <label data-i18n="quote.fullName">Tu nombre completo</label>
+                        <input type="text" class="form-input" placeholder="Ej: Juan Pérez" data-i18n-placeholder="quote.fullNamePlaceholder" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Tu email</label>
-                        <input type="email" class="form-input" placeholder="Ej: juan@empresa.com" required>
+                        <label data-i18n="quote.email">Tu email</label>
+                        <input type="email" class="form-input" placeholder="Ej: juan@empresa.com" data-i18n-placeholder="quote.emailPlaceholder" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Nombre de tu empresa (opcional)</label>
-                        <input type="text" class="form-input" placeholder="Ej: Mi Empresa S.A.">
+                        <label data-i18n="quote.companyName">Nombre de tu empresa (opcional)</label>
+                        <input type="text" class="form-input" placeholder="Ej: Mi Empresa S.A." data-i18n-placeholder="quote.companyPlaceholder">
                     </div>
 
                     <div class="form-group">
-                        <label>Cuéntanos más detalles sobre tu proyecto</label>
-                        <textarea class="form-input form-textarea" placeholder="Describe tu proyecto, objetivos, funcionalidades específicas, etc." rows="4"></textarea>
+                        <label data-i18n="quote.projectDetails">Cuéntanos más detalles sobre tu proyecto</label>
+                        <textarea class="form-input form-textarea" placeholder="Describe tu proyecto, objetivos, funcionalidades específicas, etc." data-i18n-placeholder="quote.projectDetailsPlaceholder" rows="4"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>¿Cuáles son los objetivos principales de tu proyecto?</label>
-                        <textarea class="form-input form-textarea" placeholder="Describe qué quieres lograr con este proyecto, qué problemas resuelve, etc." rows="3"></textarea>
+                        <label data-i18n="quote.objectives">¿Cuáles son los objetivos principales de tu proyecto?</label>
+                        <textarea class="form-input form-textarea" placeholder="Describe qué quieres lograr con este proyecto, qué problemas resuelve, etc." data-i18n-placeholder="quote.objectivesPlaceholder" rows="3"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <label>¿A qué público está dirigido tu producto/servicio?</label>
+                        <label data-i18n="quote.targetAudience">¿A qué público está dirigido tu producto/servicio?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona una opción</option>
                             <option value="consumidores">Consumidores finales (B2C)</option>
@@ -475,7 +477,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Tienes recursos internos que participarán en el proyecto?</label>
+                        <label data-i18n="quote.internalResources">¿Tienes recursos internos que participarán en el proyecto?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona una opción</option>
                             <option value="si-desarrollador">Sí, tengo desarrollador</option>
@@ -488,7 +490,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Necesitas soporte y mantenimiento después del lanzamiento?</label>
+                        <label data-i18n="quote.supportMaintenance">¿Necesitas soporte y mantenimiento después del lanzamiento?</label>
                         <select class="form-input" required>
                             <option value="">Selecciona una opción</option>
                             <option value="si-mantenimiento">Sí, necesito mantenimiento</option>
@@ -500,7 +502,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Tienes restricciones legales o de cumplimiento específicas?</label>
+                        <label data-i18n="quote.legalRestrictions">¿Tienes restricciones legales o de cumplimiento específicas?</label>
                         <select class="form-input">
                             <option value="">Selecciona una opción</option>
                             <option value="gdpr">GDPR (Europa)</option>
@@ -514,7 +516,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>¿Cómo nos conociste?</label>
+                        <label data-i18n="quote.howFoundUs">¿Cómo nos conociste?</label>
                         <select class="form-input">
                             <option value="">Selecciona una opción</option>
                             <option value="google">Google</option>
@@ -526,8 +528,8 @@
                     </div>
 
                     <div class="quote-modal-footer">
-                        <button type="button" class="btn-secondary" onclick="closeQuoteModal()">Cancelar</button>
-                        <button type="submit" class="btn-primary">Solicitar Cotización</button>
+                        <button type="button" class="btn-secondary" onclick="closeQuoteModal()" data-i18n="quote.cancel">Cancelar</button>
+                        <button type="submit" class="btn-primary" data-i18n="quote.request">Solicitar Cotización</button>
                     </div>
                 </form>
             </div>
@@ -544,20 +546,20 @@
             </div>
             <div class="service-modal-body">
                 <div class="service-details">
-                    <h3>¿Qué incluye?</h3>
+                    <h3 data-i18n="modal.whatIncludes">¿Qué incluye?</h3>
                     <ul id="modalFeatures"></ul>
                 </div>
                 <div class="service-tech">
-                    <h3>Tecnologías</h3>
+                    <h3 data-i18n="modal.technologies">Tecnologías</h3>
                     <div id="modalTech"></div>
                 </div>
                 <div class="service-delivery">
-                    <h3>Tiempo de entrega</h3>
+                    <h3 data-i18n="modal.deliveryTime">Tiempo de entrega</h3>
                     <p id="modalDelivery"></p>
                 </div>
             </div>
             <div class="service-modal-footer">
-                <button class="btn-primary" onclick="contactForService()">Solicitar Cotización</button>
+                <button class="btn-primary" onclick="contactForService()" data-i18n="quote.request">Solicitar Cotización</button>
             </div>
         </div>
     </div>
@@ -567,8 +569,8 @@
         <div class="container">
             <div class="contact-content">
                 <div class="contact-info">
-                    <h2 class="contact-title">¿Listo para tu próximo proyecto?</h2>
-                    <p class="contact-description">Transformemos tu idea en una solución tecnológica innovadora.</p>
+                    <h2 class="contact-title" data-i18n="contact.title">¿Listo para tu próximo proyecto?</h2>
+                    <p class="contact-description" data-i18n="contact.subtitle">Transformemos tu idea en una solución tecnológica innovadora.</p>
                     
                     <div class="contact-methods">
                         <div class="contact-method">
@@ -589,16 +591,16 @@
                 <div class="contact-form">
                     <form class="form">
                         <div class="form-group">
-                            <input type="text" class="form-input" placeholder="Tu nombre" required>
+                            <input type="text" class="form-input" placeholder="Tu nombre" data-i18n-placeholder="contact.name" required>
                         </div>
                         <div class="form-group">
-                            <input type="email" class="form-input" placeholder="Tu email" required>
+                            <input type="email" class="form-input" placeholder="Tu email" data-i18n-placeholder="contact.email" required>
                         </div>
                         <div class="form-group">
-                            <textarea class="form-input form-textarea" placeholder="Cuéntanos sobre tu proyecto" rows="5" required></textarea>
+                            <textarea class="form-input form-textarea" placeholder="Cuéntanos sobre tu proyecto" data-i18n-placeholder="contact.message" rows="5" required></textarea>
                         </div>
                         <button type="submit" class="btn-primary btn-full">
-                            Enviar Mensaje
+                            <span data-i18n="contact.send">Enviar Mensaje</span>
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </form>
@@ -611,24 +613,24 @@
     <section class="creative-message">
         <div class="container">
             <div class="creative-content">
-                <h2>Podemos diseñar lo que te puedas imaginar</h2>
-                <p>Desde aplicaciones móviles hasta plataformas complejas, desde sitios web hasta sistemas empresariales. Tu imaginación es nuestro límite.</p>
+                <h2 data-i18n="footer.weCanDesign">Podemos diseñar lo que te puedas imaginar</h2>
+                <p data-i18n="footer.description">Desde aplicaciones móviles hasta plataformas complejas, desde sitios web hasta sistemas empresariales. Tu imaginación es nuestro límite.</p>
                 <div class="creative-features">
                     <div class="creative-feature">
                         <i class="fas fa-lightbulb"></i>
-                        <span>Ideas innovadoras</span>
+                        <span data-i18n="footer.innovativeIdeas">Ideas innovadoras</span>
                     </div>
                     <div class="creative-feature">
                         <i class="fas fa-rocket"></i>
-                        <span>Tecnología avanzada</span>
+                        <span data-i18n="footer.advancedTech">Tecnología avanzada</span>
                     </div>
                     <div class="creative-feature">
                         <i class="fas fa-palette"></i>
-                        <span>Diseño personalizado</span>
+                        <span data-i18n="footer.customDesign">Diseño personalizado</span>
                     </div>
                     <div class="creative-feature">
                         <i class="fas fa-cogs"></i>
-                        <span>Funcionalidades únicas</span>
+                        <span data-i18n="footer.uniqueFeatures">Funcionalidades únicas</span>
                     </div>
                 </div>
             </div>
@@ -646,10 +648,10 @@
                 </div>
                 
                 <div class="footer-links">
-                    <a href="quienes-somos.html" class="footer-link">Quiénes Somos</a>
-                    <a href="terminos-condiciones.html" class="footer-link">Términos y Condiciones</a>
-                    <a href="politica-privacidad.html" class="footer-link">Política de Privacidad</a>
-                    <a href="contacto.html" class="footer-link">Contacto</a>
+                    <a href="quienes-somos.html" class="footer-link" data-i18n="nav.about">Quiénes Somos</a>
+                    <a href="terminos-condiciones.html" class="footer-link" data-i18n="nav.terms">Términos y Condiciones</a>
+                    <a href="politica-privacidad.html" class="footer-link" data-i18n="nav.privacy">Política de Privacidad</a>
+                    <a href="contacto.html" class="footer-link" data-i18n="nav.contact">Contacto</a>
                 </div>
                 
                 <div class="footer-social">
@@ -790,5 +792,6 @@
     </style>
     
     <script type="module" src="script.js"></script>
+    <script src="complete-translations.js"></script>
 </body>
 </html>

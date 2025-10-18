@@ -163,6 +163,7 @@ body {
     gap: 1rem;
     align-items: center;
     z-index: 1000;
+    flex-wrap: wrap;
 }
 
 .btn-login, .btn-register {
@@ -265,7 +266,7 @@ body {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
     padding: 2rem 2rem 1.5rem;
     color: white;
     position: relative;
@@ -1416,6 +1417,12 @@ body {
     color: white;
 }
 
+/* Contact methods text color */
+.contact-method span {
+    color: #1f2937 !important;
+    font-weight: 500;
+}
+
 .contact-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -2342,6 +2349,93 @@ body:not(.home-page) .nav-logo {
 
 .btn-primary:hover {
     background: #1e3a8a;
+}
+
+/* Language Switcher */
+.language-switcher {
+    display: flex;
+    gap: 0.25rem;
+    margin-left: 1rem;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 0.5rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Avoid overlap with auth buttons */
+@media (min-width: 769px) {
+    .language-switcher {
+        top: 80px;
+        right: 20px;
+    }
+}
+
+/* On mobile, position it better */
+@media (max-width: 768px) {
+    .language-switcher {
+        top: 10px;
+        right: 10px;
+        padding: 0.25rem;
+    }
+}
+
+/* Removed auth container styles since switcher is now fixed */
+
+.lang-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    min-width: auto;
+}
+
+.lang-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.lang-btn.active {
+    background: #1e40af;
+    border-color: #1e3a8a;
+    color: white;
+    box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
+}
+
+.lang-btn .flag {
+    font-size: 1rem;
+}
+
+/* Removed .text styles to avoid duplication */
+
+/* Responsive for language switcher */
+@media (max-width: 768px) {
+    .language-switcher {
+        top: 10px;
+        right: 10px;
+        padding: 0.25rem;
+    }
+    
+    .lang-btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Removed text hiding to avoid duplication */
 }
 
 /* Responsive for contact page */

@@ -243,7 +243,12 @@ async function loadFiles() {
         
         const filesQuery = collection(db, 'files');
         const filesSnapshot = await getDocs(filesQuery);
-        const filesContainer = document.getElementById('filesList');
+        const filesContainer = document.getElementById('files-grid');
+        
+        if (!filesContainer) {
+            console.warn('Files container not found, skipping files load');
+            return;
+        }
         
         filesContainer.innerHTML = '';
         

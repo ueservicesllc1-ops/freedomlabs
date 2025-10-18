@@ -753,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Redirect to dashboard
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = window.location.origin + '/dashboard.html';
                 }, 1500);
                 
             } catch (error) {
@@ -810,7 +810,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Redirect to dashboard
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = window.location.origin + '/dashboard.html';
                 }, 1500);
                 
             } catch (error) {
@@ -849,7 +849,7 @@ window.loginWithGoogle = async function() {
         
         // Redirect to dashboard
         setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = window.location.origin + '/dashboard.html';
         }, 1500);
         
     } catch (error) {
@@ -885,7 +885,7 @@ window.registerWithGoogle = async function() {
         
         // Redirect to dashboard
         setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = window.location.origin + '/dashboard.html';
         }, 1500);
         
     } catch (error) {
@@ -1233,6 +1233,11 @@ window.openServiceModal = function(serviceType) {
         
         // Delivery
         document.getElementById('modalDelivery').textContent = data.delivery;
+        
+        // Update translations after modal content is set
+        if (window.languageSwitcher) {
+            window.languageSwitcher.updateContent();
+        }
         
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden';

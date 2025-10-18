@@ -13,11 +13,11 @@
         <nav class="nav">
             <div class="nav-brand">
                 <img src="public/images/logowhite.png" alt="Freedom Labs" class="nav-logo">
-                <span class="admin-title">Panel de Administración</span>
+                <span class="admin-title" data-i18n="admin.panel">Panel de Administración</span>
             </div>
             <div class="nav-links">
-                <a href="index.html" class="nav-link">Volver al Sitio</a>
-                <a href="#logout" class="nav-link logout">Cerrar Sesión</a>
+                <a href="index.html" class="nav-link" data-i18n="admin.backToSite">Volver al Sitio</a>
+                <a href="#logout" class="nav-link logout" data-i18n="admin.logout">Cerrar Sesión</a>
             </div>
         </nav>
     </header>
@@ -26,8 +26,8 @@
     <main class="admin-main">
         <div class="container">
             <div class="admin-header">
-                <h1>Panel de Administración</h1>
-                <p>Gestiona las cotizaciones y solicitudes de clientes</p>
+                <h1 data-i18n="admin.panel">Panel de Administración</h1>
+                <p data-i18n="admin.subtitle">Gestiona las cotizaciones y solicitudes de clientes</p>
             </div>
 
             <!-- Stats Cards -->
@@ -144,5 +144,6 @@
 
     <!-- Scripts -->
     <script src="admin.js"></script>
+    <script src="complete-translations.js"></script>
 </body>
 </html>
