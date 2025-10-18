@@ -99,7 +99,7 @@ function startMatrixSequence() {
     // Start the timer immediately
     startMatrixTimer();
     
-    // Wait 3 seconds with Matrix full screen
+    // Wait 8 seconds with Matrix full screen
     setTimeout(() => {
         // Fade Matrix to background
         const canvas = document.getElementById('matrix-canvas');

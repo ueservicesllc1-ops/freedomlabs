@@ -14,20 +14,6 @@
     <!-- Matrix Rain Effect -->
     <canvas id="matrix-canvas"></canvas>
     
-    <!-- Matrix Timer -->
-    <div class="matrix-timer">
-        <div class="analog-clock">
-            <div class="clock-face">
-                <div class="hour-hand" id="hourHand"></div>
-                <div class="minute-hand" id="minuteHand"></div>
-                <div class="second-hand" id="secondHand"></div>
-                <div class="center-dot"></div>
-            </div>
-        </div>
-        <div class="digital-timer">
-            <span id="timerDisplay">00:00</span>
-        </div>
-    </div>
 
     <!-- Page Content -->
     <div class="page-content">
@@ -45,6 +31,11 @@
             </div>
             <button class="btn-dashboard" onclick="window.location.href = '/dashboard.html'" data-i18n="nav.dashboard">Dashboard</button>
             <button class="btn-logout" onclick="logout()" data-i18n="auth.logout">Cerrar Sesión</button>
+            <!-- Language Switcher for logged in users -->
+            <div class="language-switcher" id="userLanguageSwitcher">
+                <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
+                <button class="lang-btn" data-lang="en">🇺🇸 EN</button>
+            </div>
         </div>
 
     <!-- Login Modal -->
