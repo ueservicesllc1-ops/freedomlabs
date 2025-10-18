@@ -35,11 +35,12 @@ app.get('/portfolio.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'portfolio.html'));
 });
 
-// Fallback to index.html for SPA routing
-app.get('*', (req, res) => {
+// Catch-all handler for SPA routing
+app.use((req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Health check available at http://localhost:${PORT}/`);
 });
