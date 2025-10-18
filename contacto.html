@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Freedom Labs</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <img src="public/images/logowhite.png" alt="Freedom Labs" class="nav-logo">
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Inicio</a>
+                <a href="index.html#servicios" class="nav-link">Servicios</a>
+                <a href="contacto.html" class="nav-link">Contacto</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1>Contacto</h1>
+                <p class="page-subtitle">Hablemos sobre tu proyecto</p>
+            </div>
+
+            <div class="contact-page-content">
+                <div class="contact-info-section">
+                    <h2>Información de Contacto</h2>
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Email</h3>
+                                <p>contacto@freedomlabs.com</p>
+                                <p>ventas@freedomlabs.com</p>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="contact-method">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Ubicación</h3>
+                                <p>New Jersey, USA</p>
+                                <p>Oficina Central</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-method">
+                            <div class="contact-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h3>Horarios</h3>
+                                <p>Lunes - Viernes: 9:00 AM - 6:00 PM</p>
+                                <p>Sábados: 10:00 AM - 2:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-form-section">
+                    <h2>Envíanos un Mensaje</h2>
+                    <form class="contact-form" onsubmit="submitContactForm(); return false;">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">Nombre *</label>
+                                <input type="text" id="firstName" name="firstName" class="form-input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Apellido *</label>
+                                <input type="text" id="lastName" name="lastName" class="form-input" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="company">Empresa</label>
+                            <input type="text" id="company" name="company" class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject">Asunto *</label>
+                            <select id="subject" name="subject" class="form-input" required>
+                                <option value="">Selecciona un asunto</option>
+                                <option value="cotizacion">Solicitar Cotización</option>
+                                <option value="consulta">Consulta General</option>
+                                <option value="soporte">Soporte Técnico</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="projectType">Tipo de Proyecto</label>
+                            <select id="projectType" name="projectType" class="form-input">
+                                <option value="">Selecciona el tipo</option>
+                                <option value="sitio-web">Sitio Web</option>
+                                <option value="app-movil">Aplicación Móvil</option>
+                                <option value="app-web">Aplicación Web</option>
+                                <option value="ecommerce">Tienda Online</option>
+                                <option value="sistema-empresarial">Sistema Empresarial</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="budget">Presupuesto Aproximado</label>
+                            <select id="budget" name="budget" class="form-input">
+                                <option value="">Selecciona un rango</option>
+                                <option value="menos-1000">Menos de $1,000</option>
+                                <option value="1000-5000">$1,000 - $5,000</option>
+                                <option value="5000-10000">$5,000 - $10,000</option>
+                                <option value="10000-25000">$10,000 - $25,000</option>
+                                <option value="25000-50000">$25,000 - $50,000</option>
+                                <option value="mas-50000">Más de $50,000</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Mensaje *</label>
+                            <textarea id="message" name="message" class="form-input form-textarea" rows="5" placeholder="Cuéntanos sobre tu proyecto, objetivos, funcionalidades específicas, etc." required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="timeline">¿Cuándo necesitas el proyecto?</label>
+                            <select id="timeline" name="timeline" class="form-input">
+                                <option value="">Selecciona una opción</option>
+                                <option value="inmediato">Inmediatamente</option>
+                                <option value="1-mes">En 1 mes</option>
+                                <option value="2-3-meses">En 2-3 meses</option>
+                                <option value="3-6-meses">En 3-6 meses</option>
+                                <option value="mas-6-meses">Más de 6 meses</option>
+                                <option value="no-seguro">No estoy seguro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="newsletter" name="newsletter">
+                                <span class="checkmark"></span>
+                                Quiero recibir noticias y actualizaciones sobre Freedom Labs
+                            </label>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="privacy" name="privacy" required>
+                                <span class="checkmark"></span>
+                                Acepto la <a href="politica-privacidad.html" target="_blank">Política de Privacidad</a> *
+                            </label>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="button" class="btn-secondary" onclick="resetForm()">Limpiar</button>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-paper-plane"></i>
+                                Enviar Mensaje
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="public/images/logoblack.png" alt="Freedom Labs" class="footer-logo-img">
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="quienes-somos.html" class="footer-link">Quiénes Somos</a>
+                    <a href="terminos-condiciones.html" class="footer-link">Términos y Condiciones</a>
+                    <a href="politica-privacidad.html" class="footer-link">Política de Privacidad</a>
+                    <a href="contacto.html" class="footer-link">Contacto</a>
+                </div>
+                
+                <div class="footer-social">
+                    <a href="#" class="social-link">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Freedom Labs. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        function submitContactForm() {
+            // Get form data
+            const form = document.querySelector('.contact-form');
+            const formData = new FormData(form);
+            
+            // Create contact object
+            const contact = {
+                id: Date.now(),
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                company: formData.get('company'),
+                subject: formData.get('subject'),
+                projectType: formData.get('projectType'),
+                budget: formData.get('budget'),
+                message: formData.get('message'),
+                timeline: formData.get('timeline'),
+                newsletter: formData.get('newsletter') === 'on',
+                privacy: formData.get('privacy') === 'on',
+                date: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
+            contacts.push(contact);
+            localStorage.setItem('contacts', JSON.stringify(contacts));
+            
+            console.log('Contact form submitted:', contact);
+            alert('¡Gracias! Hemos recibido tu mensaje. Te contactaremos pronto.');
+            
+            // Reset form
+            form.reset();
+        }
+        
+        function resetForm() {
+            document.querySelector('.contact-form').reset();
+        }
+    </script>
+</body>
+</html>

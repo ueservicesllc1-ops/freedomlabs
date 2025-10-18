@@ -1,0 +1,30 @@
+{
+  "name": "freedomlabs-portfolio",
+  "version": "1.0.0",
+  "description": "Modern portfolio web app for Freedom Labs",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server.js",
+    "dev:full": "concurrently \"npm run server\" \"npm run dev\""
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.911.0",
+    "@aws-sdk/s3-request-presigner": "^3.911.0",
+    "aos": "^2.3.4",
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "firebase": "^12.4.0",
+    "framer-motion": "^10.16.4",
+    "gsap": "^3.12.2",
+    "lottie-web": "^5.12.2",
+    "multer": "^2.0.2",
+    "three": "^0.158.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

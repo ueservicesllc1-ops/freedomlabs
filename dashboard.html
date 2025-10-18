@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Freedom Labs</title>
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="logo">
+                <img src="public/images/logowhite.png" alt="Freedom Labs" class="logo-img">
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name">Cliente</span>
+                    <span class="user-email">cliente@ejemplo.com</span>
+                </div>
+                <button class="admin-btn" onclick="window.location.href='admin-dashboard.html'">
+                    <i class="fas fa-cog"></i>
+                    Admin
+                </button>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard Sidebar -->
+    <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+            <a href="#overview" class="nav-item active" data-section="overview">
+                <i class="fas fa-chart-pie"></i>
+                <span>Resumen</span>
+            </a>
+            <a href="#projects" class="nav-item" data-section="projects">
+                <i class="fas fa-folder"></i>
+                <span>Mis Proyectos</span>
+            </a>
+            <a href="#messages" class="nav-item" data-section="messages">
+                <i class="fas fa-envelope"></i>
+                <span>Mensajes</span>
+            </a>
+            <a href="#files" class="nav-item" data-section="files">
+                <i class="fas fa-file-alt"></i>
+                <span>Archivos</span>
+            </a>
+            <a href="#gallery" class="nav-item" data-section="gallery">
+                <i class="fas fa-images"></i>
+                <span>Galería</span>
+            </a>
+            <a href="#settings" class="nav-item" data-section="settings">
+                <i class="fas fa-cog"></i>
+                <span>Configuración</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Dashboard Main Content -->
+    <main class="dashboard-main">
+        <!-- Overview Section -->
+        <section id="overview" class="dashboard-section active">
+            <div class="section-header">
+                <h1>Resumen del Proyecto</h1>
+                <p>Bienvenido a tu dashboard personalizado</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>3</h3>
+                        <p>Proyectos Activos</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>15</h3>
+                        <p>Días Restantes</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>75%</h3>
+                        <p>Progreso Total</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>$12,500</h3>
+                        <p>Inversión Total</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <h2>Actividad Reciente</h2>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Nueva funcionalidad agregada</h4>
+                            <p>Se implementó el sistema de autenticación</p>
+                            <span class="activity-time">Hace 2 horas</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-bug"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Bug corregido</h4>
+                            <p>Se solucionó el problema de carga de imágenes</p>
+                            <span class="activity-time">Hace 1 día</span>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <div class="activity-content">
+                            <h4>Archivos subidos</h4>
+                            <p>Se agregaron 5 nuevos archivos al proyecto</p>
+                            <span class="activity-time">Hace 3 días</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="dashboard-section">
+            <div class="section-header">
+                <h1>Mis Proyectos</h1>
+                <button class="btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Nuevo Proyecto
+                </button>
+            </div>
+
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>E-commerce Website</h3>
+                        <span class="project-status active">En Progreso</span>
+                    </div>
+                    <div class="project-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%"></div>
+                        </div>
+                        <span class="progress-text">75% Completado</span>
+                    </div>
+                    <div class="project-details">
+                        <p><i class="fas fa-calendar"></i> Fecha límite: 15 de Enero</p>
+                        <p><i class="fas fa-user"></i> Desarrollador: Juan Pérez</p>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>Mobile App</h3>
+                        <span class="project-status pending">Pendiente</span>
+                    </div>
+                    <div class="project-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 30%"></div>
+                        </div>
+                        <span class="progress-text">30% Completado</span>
+                    </div>
+                    <div class="project-details">
+                        <p><i class="fas fa-calendar"></i> Fecha límite: 28 de Febrero</p>
+                        <p><i class="fas fa-user"></i> Desarrollador: María García</p>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>Landing Page</h3>
+                        <span class="project-status completed">Completado</span>
+                    </div>
+                    <div class="project-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="progress-text">100% Completado</span>
+                    </div>
+                    <div class="project-details">
+                        <p><i class="fas fa-calendar"></i> Completado: 10 de Diciembre</p>
+                        <p><i class="fas fa-user"></i> Desarrollador: Carlos López</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Messages Section -->
+        <section id="messages" class="dashboard-section">
+            <div class="section-header">
+                <h1>Mensajes</h1>
+                <button class="btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Nuevo Mensaje
+                </button>
+            </div>
+
+            <div class="messages-list">
+                <div class="message-item unread">
+                    <div class="message-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <h4>Juan Pérez</h4>
+                            <span class="message-time">Hace 2 horas</span>
+                        </div>
+                        <p>Hola, he terminado la implementación de la funcionalidad de pagos. ¿Podrías revisarla?</p>
+                    </div>
+                </div>
+
+                <div class="message-item">
+                    <div class="message-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <h4>María García</h4>
+                            <span class="message-time">Ayer</span>
+                        </div>
+                        <p>El diseño de la app móvil está listo. Te envío los archivos por correo.</p>
+                    </div>
+                </div>
+
+                <div class="message-item">
+                    <div class="message-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <h4>Carlos López</h4>
+                            <span class="message-time">Hace 3 días</span>
+                        </div>
+                        <p>La landing page ya está en producción. ¿Te parece bien el resultado?</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Files Section -->
+        <section id="files" class="dashboard-section">
+            <div class="section-header">
+                <h1>Archivos del Proyecto</h1>
+                <button class="btn-primary" onclick="openFileUploadModal()">
+                    <i class="fas fa-upload"></i>
+                    Subir Archivo
+                </button>
+            </div>
+
+            <div class="files-grid">
+                <div class="file-item">
+                    <div class="file-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="file-info">
+                        <h4>index.html</h4>
+                        <p>Archivo principal del sitio web</p>
+                        <span class="file-size">2.5 MB</span>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-icon">
+                        <i class="fas fa-file-image"></i>
+                    </div>
+                    <div class="file-info">
+                        <h4>logo.png</h4>
+                        <p>Logo de la empresa</p>
+                        <span class="file-size">1.2 MB</span>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="file-item">
+                    <div class="file-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="file-info">
+                        <h4>propuesta.pdf</h4>
+                        <p>Propuesta del proyecto</p>
+                        <span class="file-size">5.8 MB</span>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn-download">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="dashboard-section">
+            <div class="section-header">
+                <h1>Galería del Proyecto</h1>
+                <button class="btn-primary">
+                    <i class="fas fa-upload"></i>
+                    Subir Captura
+                </button>
+            </div>
+
+            <!-- Gallery Filters -->
+            <div class="gallery-filters">
+                <button class="filter-btn active" data-filter="all">Todas</button>
+                <button class="filter-btn" data-filter="desktop">Desktop</button>
+                <button class="filter-btn" data-filter="mobile">Móvil</button>
+                <button class="filter-btn" data-filter="tablet">Tablet</button>
+            </div>
+
+            <!-- Gallery Grid -->
+            <div class="gallery-grid">
+                <div class="gallery-item" data-category="desktop">
+                    <div class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop" alt="Dashboard Desktop">
+                        <div class="gallery-overlay">
+                            <button class="gallery-btn" onclick="openImageModal(this)">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="gallery-btn" onclick="downloadImage(this)">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h4>Dashboard Principal</h4>
+                        <p>Vista desktop del dashboard principal</p>
+                        <span class="gallery-date">15 de Diciembre, 2024</span>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="mobile">
+                    <div class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500&h=300&fit=crop" alt="App Móvil">
+                        <div class="gallery-overlay">
+                            <button class="gallery-btn" onclick="openImageModal(this)">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="gallery-btn" onclick="downloadImage(this)">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h4>App Móvil</h4>
+                        <p>Interfaz de la aplicación móvil</p>
+                        <span class="gallery-date">12 de Diciembre, 2024</span>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="desktop">
+                    <div class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&h=300&fit=crop" alt="E-commerce">
+                        <div class="gallery-overlay">
+                            <button class="gallery-btn" onclick="openImageModal(this)">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="gallery-btn" onclick="downloadImage(this)">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h4>Tienda Online</h4>
+                        <p>Página de productos del e-commerce</p>
+                        <span class="gallery-date">10 de Diciembre, 2024</span>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="tablet">
+                    <div class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&h=300&fit=crop" alt="Tablet View">
+                        <div class="gallery-overlay">
+                            <button class="gallery-btn" onclick="openImageModal(this)">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="gallery-btn" onclick="downloadImage(this)">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h4>Vista Tablet</h4>
+                        <p>Interfaz optimizada para tablet</p>
+                        <span class="gallery-date">8 de Diciembre, 2024</span>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="mobile">
+                    <div class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&h=300&fit=crop" alt="Mobile Login">
+                        <div class="gallery-overlay">
+                            <button class="gallery-btn" onclick="openImageModal(this)">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="gallery-btn" onclick="downloadImage(this)">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h4>Login Móvil</h4>
+                        <p>Pantalla de inicio de sesión móvil</p>
+                        <span class="gallery-date">5 de Diciembre, 2024</span>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="desktop">
+                    <div class="gallery-image">
+                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop" alt="Admin Panel">
+                        <div class="gallery-overlay">
+                            <button class="gallery-btn" onclick="openImageModal(this)">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            <button class="gallery-btn" onclick="downloadImage(this)">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h4>Panel de Administración</h4>
+                        <p>Interfaz de administración del sistema</p>
+                        <span class="gallery-date">3 de Diciembre, 2024</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Modal -->
+        <div class="image-modal" id="imageModal">
+            <div class="modal-content">
+                <button class="close-modal" onclick="closeImageModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+                <img id="modalImage" src="" alt="">
+                <div class="modal-info">
+                    <h3 id="modalTitle"></h3>
+                    <p id="modalDescription"></p>
+                    <div class="modal-actions">
+                        <button class="btn-primary" onclick="downloadCurrentImage()">
+                            <i class="fas fa-download"></i>
+                            Descargar
+                        </button>
+                        <button class="btn-secondary" onclick="shareImage()">
+                            <i class="fas fa-share"></i>
+                            Compartir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <section id="settings" class="dashboard-section">
+            <div class="section-header">
+                <h1>Configuración</h1>
+            </div>
+
+            <div class="settings-form">
+                <div class="form-group">
+                    <label for="userName">Nombre Completo</label>
+                    <input type="text" id="userName" value="Cliente Ejemplo">
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Correo Electrónico</label>
+                    <input type="email" id="userEmail" value="cliente@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="userPhone">Teléfono</label>
+                    <input type="tel" id="userPhone" value="+1 234 567 8900">
+                </div>
+                <div class="form-group">
+                    <label for="notifications">Notificaciones</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked>
+                            <span>Recibir notificaciones por email</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" checked>
+                            <span>Notificaciones de progreso</span>
+                        </label>
+                    </div>
+                </div>
+                <button class="btn-primary">Guardar Cambios</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- File Upload Modal -->
+    <div class="file-upload-modal" id="fileUploadModal">
+        <div class="file-upload-modal-content">
+            <div class="file-upload-modal-header">
+                <h3>Subir Archivo</h3>
+                <button class="close-modal" onclick="closeFileUploadModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="file-upload-modal-body">
+                <div class="file-upload-tabs">
+                    <button class="upload-tab active" onclick="switchUploadTab('photo')">
+                        <i class="fas fa-image"></i>
+                        Foto
+                    </button>
+                    <button class="upload-tab" onclick="switchUploadTab('file')">
+                        <i class="fas fa-file"></i>
+                        Archivo
+                    </button>
+                    <button class="upload-tab" onclick="switchUploadTab('audio')">
+                        <i class="fas fa-music"></i>
+                        Audio
+                    </button>
+                </div>
+                
+                <div class="upload-content">
+                    <!-- Photo Upload -->
+                    <div class="upload-section active" id="photoUpload">
+                        <div class="upload-area" onclick="document.getElementById('photoInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Arrastra una foto aquí o haz clic para seleccionar</p>
+                            <span>Soporta: JPG, PNG, GIF (máx. 10MB)</span>
+                        </div>
+                        <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handleFileSelect(this, 'photo')">
+                        <div class="file-preview" id="photoPreview"></div>
+                    </div>
+                    
+                    <!-- File Upload -->
+                    <div class="upload-section" id="fileUpload">
+                        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Arrastra un archivo aquí o haz clic para seleccionar</p>
+                            <span>Soporta: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX (máx. 50MB)</span>
+                        </div>
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" style="display: none;" onchange="handleFileSelect(this, 'file')">
+                        <div class="file-preview" id="filePreview"></div>
+                    </div>
+                    
+                    <!-- Audio Upload -->
+                    <div class="upload-section" id="audioUpload">
+                        <div class="upload-area" onclick="document.getElementById('audioInput').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Arrastra un audio aquí o haz clic para seleccionar</p>
+                            <span>Soporta: MP3, WAV, M4A, OGG (máx. 100MB)</span>
+                        </div>
+                        <input type="file" id="audioInput" accept="audio/*" style="display: none;" onchange="handleFileSelect(this, 'audio')">
+                        <div class="file-preview" id="audioPreview"></div>
+                    </div>
+                </div>
+                
+                <div class="file-details">
+                    <div class="form-group">
+                        <label for="fileName">Nombre del archivo:</label>
+                        <input type="text" id="fileName" placeholder="Nombre descriptivo del archivo">
+                    </div>
+                    <div class="form-group">
+                        <label for="fileDescription">Descripción:</label>
+                        <textarea id="fileDescription" placeholder="Descripción del archivo (opcional)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="fileCategory">Categoría:</label>
+                        <select id="fileCategory">
+                            <option value="general">General</option>
+                            <option value="project">Proyecto</option>
+                            <option value="documentation">Documentación</option>
+                            <option value="media">Multimedia</option>
+                            <option value="other">Otro</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="file-upload-modal-footer">
+                <button class="btn-secondary" onclick="closeFileUploadModal()">Cancelar</button>
+                <button class="btn-primary" onclick="uploadFile()" id="uploadBtn" disabled>
+                    <i class="fas fa-upload"></i>
+                    Subir Archivo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Message Modal -->
+    <div class="new-message-modal" id="newMessageModal">
+        <div class="new-message-modal-content">
+            <div class="new-message-modal-header">
+                <h3>Nuevo Mensaje</h3>
+                <button class="close-modal" onclick="closeNewMessageModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="new-message-modal-body">
+                <div class="message-reference-section">
+                    <div class="form-group">
+                        <label for="messageReference">Referencia del mensaje:</label>
+                        <select id="messageReference" required>
+                            <option value="">Selecciona una referencia</option>
+                            <option value="project-update">Actualización de Proyecto</option>
+                            <option value="technical-issue">Problema Técnico</option>
+                            <option value="feature-request">Solicitud de Funcionalidad</option>
+                            <option value="billing-question">Consulta de Facturación</option>
+                            <option value="general-inquiry">Consulta General</option>
+                            <option value="urgent-support">Soporte Urgente</option>
+                            <option value="other">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="messageSubject">Asunto:</label>
+                        <input type="text" id="messageSubject" placeholder="Asunto del mensaje" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="messagePriority">Prioridad:</label>
+                        <select id="messagePriority">
+                            <option value="low">Baja</option>
+                            <option value="medium" selected>Media</option>
+                            <option value="high">Alta</option>
+                            <option value="urgent">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="chat-preview" id="chatPreview" style="display: none;">
+                    <div class="chat-preview-header">
+                        <div class="chat-user-info">
+                            <div class="chat-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="chat-details">
+                                <h4>Soporte Freedom Labs</h4>
+                                <span class="chat-status">En línea</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-preview-messages" id="chatPreviewMessages">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    <div class="chat-preview-input">
+                        <div class="input-group">
+                            <input type="text" placeholder="Escribe tu mensaje..." id="previewMessageInput">
+                            <button class="btn-primary" onclick="sendPreviewMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="new-message-modal-footer">
+                <button class="btn-secondary" onclick="closeNewMessageModal()">Cancelar</button>
+                <button class="btn-primary" onclick="startChat()" id="startChatBtn" disabled>
+                    <i class="fas fa-comments"></i>
+                    Iniciar Chat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="dashboard-script.js"></script>
+</body>
+</html>

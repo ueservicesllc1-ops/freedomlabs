@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freedom Labs - Desarrollo Web & Móvil</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="home-page">
+    <!-- Matrix Rain Effect -->
+    <canvas id="matrix-canvas"></canvas>
+    
+    <!-- Matrix Timer -->
+    <div class="matrix-timer">
+        <div class="analog-clock">
+            <div class="clock-face">
+                <div class="hour-hand" id="hourHand"></div>
+                <div class="minute-hand" id="minuteHand"></div>
+                <div class="second-hand" id="secondHand"></div>
+                <div class="center-dot"></div>
+            </div>
+        </div>
+        <div class="digital-timer">
+            <span id="timerDisplay">00:00</span>
+        </div>
+    </div>
+
+    <!-- Page Content -->
+    <div class="page-content">
+        <!-- Auth Buttons -->
+        <div class="auth-buttons-container">
+            <button class="btn-login" onclick="openLoginModal()">Iniciar Sesión</button>
+            <button class="btn-register" onclick="openRegisterModal()">Registrarse</button>
+        </div>
+
+    <!-- Login Modal -->
+    <div class="auth-modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Iniciar Sesión</h3>
+                <button class="close-modal" onclick="closeLoginModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="auth-form" id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <button type="submit" class="btn-auth">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Iniciar Sesión
+                </button>
+                <div class="divider">
+                </div>
+                <button type="button" class="btn-google" onclick="loginWithGoogle()">
+                    <i class="fab fa-google"></i>
+                    Continuar con Google
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="auth-modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Crear Cuenta</h3>
+                <button class="close-modal" onclick="closeRegisterModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form class="auth-form" id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Nombre Completo</label>
+                    <input type="text" id="registerName" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Correo Electrónico</label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Contraseña</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <button type="submit" class="btn-auth">
+                    <i class="fas fa-user-plus"></i>
+                    Crear Cuenta
+                </button>
+                <div class="divider">
+                </div>
+                <button type="button" class="btn-google" onclick="registerWithGoogle()">
+                    <i class="fab fa-google"></i>
+                    Registrarse con Google
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-background">
+            <!-- Animated Grid -->
+            <div class="tech-grid">
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+                <div class="grid-line"></div>
+            </div>
+            
+            <!-- Floating Code Elements -->
+            <div class="code-elements">
+                <div class="code-block">
+                    <span class="code-line">&lt;div class="app"&gt;</span>
+                    <span class="code-line">&nbsp;&nbsp;&lt;h1&gt;Innovation&lt;/h1&gt;</span>
+                    <span class="code-line">&lt;/div&gt;</span>
+                </div>
+                <div class="code-block">
+                    <span class="code-line">function create() {</span>
+                    <span class="code-line">&nbsp;&nbsp;return "Future";</span>
+                    <span class="code-line">}</span>
+                </div>
+                <div class="code-block">
+                    <span class="code-line">const tech = {</span>
+                    <span class="code-line">&nbsp;&nbsp;ai: true,</span>
+                    <span class="code-line">&nbsp;&nbsp;cloud: true</span>
+                    <span class="code-line">};</span>
+                </div>
+            </div>
+            
+            <!-- Tech Particles -->
+            <div class="tech-particles">
+                <div class="particle particle-celeste"></div>
+                <div class="particle particle-celeste"></div>
+                <div class="particle particle-celeste"></div>
+                <div class="particle particle-celeste"></div>
+                <div class="particle particle-celeste"></div>
+                <div class="particle particle-celeste"></div>
+                <div class="particle particle-celeste"></div>
+                <div class="particle particle-celeste"></div>
+            </div>
+            
+            <!-- Circuit Pattern -->
+            <div class="circuit-pattern">
+                <svg viewBox="0 0 100 100" class="circuit-svg">
+                    <path d="M10,10 L90,10 L90,90 L10,90 Z" class="circuit-path"/>
+                    <circle cx="20" cy="20" r="2" class="circuit-node"/>
+                    <circle cx="80" cy="20" r="2" class="circuit-node"/>
+                    <circle cx="20" cy="80" r="2" class="circuit-node"/>
+                    <circle cx="80" cy="80" r="2" class="circuit-node"/>
+                    <circle cx="50" cy="50" r="3" class="circuit-node main"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-logo">
+                    <div class="logo-container">
+                        <div class="floating-particles">
+                            <div class="particle particle-1 particle-celeste"></div>
+                            <div class="particle particle-2 particle-celeste"></div>
+                            <div class="particle particle-3 particle-celeste"></div>
+                            <div class="particle particle-4 particle-celeste"></div>
+                            <div class="particle particle-5 particle-celeste"></div>
+                            <div class="particle particle-6 particle-celeste"></div>
+                        </div>
+                        <img src="public/images/logoblack.png" alt="Freedom Labs" class="hero-logo-img">
+                    </div>
+                </div>
+                <div class="hero-badge">
+                    <i class="fas fa-code"></i>
+                    <span>Desarrollo Tecnológico</span>
+                </div>
+                <p class="hero-subtitle">
+                    Transformamos ideas en <span class="highlight">soluciones digitales</span> 
+                    con las últimas tecnologías
+                </p>
+                <div class="tech-stack">
+                    <span class="tech-item tech-celeste">React</span>
+                    <span class="tech-item tech-celeste">Node.js</span>
+                    <span class="tech-item tech-celeste">AI/ML</span>
+                    <span class="tech-item tech-celeste">Cloud</span>
+                </div>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="openQuoteModal()">
+                        <span>Iniciar Proyecto</span>
+                        <i class="fas fa-rocket"></i>
+                    </button>
+                    <button class="btn-secondary" onclick="scrollToContact()">
+                        <span>Contactar Ahora</span>
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <div class="scroll-text">Scroll</div>
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services">
+        <h2>Nuestros Servicios</h2>
+        <p>Lo que hacemos para tu negocio</p>
+        
+        <div class="services-grid">
+                <div class="service-card" onclick="openServiceModal('mobile')">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Apps Móviles</h3>
+                    <p>Aplicaciones para iOS y Android</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('website')">
+                    <i class="fas fa-laptop-code"></i>
+                    <h3>Sitios Web</h3>
+                    <p>Páginas web profesionales</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('software')">
+                    <i class="fas fa-desktop"></i>
+                    <h3>Software</h3>
+                    <p>Software personalizado</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('taxi')">
+                    <i class="fas fa-taxi"></i>
+                    <h3>Apps para Taxis</h3>
+                    <p>Sistemas de transporte</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('restaurant')">
+                    <i class="fas fa-utensils"></i>
+                    <h3>Apps para Restaurantes</h3>
+                    <p>Sistemas para restaurantes</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('cafe')">
+                    <i class="fas fa-coffee"></i>
+                    <h3>Apps para Cafeterías</h3>
+                    <p>Sistemas para cafeterías</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('icecream')">
+                    <i class="fas fa-ice-cream"></i>
+                    <h3>Apps para Heladerías</h3>
+                    <p>Sistemas para heladerías</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('commercial')">
+                    <i class="fas fa-store"></i>
+                    <h3>Apps Comerciales</h3>
+                    <p>Sistemas para comercios</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('billing')">
+                    <i class="fas fa-file-invoice"></i>
+                    <h3>Facturación</h3>
+                    <p>Sistemas de facturación</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('sales')">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Ventas</h3>
+                    <p>Sistemas de gestión de ventas</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('ecommerce')">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3>Tiendas Online</h3>
+                    <p>E-commerce y tiendas virtuales</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('webapp')">
+                    <i class="fas fa-globe"></i>
+                    <h3>Webs Apps</h3>
+                    <p>Aplicaciones web modernas</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('betting')">
+                    <i class="fas fa-futbol"></i>
+                    <h3>Casa de Apuestas</h3>
+                    <p>Plataformas de apuestas deportivas</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('casino')">
+                    <i class="fas fa-dice"></i>
+                    <h3>Casinos Online</h3>
+                    <p>Plataformas de casino virtual</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('church_mobile')">
+                    <i class="fas fa-church"></i>
+                    <h3>Apps para Iglesias</h3>
+                    <p>Aplicaciones móviles para iglesias</p>
+                </div>
+                
+                <div class="service-card" onclick="openServiceModal('church_web')">
+                    <i class="fas fa-cross"></i>
+                    <h3>Webs para Iglesias</h3>
+                    <p>Sitios web para iglesias</p>
+                </div>
+        </div>
+    </section>
+
+    <!-- Quote Modal -->
+    <div class="quote-modal" id="quoteModal">
+        <div class="quote-modal-content">
+            <span class="close" onclick="closeQuoteModal()">&times;</span>
+            <div class="quote-modal-header">
+                <h2>Solicitar Cotización</h2>
+                <p>Cuéntanos sobre tu proyecto para darte la mejor cotización</p>
+            </div>
+            <div class="quote-modal-body">
+                <form class="quote-form" onsubmit="submitQuoteForm(); return false;">
+                    <div class="form-group">
+                        <label>¿Cuál es el tamaño de tu empresa?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="freelancer">Freelancer/Independiente</option>
+                            <option value="1-10">1-10 empleados</option>
+                            <option value="11-50">11-50 empleados</option>
+                            <option value="51-200">51-200 empleados</option>
+                            <option value="201-500">201-500 empleados</option>
+                            <option value="500+">Más de 500 empleados</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿De qué se trata tu empresa? / ¿En qué industria operas?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="tecnologia">Tecnología</option>
+                            <option value="salud">Salud/Medicina</option>
+                            <option value="finanzas">Finanzas/Banca</option>
+                            <option value="educacion">Educación</option>
+                            <option value="retail">Retail/Comercio</option>
+                            <option value="restaurantes">Restaurantes/Gastronomía</option>
+                            <option value="inmobiliaria">Inmobiliaria</option>
+                            <option value="logistica">Logística/Transporte</option>
+                            <option value="entretenimiento">Entretenimiento</option>
+                            <option value="gobierno">Gobierno</option>
+                            <option value="sin-fines-lucro">Sin fines de lucro</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Cuándo tienes pensado iniciar tu proyecto?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="inmediato">Inmediatamente</option>
+                            <option value="1-mes">En 1 mes</option>
+                            <option value="2-3-meses">En 2-3 meses</option>
+                            <option value="3-6-meses">En 3-6 meses</option>
+                            <option value="mas-6-meses">Más de 6 meses</option>
+                            <option value="no-seguro">No estoy seguro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Cuál es tu presupuesto aproximado?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona un rango</option>
+                            <option value="menos-1000">Menos de $1,000</option>
+                            <option value="1000-5000">$1,000 - $5,000</option>
+                            <option value="5000-10000">$5,000 - $10,000</option>
+                            <option value="10000-25000">$10,000 - $25,000</option>
+                            <option value="25000-50000">$25,000 - $50,000</option>
+                            <option value="mas-50000">Más de $50,000</option>
+                            <option value="no-seguro">No estoy seguro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Qué tipo de proyecto necesitas?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona el tipo</option>
+                            <option value="sitio-web">Sitio Web</option>
+                            <option value="app-movil">Aplicación Móvil</option>
+                            <option value="app-web">Aplicación Web</option>
+                            <option value="ecommerce">Tienda Online</option>
+                            <option value="sistema-empresarial">Sistema Empresarial</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Tienes algún diseño o referencia visual?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="si-diseno">Sí, tengo diseños</option>
+                            <option value="si-referencias">Sí, tengo referencias</option>
+                            <option value="no-nada">No, necesito ayuda con el diseño</option>
+                            <option value="no-seguro">No estoy seguro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Necesitas integración con sistemas existentes?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="si-pagos">Sí, sistema de pagos</option>
+                            <option value="si-crm">Sí, CRM</option>
+                            <option value="si-inventario">Sí, sistema de inventario</option>
+                            <option value="si-email">Sí, sistema de email</option>
+                            <option value="no-integracion">No, es un proyecto independiente</option>
+                            <option value="no-seguro">No estoy seguro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Cuántos usuarios esperas que tenga tu aplicación?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona un rango</option>
+                            <option value="menos-100">Menos de 100 usuarios</option>
+                            <option value="100-1000">100 - 1,000 usuarios</option>
+                            <option value="1000-10000">1,000 - 10,000 usuarios</option>
+                            <option value="10000-100000">10,000 - 100,000 usuarios</option>
+                            <option value="mas-100000">Más de 100,000 usuarios</option>
+                            <option value="no-seguro">No estoy seguro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tu nombre completo</label>
+                        <input type="text" class="form-input" placeholder="Ej: Juan Pérez" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tu email</label>
+                        <input type="email" class="form-input" placeholder="Ej: juan@empresa.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Nombre de tu empresa (opcional)</label>
+                        <input type="text" class="form-input" placeholder="Ej: Mi Empresa S.A.">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cuéntanos más detalles sobre tu proyecto</label>
+                        <textarea class="form-input form-textarea" placeholder="Describe tu proyecto, objetivos, funcionalidades específicas, etc." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Cuáles son los objetivos principales de tu proyecto?</label>
+                        <textarea class="form-input form-textarea" placeholder="Describe qué quieres lograr con este proyecto, qué problemas resuelve, etc." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿A qué público está dirigido tu producto/servicio?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="consumidores">Consumidores finales (B2C)</option>
+                            <option value="empresas">Empresas (B2B)</option>
+                            <option value="gobierno">Gobierno</option>
+                            <option value="educacion">Estudiantes/Educación</option>
+                            <option value="profesionales">Profesionales</option>
+                            <option value="mixto">Mixto</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Tienes recursos internos que participarán en el proyecto?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="si-desarrollador">Sí, tengo desarrollador</option>
+                            <option value="si-disenador">Sí, tengo diseñador</option>
+                            <option value="si-gerente">Sí, tengo gerente de proyecto</option>
+                            <option value="si-equipo">Sí, tengo equipo completo</option>
+                            <option value="no-recursos">No, necesito todo el equipo</option>
+                            <option value="no-seguro">No estoy seguro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Necesitas soporte y mantenimiento después del lanzamiento?</label>
+                        <select class="form-input" required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="si-mantenimiento">Sí, necesito mantenimiento</option>
+                            <option value="si-soporte">Sí, necesito soporte técnico</option>
+                            <option value="si-ambos">Sí, ambos</option>
+                            <option value="no-necesito">No, solo el desarrollo</option>
+                            <option value="no-seguro">No estoy seguro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Tienes restricciones legales o de cumplimiento específicas?</label>
+                        <select class="form-input">
+                            <option value="">Selecciona una opción</option>
+                            <option value="gdpr">GDPR (Europa)</option>
+                            <option value="hipaa">HIPAA (Salud)</option>
+                            <option value="sox">SOX (Finanzas)</option>
+                            <option value="pci">PCI DSS (Pagos)</option>
+                            <option value="iso">ISO 27001</option>
+                            <option value="no-restricciones">No tengo restricciones</option>
+                            <option value="no-seguro">No estoy seguro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>¿Cómo nos conociste?</label>
+                        <select class="form-input">
+                            <option value="">Selecciona una opción</option>
+                            <option value="google">Google</option>
+                            <option value="redes-sociales">Redes Sociales</option>
+                            <option value="recomendacion">Recomendación</option>
+                            <option value="evento">Evento</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="quote-modal-footer">
+                        <button type="button" class="btn-secondary" onclick="closeQuoteModal()">Cancelar</button>
+                        <button type="submit" class="btn-primary">Solicitar Cotización</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div class="service-modal" id="serviceModal">
+        <div class="service-modal-content">
+            <span class="close" onclick="closeServiceModal()">&times;</span>
+            <div class="service-modal-header">
+                <i id="modalIcon"></i>
+                <h2 id="modalTitle"></h2>
+            </div>
+            <div class="service-modal-body">
+                <div class="service-details">
+                    <h3>¿Qué incluye?</h3>
+                    <ul id="modalFeatures"></ul>
+                </div>
+                <div class="service-tech">
+                    <h3>Tecnologías</h3>
+                    <div id="modalTech"></div>
+                </div>
+                <div class="service-delivery">
+                    <h3>Tiempo de entrega</h3>
+                    <p id="modalDelivery"></p>
+                </div>
+            </div>
+            <div class="service-modal-footer">
+                <button class="btn-primary" onclick="contactForService()">Solicitar Cotización</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h2 class="contact-title">¿Listo para tu próximo proyecto?</h2>
+                    <p class="contact-description">Transformemos tu idea en una solución tecnológica innovadora.</p>
+                    
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <i class="fas fa-envelope"></i>
+                            <span>contacto@freedomlabs.com</span>
+                        </div>
+                        <div class="contact-method">
+                            <i class="fas fa-phone"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </div>
+                        <div class="contact-method">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Ciudad de México, México</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <form class="form">
+                        <div class="form-group">
+                            <input type="text" class="form-input" placeholder="Tu nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" class="form-input" placeholder="Tu email" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-input form-textarea" placeholder="Cuéntanos sobre tu proyecto" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary btn-full">
+                            Enviar Mensaje
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Creative Message Section -->
+    <section class="creative-message">
+        <div class="container">
+            <div class="creative-content">
+                <h2>Podemos diseñar lo que te puedas imaginar</h2>
+                <p>Desde aplicaciones móviles hasta plataformas complejas, desde sitios web hasta sistemas empresariales. Tu imaginación es nuestro límite.</p>
+                <div class="creative-features">
+                    <div class="creative-feature">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Ideas innovadoras</span>
+                    </div>
+                    <div class="creative-feature">
+                        <i class="fas fa-rocket"></i>
+                        <span>Tecnología avanzada</span>
+                    </div>
+                    <div class="creative-feature">
+                        <i class="fas fa-palette"></i>
+                        <span>Diseño personalizado</span>
+                    </div>
+                    <div class="creative-feature">
+                        <i class="fas fa-cogs"></i>
+                        <span>Funcionalidades únicas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="public/images/logoblack.png" alt="Freedom Labs" class="footer-logo-img">
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="quienes-somos.html" class="footer-link">Quiénes Somos</a>
+                    <a href="terminos-condiciones.html" class="footer-link">Términos y Condiciones</a>
+                    <a href="politica-privacidad.html" class="footer-link">Política de Privacidad</a>
+                    <a href="contacto.html" class="footer-link">Contacto</a>
+                </div>
+                
+                <div class="footer-social">
+                    <a href="#" class="social-link">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Freedom Labs. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    </div> <!-- End page-content -->
+
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Test script for modals -->
+    <script>
+        console.log('Test script loaded');
+        
+        // Simple modal functions for testing
+        function openLoginModal() {
+            console.log('Opening login modal...');
+            const modal = document.getElementById('loginModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                console.log('Login modal opened successfully');
+            } else {
+                console.error('Login modal not found');
+            }
+        }
+        
+        function closeLoginModal() {
+            console.log('Closing login modal...');
+            const modal = document.getElementById('loginModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                console.log('Login modal closed successfully');
+            }
+        }
+        
+        function openRegisterModal() {
+            console.log('Opening register modal...');
+            const modal = document.getElementById('registerModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                console.log('Register modal opened successfully');
+            } else {
+                console.error('Register modal not found');
+            }
+        }
+        
+        function closeRegisterModal() {
+            console.log('Closing register modal...');
+            const modal = document.getElementById('registerModal');
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                console.log('Register modal closed successfully');
+            }
+        }
+        
+        // Google functions
+        function loginWithGoogle() {
+            console.log('Google login clicked');
+            alert('Autenticación con Google próximamente');
+        }
+        
+        function registerWithGoogle() {
+            console.log('Google register clicked');
+            alert('Registro con Google próximamente');
+        }
+        
+        // Admin Functions
+        function checkAdminAccess(userEmail) {
+            const adminEmail = 'ueservicesllc1@gmail.com';
+            
+            if (userEmail === adminEmail) {
+                // Add admin button to header
+                addAdminButton();
+            }
+        }
+
+        // Add admin button
+        function addAdminButton() {
+            const authButtons = document.querySelector('.auth-buttons-container');
+            
+            if (authButtons && !document.querySelector('.admin-btn')) {
+                const adminBtn = document.createElement('button');
+                adminBtn.className = 'admin-btn';
+                adminBtn.innerHTML = '<i class="fas fa-cog"></i> Admin';
+                adminBtn.onclick = () => window.location.href = 'admin-dashboard.html';
+                
+                authButtons.appendChild(adminBtn);
+            }
+        }
+    </script>
+    
+    <style>
+        .admin-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .admin-btn:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+        }
+    </style>
+    
+    <script type="module" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Freedom Labs</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <img src="public/images/logowhite.png" alt="Freedom Labs" class="nav-logo">
+                <span class="admin-title">Panel de Administración</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Volver al Sitio</a>
+                <a href="#logout" class="nav-link logout">Cerrar Sesión</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="container">
+            <div class="admin-header">
+                <h1>Panel de Administración</h1>
+                <p>Gestiona las cotizaciones y solicitudes de clientes</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalQuotes">0</h3>
+                        <p>Cotizaciones Totales</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="pendingQuotes">0</h3>
+                        <p>Pendientes</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="completedQuotes">0</h3>
+                        <p>Completadas</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalValue">$0</h3>
+                        <p>Valor Total</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filters">
+                    <select id="statusFilter" class="filter-select">
+                        <option value="all">Todos los estados</option>
+                        <option value="pending">Pendientes</option>
+                        <option value="in-progress">En proceso</option>
+                        <option value="completed">Completadas</option>
+                        <option value="cancelled">Canceladas</option>
+                    </select>
+                    <select id="typeFilter" class="filter-select">
+                        <option value="all">Todos los tipos</option>
+                        <option value="sitio-web">Sitio Web</option>
+                        <option value="app-movil">Aplicación Móvil</option>
+                        <option value="app-web">Aplicación Web</option>
+                        <option value="ecommerce">Tienda Online</option>
+                        <option value="sistema-empresarial">Sistema Empresarial</option>
+                    </select>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar por nombre, empresa o email...">
+                </div>
+            </div>
+
+            <!-- Quotes Table -->
+            <div class="quotes-section">
+                <div class="section-header">
+                    <h2>Cotizaciones</h2>
+                    <button class="btn-primary" onclick="exportQuotes()">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+                
+                <div class="quotes-table-container">
+                    <table class="quotes-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Cliente</th>
+                                <th>Empresa</th>
+                                <th>Tipo de Proyecto</th>
+                                <th>Presupuesto</th>
+                                <th>Estado</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quotesTableBody">
+                            <!-- Quotes will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Quote Detail Modal -->
+    <div class="quote-detail-modal" id="quoteDetailModal">
+        <div class="quote-detail-content">
+            <span class="close" onclick="closeQuoteDetail()">&times;</span>
+            <div class="quote-detail-header">
+                <h2>Detalles de la Cotización</h2>
+            </div>
+            <div class="quote-detail-body" id="quoteDetailBody">
+                <!-- Quote details will be loaded here -->
+            </div>
+            <div class="quote-detail-footer">
+                <button class="btn-secondary" onclick="closeQuoteDetail()">Cerrar</button>
+                <button class="btn-primary" onclick="updateQuoteStatus()">Actualizar Estado</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="admin.js"></script>
+</body>
+</html>
