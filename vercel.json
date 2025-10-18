@@ -1,0 +1,62 @@
+{
+  "rewrites": [
+    {
+      "source": "/dashboard.html",
+      "destination": "/dashboard.html"
+    },
+    {
+      "source": "/admin.html", 
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/contacto.html",
+      "destination": "/contacto.html"
+    },
+    {
+      "source": "/quienes-somos.html",
+      "destination": "/quienes-somos.html"
+    },
+    {
+      "source": "/terminos-condiciones.html",
+      "destination": "/terminos-condiciones.html"
+    },
+    {
+      "source": "/politica-privacidad.html",
+      "destination": "/politica-privacidad.html"
+    },
+    {
+      "source": "/portfolio.html",
+      "destination": "/portfolio.html"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/dashboard.html",
+      "dest": "/dashboard.html"
+    },
+    {
+      "src": "/admin.html",
+      "dest": "/admin.html"
+    },
+    {
+      "src": "/contacto.html", 
+      "dest": "/contacto.html"
+    },
+    {
+      "src": "/quienes-somos.html",
+      "dest": "/quienes-somos.html"
+    },
+    {
+      "src": "/terminos-condiciones.html",
+      "dest": "/terminos-condiciones.html"
+    },
+    {
+      "src": "/politica-privacidad.html",
+      "dest": "/politica-privacidad.html"
+    },
+    {
+      "src": "/portfolio.html",
+      "dest": "/portfolio.html"
+    }
+  ]
+}

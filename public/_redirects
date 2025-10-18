@@ -1,0 +1,11 @@
+# Railway redirects for static files
+/dashboard.html /dashboard.html 200
+/admin.html /admin.html 200
+/contacto.html /contacto.html 200
+/quienes-somos.html /quienes-somos.html 200
+/terminos-condiciones.html /terminos-condiciones.html 200
+/politica-privacidad.html /politica-privacidad.html 200
+/portfolio.html /portfolio.html 200
+
+# Fallback to index.html for SPA routing
+/* /index.html 200
