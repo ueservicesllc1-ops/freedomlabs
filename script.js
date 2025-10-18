@@ -66,6 +66,9 @@ function initMatrixRain() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded');
     
+    // Check authentication status
+    checkAuthStatus();
+    
     // Initialize Matrix Rain first
     initMatrixRain();
     
@@ -748,6 +751,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 localStorage.setItem('user', JSON.stringify(user));
                 
+                // Update UI to show user info
+                checkAuthStatus();
+                
                 // Check admin access
                 checkAdminAccess(email);
                 
@@ -1327,4 +1333,44 @@ window.onclick = function(event) {
     if (event.target === modal) {
         closeServiceModal();
     }
+}
+
+// Check authentication status and update UI
+function checkAuthStatus() {
+    const user = localStorage.getItem('user');
+    const authContainer = document.getElementById('authContainer');
+    const userInfoContainer = document.getElementById('userInfoContainer');
+    
+    if (user) {
+        try {
+            const userData = JSON.parse(user);
+            // Hide auth buttons, show user info
+            if (authContainer) authContainer.style.display = 'none';
+            if (userInfoContainer) {
+                userInfoContainer.style.display = 'flex';
+                // Update user info
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                const userEmailDisplay = document.getElementById('userEmailDisplay');
+                if (userNameDisplay) userNameDisplay.textContent = userData.name || 'Usuario';
+                if (userEmailDisplay) userEmailDisplay.textContent = userData.email || 'usuario@ejemplo.com';
+            }
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+            // Show auth buttons if error
+            if (authContainer) authContainer.style.display = 'flex';
+            if (userInfoContainer) userInfoContainer.style.display = 'none';
+        }
+    } else {
+        // Show auth buttons, hide user info
+        if (authContainer) authContainer.style.display = 'flex';
+        if (userInfoContainer) userInfoContainer.style.display = 'none';
+    }
+}
+
+// Logout function
+function logout() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('language');
+    // Redirect to home page
+    window.location.href = '/';
 }

@@ -13,6 +13,7 @@ class CompleteLanguageSwitcher {
         'nav.privacy': 'Política de Privacidad',
         'nav.portfolio': 'Portfolio',
         'nav.admin': 'Admin',
+        'nav.dashboard': 'Dashboard',
         
         // Auth
         'auth.login': 'Iniciar Sesión',
@@ -240,6 +241,7 @@ class CompleteLanguageSwitcher {
         'nav.privacy': 'Privacy Policy',
         'nav.portfolio': 'Portfolio',
         'nav.admin': 'Admin',
+        'nav.dashboard': 'Dashboard',
         
         // Auth
         'auth.login': 'Login',

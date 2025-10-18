@@ -31,10 +31,20 @@
 
     <!-- Page Content -->
     <div class="page-content">
-        <!-- Auth Buttons -->
-        <div class="auth-buttons-container">
+        <!-- Auth Buttons / User Info -->
+        <div class="auth-buttons-container" id="authContainer">
             <button class="btn-login" onclick="openLoginModal()" data-i18n="auth.login">Iniciar Sesión</button>
             <button class="btn-register" onclick="openRegisterModal()" data-i18n="auth.register">Registrarse</button>
+        </div>
+
+        <!-- User Info (shown when logged in) -->
+        <div class="user-info-container" id="userInfoContainer" style="display: none;">
+            <div class="user-details">
+                <span class="user-name" id="userNameDisplay">Usuario</span>
+                <span class="user-email" id="userEmailDisplay">usuario@ejemplo.com</span>
+            </div>
+            <button class="btn-dashboard" onclick="window.location.href = '/dashboard.html'" data-i18n="nav.dashboard">Dashboard</button>
+            <button class="btn-logout" onclick="logout()" data-i18n="auth.logout">Cerrar Sesión</button>
         </div>
 
     <!-- Login Modal -->
@@ -179,7 +189,7 @@
                             <div class="particle particle-5 particle-celeste"></div>
                             <div class="particle particle-6 particle-celeste"></div>
                         </div>
-                        <img src="public/images/logoblack.png" alt="Freedom Labs" class="hero-logo-img">
+                        <img src="public/images/logoblack.png" alt="Freedom Labs" class="hero-logo-img" onclick="window.location.href = '/'">
                     </div>
                 </div>
                 <div class="hero-badge">
