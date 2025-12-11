@@ -474,7 +474,9 @@ class CompleteLanguageSwitcher {
     
     // Check if switcher already exists in the page
     const existingSwitcher = document.getElementById('languageSwitcher');
-    if (existingSwitcher) {
+    const userSwitcher = document.getElementById('userLanguageSwitcher');
+    
+    if (existingSwitcher || userSwitcher) {
       console.log('Language switcher already exists, using existing one');
       // Just add event listeners to existing switcher
       this.addEventListeners();
@@ -492,17 +494,28 @@ class CompleteLanguageSwitcher {
       </div>
     `;
 
-    // Always insert at the end of body since it's fixed positioned
+    // Only insert if no switcher exists
     document.body.insertAdjacentHTML('beforeend', switcherHTML);
 
     this.addEventListeners();
   }
 
   addEventListeners() {
-    // Add event listeners
+    // Add event listeners to both switchers
     const switcher = document.getElementById('languageSwitcher');
+    const userSwitcher = document.getElementById('userLanguageSwitcher');
+    
     if (switcher) {
       switcher.addEventListener('click', (e) => {
+        const button = e.target.closest('.lang-btn');
+        if (button) {
+          this.changeLanguage(button.dataset.lang);
+        }
+      });
+    }
+    
+    if (userSwitcher) {
+      userSwitcher.addEventListener('click', (e) => {
         const button = e.target.closest('.lang-btn');
         if (button) {
           this.changeLanguage(button.dataset.lang);
