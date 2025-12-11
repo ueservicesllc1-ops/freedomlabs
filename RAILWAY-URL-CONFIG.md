@@ -7,14 +7,13 @@ Las apps de escritorio están configuradas para usar el servidor desplegado en R
 1. `assistant-app/firebase-config-web.js` - Línea ~196
 2. `admin-app/firebase-config-web.js` - Línea ~186
 
-Busca esta línea:
+La URL de Railway ya está configurada:
 ```javascript
-const RAILWAY_URL = 'https://freedomlabs-production.up.railway.app'; // Update this with your actual Railway URL
+const RAILWAY_URL = 'https://freedomlabs-production.up.railway.app';
 ```
 
-Y reemplázala con tu URL real de Railway. Puedes encontrarla en:
-- Tu dashboard de Railway → Settings → Domains
-- O en la URL que aparece cuando haces deploy
+URL de producción: `https://freedomlabs-production.up.railway.app`
+Dominio personalizado: `freedomlabs.dev`
 
 ## Cómo funciona
 

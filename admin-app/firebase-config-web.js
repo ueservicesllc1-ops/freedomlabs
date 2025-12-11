@@ -233,7 +233,7 @@ const createProject = async (name, description, assignedAssistants, files = [], 
 const uploadFilesToB2 = async (files, projectId) => {
   try {
     // Try Railway URL first, then fallback to localhost
-    const RAILWAY_URL = 'https://freedomlabs-production.up.railway.app'; // Update this with your actual Railway URL
+    const RAILWAY_URL = 'https://freedomlabs-production.up.railway.app';
     const LOCAL_URL = 'http://localhost:3001';
     
     let PROXY_SERVER_URL = null;
