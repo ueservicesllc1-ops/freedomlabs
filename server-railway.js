@@ -29,15 +29,15 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '200mb' }));
+app.use(express.urlencoded({ extended: true, limit: '200mb' }));
 
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB limit
+    fileSize: 200 * 1024 * 1024 // 200MB limit for .exe files
   },
   fileFilter: (req, file, cb) => {
     cb(null, true);
@@ -96,8 +96,18 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 // Upload multiple files
 app.post('/api/upload-multiple', upload.array('files', 10), async (req, res) => {
   try {
+    console.log('Upload request received:', {
+      filesCount: req.files ? req.files.length : 0,
+      projectId: req.body.projectId,
+      folder: req.body.folder,
+      contentType: req.headers['content-type']
+    });
+
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ error: 'No files provided' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'No files provided' 
+      });
     }
 
     const { projectId, folder = 'uploads' } = req.body;
@@ -105,6 +115,12 @@ app.post('/api/upload-multiple', upload.array('files', 10), async (req, res) => 
 
     for (let i = 0; i < req.files.length; i++) {
       const file = req.files[i];
+      console.log(`Uploading file ${i + 1}/${req.files.length}:`, {
+        name: file.originalname,
+        size: file.size,
+        mimetype: file.mimetype
+      });
+
       const timestamp = Date.now();
       const fileExtension = path.extname(file.originalname);
       const fileName = `${timestamp}-${i}-${Math.random().toString(36).substring(7)}${fileExtension}`;
@@ -114,7 +130,7 @@ app.post('/api/upload-multiple', upload.array('files', 10), async (req, res) => 
         Bucket: BUCKET_NAME,
         Key: key,
         Body: file.buffer,
-        ContentType: file.mimetype,
+        ContentType: file.mimetype || 'application/octet-stream',
         ACL: 'public-read'
       };
 
@@ -130,8 +146,11 @@ app.post('/api/upload-multiple', upload.array('files', 10), async (req, res) => 
         fileName: file.originalname,
         size: file.size
       });
+
+      console.log(`File ${i + 1} uploaded successfully:`, publicUrl);
     }
 
+    console.log('All files uploaded successfully');
     res.json({
       success: true,
       files: results
@@ -141,7 +160,7 @@ app.post('/api/upload-multiple', upload.array('files', 10), async (req, res) => 
     console.error('Multiple upload error:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message || 'Error uploading files'
     });
   }
 });
@@ -173,8 +192,35 @@ app.delete('/api/delete/:key', async (req, res) => {
   }
 });
 
-// Serve static files from the root directory
-app.use(express.static('.'));
+// Error handling middleware for API routes
+app.use('/api', (err, req, res, next) => {
+  console.error('API Error:', err);
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'El archivo es demasiado grande. Límite: 200MB' 
+      });
+    }
+    return res.status(400).json({ 
+      success: false, 
+      error: `Error al subir archivo: ${err.message}` 
+    });
+  }
+  res.status(500).json({ 
+    success: false, 
+    error: err.message || 'Error interno del servidor' 
+  });
+});
+
+// Serve static files from the root directory (only for non-API routes)
+app.use((req, res, next) => {
+  // Skip static files for API routes
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  express.static('.')(req, res, next);
+});
 
 // Handle specific routes
 app.get('/dashboard.html', (req, res) => {
@@ -205,9 +251,16 @@ app.get('/portfolio.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'portfolio.html'));
 });
 
-// Catch-all handler for SPA routing
+// Catch-all handler for SPA routing (only for non-API routes)
 app.use((req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+  // Don't serve index.html for API routes
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ 
+      success: false, 
+      error: 'API endpoint not found' 
+    });
+  }
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
