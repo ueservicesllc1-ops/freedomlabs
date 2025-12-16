@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freedom Labs - Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="assets/logo.png" alt="Freedom Labs" class="logo">
+                <h1>Freedom Labs Assistant</h1>
+                <p>Inicia sesión para comenzar</p>
+            </div>
+
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label>Email o Usuario</label>
+                    <input type="text" id="loginEmail" placeholder="Ingresa tu email o usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="loginPassword" placeholder="Ingresa tu contraseña" required>
+                </div>
+                <button type="submit" class="btn-primary">Iniciar Sesión</button>
+            </form>
+
+            <div id="authError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboardScreen" class="screen">
+        <header class="app-header">
+            <div class="header-left">
+                <h2>Freedom Labs Assistant</h2>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span id="userNameDisplay"></span>
+                    <span class="status-indicator online" id="statusIndicator"></span>
+                </div>
+                <button id="notificationsBtn" class="btn-secondary" style="margin-right: 10px; position: relative;">
+                    <i class="fas fa-bell"></i>
+                    <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+                </button>
+                <button id="versionBtn" class="btn-secondary" style="margin-right: 10px;">Versión</button>
+                <button id="logoutBtn" class="btn-secondary">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-view="projects">
+                        <i class="fas fa-folder"></i>
+                        <span>Mis Proyectos</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="upload">
+                        <i class="fas fa-upload"></i>
+                        <span>Subir Archivos</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="files">
+                        <i class="fas fa-file"></i>
+                        <span>Mis Archivos</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="stats">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Estadísticas</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="user">
+                        <i class="fas fa-user"></i>
+                        <span>Mi Usuario</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="chat">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <div class="content-area">
+                <!-- Projects View -->
+                <div id="projectsView" class="view active">
+                    <h2>Proyectos Asignados</h2>
+                    <div id="projectsList" class="projects-grid"></div>
+                </div>
+
+                <!-- Project Details View -->
+                <div id="projectDetailsView" class="view">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                        <button id="backToProjectsBtn" class="btn-secondary" style="padding: 8px 16px;">
+                            <i class="fas fa-arrow-left"></i> Volver
+                        </button>
+                        <h2 id="projectDetailsTitle">Detalles del Proyecto</h2>
+                    </div>
+                    <div id="projectDetailsContent"></div>
+                </div>
+
+                <!-- Upload View -->
+                <div id="uploadView" class="view">
+                    <h2>Subir Archivos</h2>
+                    <div class="upload-container">
+                        <div class="form-group">
+                            <label>Seleccionar Proyecto</label>
+                            <select id="uploadProjectSelect"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo de Archivo</label>
+                            <select id="uploadFileType">
+                                <option value="photo">Foto</option>
+                                <option value="video">Video</option>
+                                <option value="audio">Audio</option>
+                            </select>
+                        </div>
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Arrastra archivos aquí o haz clic para seleccionar</p>
+                            <input type="file" id="fileInput" multiple accept="image/*,video/*,audio/*">
+                        </div>
+                        <div id="uploadProgress" class="upload-progress"></div>
+                        <button id="uploadBtn" class="btn-primary" disabled>Subir Archivos</button>
+                    </div>
+                </div>
+
+                <!-- Files View -->
+                <div id="filesView" class="view">
+                    <h2>Mis Archivos</h2>
+                    <div id="filesList" class="files-list"></div>
+                </div>
+
+                <!-- Stats View -->
+                <div id="statsView" class="view">
+                    <h2>Mis Estadísticas</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Horas Totales</h3>
+                            <p id="totalHours">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Proyectos Activos</h3>
+                            <p id="activeProjects">0</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Archivos Subidos</h3>
+                            <p id="totalFiles">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User View -->
+                <div id="userView" class="view">
+                    <h2>Mis Datos</h2>
+                    <div id="userDataContent" class="user-data-container">
+                        <div class="loading-message">Cargando datos...</div>
+                    </div>
+                </div>
+
+                <!-- Chat View -->
+                <div id="chatView" class="view">
+                    <h2>Chat</h2>
+                    <div
+                        style="display: flex; align-items: center; justify-content: center; height: 60vh; flex-direction: column; gap: 20px;">
+                        <i class="fas fa-comments" style="font-size: 64px; color: rgba(255,255,255,0.3);"></i>
+                        <p style="color: rgba(255,255,255,0.5); font-size: 18px; text-align: center;">
+                            Funcionalidad por implementar
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Notifications Modal -->
+        <div id="notificationsModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2>Notificaciones</h2>
+                    <button class="modal-close" id="closeNotificationsModal">&times;</button>
+                </div>
+                <div class="modal-body" id="notificationsList" style="max-height: 500px; overflow-y: auto;">
+                    <div class="loading-message">Cargando notificaciones...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Details Modal -->
+        <div id="notificationDetailsModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2 id="notificationDetailsTitle">Detalles de Notificación</h2>
+                    <button class="modal-close" id="closeNotificationDetailsModal"
+                        onclick="closeNotificationDetailsModalFunc(event)">&times;</button>
+                </div>
+                <div class="modal-body" id="notificationDetailsContent" style="max-height: 600px; overflow-y: auto;">
+                    <!-- Content will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config-web.js"></script>
+    <script src="productivity-tracker.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

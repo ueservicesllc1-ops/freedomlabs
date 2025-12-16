@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="dashboard-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Import Map for Firebase ES Modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "firebase/app": "https://jspm.dev/firebase@12.4.0/app",
+            "firebase/auth": "https://jspm.dev/firebase@12.4.0/auth",
+            "firebase/firestore": "https://jspm.dev/firebase@12.4.0/firestore",
+            "firebase/storage": "https://jspm.dev/firebase@12.4.0/storage"
+        }
+    }
+    </script>
 </head>
 <body>
     <!-- Dashboard Header -->
@@ -66,6 +77,18 @@
                 <i class="fas fa-images"></i>
                 <span data-i18n="dashboard.gallery">Galería</span>
             </a>
+            <a href="#requirements" class="nav-item" data-section="requirements">
+                <i class="fas fa-clipboard-list"></i>
+                <span data-i18n="dashboard.requirements">Requerimientos de Cambio</span>
+            </a>
+            <a href="#costs" class="nav-item" data-section="costs">
+                <i class="fas fa-dollar-sign"></i>
+                <span data-i18n="dashboard.costs">Costos Adicionales</span>
+            </a>
+            <a href="#multimedia" class="nav-item" data-section="multimedia">
+                <i class="fas fa-video"></i>
+                <span>Proyectos Multimedia</span>
+            </a>
             <a href="#settings" class="nav-item" data-section="settings">
                 <i class="fas fa-cog"></i>
                 <span data-i18n="dashboard.settings">Configuración</span>
@@ -89,7 +112,7 @@
                         <i class="fas fa-project-diagram"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>3</h3>
+                        <h3 id="activeProjectsCount">0</h3>
                         <p data-i18n="dashboard.activeProjects">Proyectos Activos</p>
                     </div>
                 </div>
@@ -98,7 +121,7 @@
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>15</h3>
+                        <h3 id="daysRemaining">-</h3>
                         <p data-i18n="dashboard.daysRemaining">Días Restantes</p>
                     </div>
                 </div>
@@ -107,7 +130,7 @@
                         <i class="fas fa-percentage"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>75%</h3>
+                        <h3 id="projectProgress">0%</h3>
                         <p data-i18n="dashboard.totalProgress">Progreso Total</p>
                     </div>
                 </div>
@@ -116,8 +139,31 @@
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div class="stat-content">
-                        <h3>$12,500</h3>
+                        <h3 id="totalInvestment">$0.00</h3>
                         <p data-i18n="dashboard.totalInvestment">Inversión Total</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Information -->
+            <div class="project-info-section">
+                <h2 data-i18n="dashboard.projectInfo">Información del Proyecto</h2>
+                <div class="project-details">
+                    <div class="project-detail-item">
+                        <label data-i18n="dashboard.projectName">Nombre del Proyecto:</label>
+                        <span id="projectName">-</span>
+                    </div>
+                    <div class="project-detail-item">
+                        <label data-i18n="dashboard.projectType">Tipo de Proyecto:</label>
+                        <span id="projectType">-</span>
+                    </div>
+                    <div class="project-detail-item">
+                        <label data-i18n="dashboard.projectStatus">Estado:</label>
+                        <span id="projectStatus" class="status-badge">-</span>
+                    </div>
+                    <div class="project-detail-item">
+                        <label data-i18n="dashboard.projectValue">Valor del Proyecto:</label>
+                        <span id="projectValue" class="project-value">$0.00</span>
                     </div>
                 </div>
             </div>
@@ -125,37 +171,8 @@
             <!-- Recent Activity -->
             <div class="activity-section">
                 <h2 data-i18n="dashboard.recentActivity">Actividad Reciente</h2>
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-code"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4 data-i18n="dashboard.newFeature">Nueva funcionalidad agregada</h4>
-                            <p data-i18n="dashboard.authSystem">Se implementó el sistema de autenticación</p>
-                            <span class="activity-time" data-i18n="dashboard.twoHoursAgo">Hace 2 horas</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-bug"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4 data-i18n="dashboard.bugFixed">Bug corregido</h4>
-                            <p data-i18n="dashboard.imageLoadFixed">Se solucionó el problema de carga de imágenes</p>
-                            <span class="activity-time" data-i18n="dashboard.oneDayAgo">Hace 1 día</span>
-                        </div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fas fa-upload"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4 data-i18n="dashboard.filesUploaded">Archivos subidos</h4>
-                            <p data-i18n="dashboard.fiveNewFiles">Se agregaron 5 nuevos archivos al proyecto</p>
-                            <span class="activity-time" data-i18n="dashboard.threeDaysAgo">Hace 3 días</span>
-                        </div>
-                    </div>
+                <div class="activity-list" id="activityList">
+                    <!-- Activity items will be loaded dynamically from Firebase -->
                 </div>
             </div>
         </section>
@@ -171,56 +188,7 @@
             </div>
 
             <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3>E-commerce Website</h3>
-                        <span class="project-status active" data-i18n="dashboard.inProgress">En Progreso</span>
-                    </div>
-                    <div class="project-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 75%"></div>
-                        </div>
-                        <span class="progress-text" data-i18n="dashboard.seventyFivePercent">75% Completado</span>
-                    </div>
-                    <div class="project-details">
-                        <p><i class="fas fa-calendar"></i> <span data-i18n="dashboard.deadline">Fecha límite</span>: 15 de Enero</p>
-                        <p><i class="fas fa-user"></i> <span data-i18n="dashboard.developer">Desarrollador</span>: Juan Pérez</p>
-                    </div>
-                </div>
-
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3>Mobile App</h3>
-                        <span class="project-status pending" data-i18n="dashboard.pending">Pendiente</span>
-                    </div>
-                    <div class="project-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 30%"></div>
-                        </div>
-                        <span class="progress-text" data-i18n="dashboard.thirtyPercent">30% Completado</span>
-                    </div>
-                    <div class="project-details">
-                        <p><i class="fas fa-calendar"></i> <span data-i18n="dashboard.deadline">Fecha límite</span>: 28 de Febrero</p>
-                        <p><i class="fas fa-user"></i> <span data-i18n="dashboard.developer">Desarrollador</span>: María García</p>
-                    </div>
-                </div>
-
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3>Landing Page</h3>
-                        <span class="project-status completed" data-i18n="dashboard.completed">Completado</span>
-                    </div>
-                    <div class="project-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: 100%"></div>
-                        </div>
-                        <span class="progress-text" data-i18n="dashboard.hundredPercent">100% Completado</span>
-                    </div>
-                    <div class="project-details">
-                        <p><i class="fas fa-calendar"></i> <span data-i18n="dashboard.completedOn">Completado</span>: 10 de Diciembre</p>
-                        <p><i class="fas fa-user"></i> <span data-i18n="dashboard.developer">Desarrollador</span>: Carlos López</p>
-                    </div>
-                </div>
+                <!-- Projects will be loaded dynamically from Firebase -->
             </div>
         </section>
 
@@ -235,44 +203,7 @@
             </div>
 
             <div class="messages-list">
-                <div class="message-item unread">
-                    <div class="message-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <h4>Juan Pérez</h4>
-                            <span class="message-time" data-i18n="dashboard.twoHoursAgo">Hace 2 horas</span>
-                        </div>
-                        <p data-i18n="dashboard.paymentMessage">Hola, he terminado la implementación de la funcionalidad de pagos. ¿Podrías revisarla?</p>
-                    </div>
-                </div>
-
-                <div class="message-item">
-                    <div class="message-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <h4>María García</h4>
-                            <span class="message-time" data-i18n="dashboard.yesterday">Ayer</span>
-                        </div>
-                        <p data-i18n="dashboard.mobileDesignMessage">El diseño de la app móvil está listo. Te envío los archivos por correo.</p>
-                    </div>
-                </div>
-
-                <div class="message-item">
-                    <div class="message-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <h4>Carlos López</h4>
-                            <span class="message-time" data-i18n="dashboard.threeDaysAgo">Hace 3 días</span>
-                        </div>
-                        <p data-i18n="dashboard.landingPageMessage">La landing page ya está en producción. ¿Te parece bien el resultado?</p>
-                    </div>
-                </div>
+                <!-- Messages will be loaded dynamically from Firebase -->
             </div>
         </section>
 
@@ -287,53 +218,7 @@
             </div>
 
             <div class="files-grid">
-                <div class="file-item">
-                    <div class="file-icon">
-                        <i class="fas fa-file-code"></i>
-                    </div>
-                    <div class="file-info">
-                        <h4>index.html</h4>
-                        <p data-i18n="dashboard.mainFile">Archivo principal del sitio web</p>
-                        <span class="file-size">2.5 MB</span>
-                    </div>
-                    <div class="file-actions">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="file-item">
-                    <div class="file-icon">
-                        <i class="fas fa-file-image"></i>
-                    </div>
-                    <div class="file-info">
-                        <h4>logo.png</h4>
-                        <p data-i18n="dashboard.companyLogo">Logo de la empresa</p>
-                        <span class="file-size">1.2 MB</span>
-                    </div>
-                    <div class="file-actions">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="file-item">
-                    <div class="file-icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </div>
-                    <div class="file-info">
-                        <h4>propuesta.pdf</h4>
-                        <p data-i18n="dashboard.projectProposal">Propuesta del proyecto</p>
-                        <span class="file-size">5.8 MB</span>
-                    </div>
-                    <div class="file-actions">
-                        <button class="btn-download">
-                            <i class="fas fa-download"></i>
-                        </button>
-                    </div>
-                </div>
+                <!-- Files will be loaded dynamically from Firebase -->
             </div>
         </section>
 
@@ -357,119 +242,7 @@
 
             <!-- Gallery Grid -->
             <div class="gallery-grid">
-                <div class="gallery-item" data-category="desktop">
-                    <div class="gallery-image">
-                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop" alt="Dashboard Desktop">
-                        <div class="gallery-overlay">
-                            <button class="gallery-btn" onclick="openImageModal(this)">
-                                <i class="fas fa-expand"></i>
-                            </button>
-                            <button class="gallery-btn" onclick="downloadImage(this)">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <h4 data-i18n="dashboard.mainDashboard">Dashboard Principal</h4>
-                        <p data-i18n="dashboard.desktopView">Vista desktop del dashboard principal</p>
-                        <span class="gallery-date" data-i18n="dashboard.december15">15 de Diciembre, 2024</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" data-category="mobile">
-                    <div class="gallery-image">
-                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=500&h=300&fit=crop" alt="App Móvil">
-                        <div class="gallery-overlay">
-                            <button class="gallery-btn" onclick="openImageModal(this)">
-                                <i class="fas fa-expand"></i>
-                            </button>
-                            <button class="gallery-btn" onclick="downloadImage(this)">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <h4 data-i18n="dashboard.mobileApp">App Móvil</h4>
-                        <p data-i18n="dashboard.mobileInterface">Interfaz de la aplicación móvil</p>
-                        <span class="gallery-date" data-i18n="dashboard.december12">12 de Diciembre, 2024</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" data-category="desktop">
-                    <div class="gallery-image">
-                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&h=300&fit=crop" alt="E-commerce">
-                        <div class="gallery-overlay">
-                            <button class="gallery-btn" onclick="openImageModal(this)">
-                                <i class="fas fa-expand"></i>
-                            </button>
-                            <button class="gallery-btn" onclick="downloadImage(this)">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <h4 data-i18n="dashboard.onlineStore">Tienda Online</h4>
-                        <p data-i18n="dashboard.productPage">Página de productos del e-commerce</p>
-                        <span class="gallery-date" data-i18n="dashboard.december10">10 de Diciembre, 2024</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" data-category="tablet">
-                    <div class="gallery-image">
-                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&h=300&fit=crop" alt="Tablet View">
-                        <div class="gallery-overlay">
-                            <button class="gallery-btn" onclick="openImageModal(this)">
-                                <i class="fas fa-expand"></i>
-                            </button>
-                            <button class="gallery-btn" onclick="downloadImage(this)">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <h4 data-i18n="dashboard.tabletView">Vista Tablet</h4>
-                        <p data-i18n="dashboard.tabletOptimized">Interfaz optimizada para tablet</p>
-                        <span class="gallery-date" data-i18n="dashboard.december8">8 de Diciembre, 2024</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" data-category="mobile">
-                    <div class="gallery-image">
-                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=500&h=300&fit=crop" alt="Mobile Login">
-                        <div class="gallery-overlay">
-                            <button class="gallery-btn" onclick="openImageModal(this)">
-                                <i class="fas fa-expand"></i>
-                            </button>
-                            <button class="gallery-btn" onclick="downloadImage(this)">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <h4 data-i18n="dashboard.mobileLogin">Login Móvil</h4>
-                        <p data-i18n="dashboard.mobileLoginScreen">Pantalla de inicio de sesión móvil</p>
-                        <span class="gallery-date" data-i18n="dashboard.december5">5 de Diciembre, 2024</span>
-                    </div>
-                </div>
-
-                <div class="gallery-item" data-category="desktop">
-                    <div class="gallery-image">
-                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&h=300&fit=crop" alt="Admin Panel">
-                        <div class="gallery-overlay">
-                            <button class="gallery-btn" onclick="openImageModal(this)">
-                                <i class="fas fa-expand"></i>
-                            </button>
-                            <button class="gallery-btn" onclick="downloadImage(this)">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="gallery-info">
-                        <h4 data-i18n="dashboard.adminPanel">Panel de Administración</h4>
-                        <p data-i18n="dashboard.adminInterface">Interfaz de administración del sistema</p>
-                        <span class="gallery-date" data-i18n="dashboard.december3">3 de Diciembre, 2024</span>
-                    </div>
-                </div>
+                <!-- Gallery items will be loaded dynamically from Firebase -->
             </div>
         </section>
 
@@ -530,6 +303,60 @@
                     </div>
                 </div>
                 <button class="btn-primary" data-i18n="dashboard.saveChanges">Guardar Cambios</button>
+            </div>
+        </section>
+
+        <!-- Requirements Section -->
+        <section id="requirements" class="dashboard-section">
+            <div class="section-header">
+                <h1>Requerimientos de Cambio</h1>
+                <button class="btn-primary" onclick="openRequirementModal()">
+                    <i class="fas fa-plus"></i>
+                    Nuevo Requerimiento
+                </button>
+            </div>
+
+            <div class="requirements-list" id="requirementsList">
+                <!-- Requirements will be loaded here -->
+                <div class="no-data">
+                    <i class="fas fa-clipboard-list"></i>
+                    <p>No hay requerimientos de cambio</p>
+                    <small>Los requerimientos aparecerán aquí cuando los solicites</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Costs Section -->
+        <section id="costs" class="dashboard-section">
+            <div class="section-header">
+                <h1>Costos Adicionales</h1>
+                <p class="section-description">Revisa y aprueba los costos adicionales propuestos por el administrador</p>
+            </div>
+
+            <div class="costs-list" id="costsList">
+                <!-- Costs will be loaded here -->
+                <div class="no-data">
+                    <i class="fas fa-dollar-sign"></i>
+                    <p>No hay costos adicionales</p>
+                    <small>Los costos adicionales aparecerán aquí cuando el administrador los proponga</small>
+                </div>
+            </div>
+        </section>
+
+        <!-- Multimedia Projects Section -->
+        <section id="multimedia" class="dashboard-section">
+            <div class="section-header">
+                <h1>Proyectos Multimedia</h1>
+                <p class="section-description">Videos y audios de tus proyectos desarrollados</p>
+            </div>
+
+            <div class="multimedia-list" id="multimediaList">
+                <!-- Multimedia projects will be loaded here -->
+                <div class="no-data">
+                    <i class="fas fa-video"></i>
+                    <p>No hay proyectos multimedia</p>
+                    <small>Los proyectos multimedia aparecerán aquí cuando el administrador los suba</small>
+                </div>
             </div>
         </section>
     </main>
@@ -694,6 +521,78 @@
                 <button class="btn-primary" onclick="startChat()" id="startChatBtn" disabled>
                     <i class="fas fa-comments"></i>
                     Iniciar Chat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requirement Modal -->
+    <div class="requirement-modal" id="requirementModal">
+        <div class="requirement-modal-content">
+            <div class="requirement-modal-header">
+                <h3>Nuevo Requerimiento de Cambio</h3>
+                <button class="close-modal" onclick="closeRequirementModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="requirement-modal-body">
+                <div class="form-group">
+                    <label for="requirementTitle">Título del Requerimiento</label>
+                    <input type="text" id="requirementTitle" placeholder="Ej: Cambiar color del botón principal">
+                </div>
+                <div class="form-group">
+                    <label for="requirementDescription">Descripción Detallada</label>
+                    <textarea id="requirementDescription" placeholder="Describe el cambio que necesitas..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="requirementPriority">Prioridad</label>
+                    <select id="requirementPriority">
+                        <option value="low">Baja</option>
+                        <option value="medium" selected>Media</option>
+                        <option value="high">Alta</option>
+                        <option value="urgent">Urgente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="requirementProject">Proyecto Relacionado</label>
+                    <select id="requirementProject">
+                        <option value="">Seleccionar proyecto</option>
+                        <!-- Projects will be loaded here -->
+                    </select>
+                </div>
+            </div>
+            <div class="requirement-modal-footer">
+                <button class="btn-secondary" onclick="closeRequirementModal()">Cancelar</button>
+                <button class="btn-primary" onclick="submitRequirement()">Enviar Requerimiento</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multimedia Viewer Modal -->
+    <div class="multimedia-viewer-modal" id="multimediaViewerModal">
+        <div class="multimedia-viewer-modal-content">
+            <div class="multimedia-viewer-modal-header">
+                <h3 id="multimediaViewerTitle">Proyecto Multimedia</h3>
+                <button class="close-modal" onclick="closeMultimediaViewer()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="multimedia-viewer-modal-body">
+                <div class="multimedia-player" id="multimediaPlayer">
+                    <!-- Video or audio player will be inserted here -->
+                </div>
+                <div class="multimedia-info" id="multimediaInfo">
+                    <h4 id="multimediaDescription"></h4>
+                    <div class="multimedia-meta" id="multimediaMeta">
+                        <!-- Metadata will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            <div class="multimedia-viewer-modal-footer">
+                <button class="btn-secondary" onclick="closeMultimediaViewer()">Cerrar</button>
+                <button class="btn-primary" onclick="downloadMultimedia()" id="downloadMultimediaBtn">
+                    <i class="fas fa-download"></i>
+                    Descargar
                 </button>
             </div>
         </div>

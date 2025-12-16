@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="admin-dashboard-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Import Map for Firebase ES Modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "firebase/app": "https://jspm.dev/firebase@12.4.0/app",
+            "firebase/auth": "https://jspm.dev/firebase@12.4.0/auth",
+            "firebase/firestore": "https://jspm.dev/firebase@12.4.0/firestore",
+            "firebase/storage": "https://jspm.dev/firebase@12.4.0/storage"
+        }
+    }
+    </script>
 </head>
 <body>
     <!-- Admin Header -->
@@ -61,6 +72,21 @@
             <a href="#chat" class="nav-item" data-section="chat">
                 <i class="fas fa-comments"></i>
                 <span>Chat</span>
+            </a>
+            <a href="#requirements" class="nav-item" data-section="requirements">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Requerimientos de Usuarios</span>
+                <span class="notification-badge" id="requirementsBadge">0</span>
+            </a>
+            <a href="#costs" class="nav-item" data-section="costs">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Costos Adicionales</span>
+                <span class="notification-badge" id="costsBadge">0</span>
+            </a>
+            <a href="#multimedia" class="nav-item" data-section="multimedia">
+                <i class="fas fa-video"></i>
+                <span>Proyectos Multimedia</span>
+                <span class="notification-badge" id="multimediaBadge">0</span>
             </a>
             <a href="#settings" class="nav-item" data-section="settings">
                 <i class="fas fa-cog"></i>
@@ -179,27 +205,11 @@
                 </button>
             </div>
 
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3>E-commerce Website</h3>
-                        <span class="project-status active">En Progreso</span>
-                    </div>
-                    <div class="project-info">
-                        <p><i class="fas fa-user"></i> Cliente: Juan Pérez</p>
-                        <p><i class="fas fa-calendar"></i> Fecha límite: 15 de Enero</p>
-                        <p><i class="fas fa-percentage"></i> Progreso: 75%</p>
-                    </div>
-                    <div class="project-actions">
-                        <button class="btn-secondary" onclick="viewProject('1')">
-                            <i class="fas fa-eye"></i>
-                            Ver
-                        </button>
-                        <button class="btn-primary" onclick="editProject('1')">
-                            <i class="fas fa-edit"></i>
-                            Editar
-                        </button>
-                    </div>
+            <div class="projects-grid" id="projects-grid">
+                <!-- Projects will be loaded dynamically from Firebase -->
+                <div class="no-data">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No hay proyectos disponibles</p>
                 </div>
             </div>
         </section>
@@ -214,24 +224,11 @@
                 </button>
             </div>
 
-            <div class="files-grid">
-                <div class="file-item">
-                    <div class="file-icon">
-                        <i class="fas fa-file-pdf"></i>
-                    </div>
-                    <div class="file-info">
-                        <h4>propuesta.pdf</h4>
-                        <p>Propuesta del proyecto E-commerce</p>
-                        <span class="file-meta">Subido por: Juan Pérez • 2 días atrás</span>
-                    </div>
-                    <div class="file-actions">
-                        <button class="btn-download" onclick="downloadFile('propuesta.pdf')">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button class="btn-delete" onclick="deleteFile('propuesta.pdf')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+            <div class="files-grid" id="files-grid">
+                <!-- Files will be loaded dynamically from Firebase -->
+                <div class="no-data">
+                    <i class="fas fa-file"></i>
+                    <p>No hay archivos disponibles</p>
                 </div>
             </div>
         </section>
@@ -242,24 +239,11 @@
                 <h1>Mensajes de Clientes</h1>
             </div>
 
-            <div class="messages-list">
-                <div class="message-item unread">
-                    <div class="message-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-header">
-                            <h4>Juan Pérez</h4>
-                            <span class="message-time">Hace 2 horas</span>
-                        </div>
-                        <p>Hola, necesito una actualización sobre el progreso del proyecto. ¿Podríamos programar una reunión?</p>
-                        <div class="message-actions">
-                            <button class="btn-primary" onclick="replyMessage('1')">
-                                <i class="fas fa-reply"></i>
-                                Responder
-                            </button>
-                        </div>
-                    </div>
+            <div class="messages-list" id="messages-list">
+                <!-- Messages will be loaded dynamically from Firebase -->
+                <div class="no-data">
+                    <i class="fas fa-envelope"></i>
+                    <p>No hay mensajes disponibles</p>
                 </div>
             </div>
         </section>
@@ -277,16 +261,10 @@
                         <input type="text" placeholder="Buscar conversaciones..." id="chatSearch">
                     </div>
                     <div class="chat-list" id="chatList">
-                        <div class="chat-item active" data-user="juan">
-                            <div class="chat-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="chat-info">
-                                <h4>Juan Pérez</h4>
-                                <p>Último mensaje: Hola, necesito una actualización...</p>
-                                <span class="chat-time">Hace 2 horas</span>
-                            </div>
-                            <div class="chat-badge">3</div>
+                        <!-- Chat conversations will be loaded dynamically from Firebase -->
+                        <div class="no-data">
+                            <i class="fas fa-comments"></i>
+                            <p>No hay conversaciones disponibles</p>
                         </div>
                     </div>
                 </div>
@@ -297,31 +275,24 @@
                                 <i class="fas fa-user"></i>
                             </div>
                             <div class="chat-details">
-                                <h4>Juan Pérez</h4>
-                                <span class="chat-status">En línea</span>
+                                <h4>Selecciona un chat</h4>
+                                <span class="chat-status">Sin conversación activa</span>
                             </div>
                         </div>
                         <div class="chat-actions">
-                            <button class="btn-secondary" onclick="callUser('juan')">
+                            <button class="btn-secondary" disabled>
                                 <i class="fas fa-phone"></i>
                             </button>
-                            <button class="btn-secondary" onclick="videoCall('juan')">
+                            <button class="btn-secondary" disabled>
                                 <i class="fas fa-video"></i>
                             </button>
                         </div>
                     </div>
                     <div class="chat-messages" id="chatMessages">
-                        <div class="message received">
-                            <div class="message-content">
-                                <p>Hola, necesito una actualización sobre el progreso del proyecto.</p>
-                                <span class="message-time">14:30</span>
-                            </div>
-                        </div>
-                        <div class="message sent">
-                            <div class="message-content">
-                                <p>Hola Juan, el proyecto va muy bien. Estamos al 75% de completado.</p>
-                                <span class="message-time">14:32</span>
-                            </div>
+                        <!-- Chat messages will be loaded dynamically from Firebase -->
+                        <div class="no-data">
+                            <i class="fas fa-comment"></i>
+                            <p>Selecciona una conversación para ver los mensajes</p>
                         </div>
                     </div>
                     <div class="chat-input">
@@ -369,6 +340,77 @@
                     </div>
                 </div>
                 <button class="btn-primary">Guardar Configuración</button>
+            </div>
+        </section>
+
+        <!-- Requirements Section -->
+        <section id="requirements" class="admin-section">
+            <div class="section-header">
+                <h1>Requerimientos de Usuarios</h1>
+                <div class="section-actions">
+                    <button class="btn-secondary" onclick="loadAdminRequirements()">
+                        <i class="fas fa-sync"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="requirements-admin-list" id="adminRequirementsList">
+                <!-- Requirements will be loaded here -->
+                <div class="no-data">
+                    <i class="fas fa-clipboard-list"></i>
+                    <p>Cargando requerimientos...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Costs Section -->
+        <section id="costs" class="admin-section">
+            <div class="section-header">
+                <h1>Costos Adicionales</h1>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="openCostCreationModal()">
+                        <i class="fas fa-plus"></i>
+                        Crear Costo
+                    </button>
+                    <button class="btn-secondary" onclick="loadAdminCosts()">
+                        <i class="fas fa-sync"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="costs-admin-list" id="adminCostsList">
+                <!-- Costs will be loaded here -->
+                <div class="no-data">
+                    <i class="fas fa-dollar-sign"></i>
+                    <p>Cargando costos...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Multimedia Projects Section -->
+        <section id="multimedia" class="admin-section">
+            <div class="section-header">
+                <h1>Proyectos Multimedia</h1>
+                <div class="section-actions">
+                    <button class="btn-primary" onclick="openMultimediaUploadModal()">
+                        <i class="fas fa-upload"></i>
+                        Subir Multimedia
+                    </button>
+                    <button class="btn-secondary" onclick="loadMultimediaProjects()">
+                        <i class="fas fa-sync"></i>
+                        Actualizar
+                    </button>
+                </div>
+            </div>
+
+            <div class="multimedia-admin-list" id="adminMultimediaList">
+                <!-- Multimedia projects will be loaded here -->
+                <div class="no-data">
+                    <i class="fas fa-video"></i>
+                    <p>Cargando proyectos multimedia...</p>
+                </div>
             </div>
         </section>
     </main>
@@ -467,7 +509,7 @@
     <div class="project-upload-modal" id="projectUploadModal">
         <div class="project-upload-modal-content">
             <div class="project-upload-modal-header">
-                <h3>Subir Proyecto</h3>
+                <h3>Crear Proyecto</h3>
                 <button class="close-modal" onclick="closeProjectUploadModal()">
                     <i class="fas fa-times"></i>
                 </button>
@@ -513,6 +555,37 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="projectPrice">Precio Acordado (USD):</label>
+                        <input type="number" id="projectPrice" placeholder="0.00" step="0.01" min="0" required>
+                        <small class="form-help">Ingresa el precio acordado con el cliente</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="projectUser">Usuario del Proyecto:</label>
+                        <div class="user-selector">
+                            <div class="user-selector-header">
+                                <select id="projectUser" required onchange="handleUserSelection()">
+                                    <option value="">Selecciona un usuario</option>
+                                    <option value="new">+ Crear nuevo usuario</option>
+                                </select>
+                                <button type="button" class="btn-reload-users" onclick="loadUsersForProject()" title="Recargar usuarios">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                            <div id="newUserForm" class="new-user-form" style="display: none;">
+                                <input type="email" id="newUserEmail" placeholder="Email del cliente" onchange="checkUserExists()">
+                                <input type="text" id="newUserName" placeholder="Nombre del cliente (opcional)">
+                                <div id="userStatus" class="user-status"></div>
+                                <button type="button" class="btn-create-user" onclick="createNewUser()">
+                                    <i class="fas fa-user-plus"></i>
+                                    Crear Usuario
+                                </button>
+                            </div>
+                        </div>
+                        <small class="form-help">Selecciona el usuario para este proyecto o crea uno nuevo</small>
+                    </div>
+                    
+                    <div class="form-group">
                         <label for="projectImage">Imagen del Proyecto:</label>
                         <div class="image-upload-area" onclick="document.getElementById('projectImageInput').click()">
                             <i class="fas fa-cloud-upload-alt"></i>
@@ -536,8 +609,8 @@
             <div class="project-upload-modal-footer">
                 <button class="btn-secondary" onclick="closeProjectUploadModal()">Cancelar</button>
                 <button class="btn-primary" onclick="uploadProject()" id="uploadProjectBtn" disabled>
-                    <i class="fas fa-upload"></i>
-                    Subir Proyecto
+                    <i class="fas fa-plus"></i>
+                    Crear Proyecto
                 </button>
             </div>
         </div>
@@ -669,6 +742,207 @@
                         <i class="fas fa-paper-plane"></i>
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Edit Modal -->
+    <div class="user-edit-modal" id="userEditModal">
+        <div class="user-edit-modal-content">
+            <div class="user-edit-modal-header">
+                <h3>Editar Usuario</h3>
+                <button class="close-modal" onclick="closeUserEditModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="user-edit-modal-body">
+                <div class="form-group">
+                    <label for="editUserName">Nombre Completo</label>
+                    <input type="text" id="editUserName" placeholder="Nombre del usuario">
+                </div>
+                <div class="form-group">
+                    <label for="editUserEmail">Correo Electrónico</label>
+                    <input type="email" id="editUserEmail" placeholder="correo@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="editUserPhone">Teléfono</label>
+                    <input type="tel" id="editUserPhone" placeholder="+1 234 567 8900">
+                </div>
+                <div class="form-group">
+                    <label for="editUserStatus">Estado</label>
+                    <select id="editUserStatus">
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                        <option value="suspended">Suspendido</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editUserRole">Rol</label>
+                    <select id="editUserRole">
+                        <option value="client">Cliente</option>
+                        <option value="developer">Desarrollador</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editUserNotes">Notas</label>
+                    <textarea id="editUserNotes" placeholder="Notas adicionales sobre el usuario..."></textarea>
+                </div>
+            </div>
+            <div class="user-edit-modal-footer">
+                <button class="btn-secondary" onclick="closeUserEditModal()">Cancelar</button>
+                <button class="btn-primary" onclick="saveUserChanges()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost Creation Modal -->
+    <div class="cost-creation-modal" id="costCreationModal">
+        <div class="cost-creation-modal-content">
+            <div class="cost-creation-modal-header">
+                <h3>Crear Costo Adicional</h3>
+                <button class="close-modal" onclick="closeCostCreationModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="cost-creation-modal-body">
+                <!-- 1. Seleccionar Usuario -->
+                <div class="form-group">
+                    <label for="adminCostUser">1. Seleccionar Usuario</label>
+                    <select id="adminCostUser" onchange="loadUserProjectsAndRequirements()">
+                        <option value="">Seleccionar usuario</option>
+                        <!-- Users will be loaded here -->
+                    </select>
+                </div>
+                
+                <!-- 2. Seleccionar Proyecto -->
+                <div class="form-group">
+                    <label for="adminCostProject">2. Seleccionar Proyecto</label>
+                    <select id="adminCostProject">
+                        <option value="">Seleccionar proyecto</option>
+                        <!-- Projects will be loaded here -->
+                    </select>
+                </div>
+                
+                <!-- 3. Seleccionar Requerimiento -->
+                <div class="form-group">
+                    <label for="adminCostRequirement">3. Seleccionar Requerimiento</label>
+                    <select id="adminCostRequirement">
+                        <option value="">Seleccionar requerimiento</option>
+                        <!-- Requirements will be loaded here -->
+                    </select>
+                </div>
+                
+                <!-- 4. Título del Costo -->
+                <div class="form-group">
+                    <label for="adminCostTitle">4. Título del Costo</label>
+                    <input type="text" id="adminCostTitle" placeholder="Ej: Implementación de funcionalidad de pago">
+                </div>
+                
+                <!-- 5. Monto -->
+                <div class="form-group">
+                    <label for="adminCostAmount">5. Monto</label>
+                    <input type="number" id="adminCostAmount" placeholder="0.00" step="0.01" min="0">
+                </div>
+                
+                <!-- 6. Prioridad -->
+                <div class="form-group">
+                    <label for="adminCostPriority">6. Prioridad del Costo</label>
+                    <select id="adminCostPriority">
+                        <option value="low">Baja</option>
+                        <option value="medium" selected>Media</option>
+                        <option value="high">Alta</option>
+                        <option value="urgent">Urgente</option>
+                    </select>
+                </div>
+                
+                <!-- Descripción (opcional) -->
+                <div class="form-group">
+                    <label for="adminCostDescription">Descripción (Opcional)</label>
+                    <textarea id="adminCostDescription" placeholder="Describe el costo adicional..."></textarea>
+                </div>
+            </div>
+            <div class="cost-creation-modal-footer">
+                <button class="btn-secondary" onclick="closeCostCreationModal()">Cancelar</button>
+                <button class="btn-primary" onclick="submitAdminCost()">Crear Costo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Multimedia Upload Modal -->
+    <div class="multimedia-upload-modal" id="multimediaUploadModal">
+        <div class="multimedia-upload-modal-content">
+            <div class="multimedia-upload-modal-header">
+                <h3>Subir Proyecto Multimedia</h3>
+                <button class="close-modal" onclick="closeMultimediaUploadModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="multimedia-upload-modal-body">
+                <!-- 1. Seleccionar Usuario -->
+                <div class="form-group">
+                    <label for="multimediaUser">1. Seleccionar Usuario</label>
+                    <select id="multimediaUser">
+                        <option value="">Seleccionar usuario</option>
+                        <!-- Users will be loaded here -->
+                    </select>
+                </div>
+                
+                <!-- 2. Tipo de Multimedia -->
+                <div class="form-group">
+                    <label for="multimediaType">2. Tipo de Multimedia</label>
+                    <select id="multimediaType" onchange="updateFileInput()">
+                        <option value="">Seleccionar tipo</option>
+                        <option value="video">Video</option>
+                        <option value="audio">Audio</option>
+                    </select>
+                </div>
+                
+                <!-- 3. Título del Proyecto -->
+                <div class="form-group">
+                    <label for="multimediaTitle">3. Título del Proyecto</label>
+                    <input type="text" id="multimediaTitle" placeholder="Ej: Demo de aplicación móvil">
+                </div>
+                
+                <!-- 4. Descripción -->
+                <div class="form-group">
+                    <label for="multimediaDescription">4. Descripción</label>
+                    <textarea id="multimediaDescription" placeholder="Describe el proyecto multimedia..."></textarea>
+                </div>
+                
+                <!-- 5. Archivo Multimedia -->
+                <div class="form-group">
+                    <label for="multimediaFile">5. Archivo Multimedia</label>
+                    <input type="file" id="multimediaFile" accept="video/*,audio/*" onchange="previewMultimedia()">
+                    <div class="file-preview" id="multimediaPreview" style="display: none;">
+                        <div class="preview-content">
+                            <div class="preview-info">
+                                <span class="file-name"></span>
+                                <span class="file-size"></span>
+                            </div>
+                            <div class="preview-media">
+                                <video id="videoPreview" controls style="display: none; width: 100%; max-height: 200px;"></video>
+                                <audio id="audioPreview" controls style="display: none; width: 100%;"></audio>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 6. Proyecto Relacionado (Opcional) -->
+                <div class="form-group">
+                    <label for="multimediaRelatedProject">6. Proyecto Relacionado (Opcional)</label>
+                    <select id="multimediaRelatedProject">
+                        <option value="">Seleccionar proyecto relacionado</option>
+                        <!-- Projects will be loaded here -->
+                    </select>
+                </div>
+            </div>
+            <div class="multimedia-upload-modal-footer">
+                <button class="btn-secondary" onclick="closeMultimediaUploadModal()">Cancelar</button>
+                <button class="btn-primary" onclick="uploadMultimediaProject()" id="uploadMultimediaBtn" disabled>
+                    <i class="fas fa-upload"></i>
+                    Subir Multimedia
+                </button>
             </div>
         </div>
     </div>

@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "firebase/firestore";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -17,10 +17,48 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Firebase Authentication and get a reference to the service
-export const auth = getAuth(app);
+// Delay initialization slightly to ensure modules are fully loaded
+let auth;
+let db;
 
-// Initialize Cloud Firestore and get a reference to the service
-export const db = getFirestore(app);
+// Use requestAnimationFrame or setTimeout to ensure modules are ready
+const initFirebaseServices = () => {
+  try {
+    if (!auth) {
+      auth = getAuth(app);
+    }
+    if (!db) {
+      db = getFirestore(app);
+    }
+  } catch (error) {
+    console.error('Error initializing Firebase services:', error);
+    // Retry after a short delay
+    setTimeout(() => {
+      try {
+        if (!auth) auth = getAuth(app);
+        if (!db) db = getFirestore(app);
+      } catch (retryError) {
+        console.error('Firebase services initialization failed after retry:', retryError);
+      }
+    }, 200);
+  }
+};
+
+// Try immediate initialization
+try {
+  auth = getAuth(app);
+  db = getFirestore(app);
+} catch (error) {
+  console.warn('Firebase services not ready, initializing asynchronously...', error);
+  // Initialize asynchronously
+  if (typeof requestAnimationFrame !== 'undefined') {
+    requestAnimationFrame(initFirebaseServices);
+  } else {
+    setTimeout(initFirebaseServices, 0);
+  }
+}
+
+export { auth, db };
 
 // Auth functions
 export const signIn = (email, password) => {

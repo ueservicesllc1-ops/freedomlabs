@@ -225,11 +225,47 @@ class CompleteLanguageSwitcher {
         'dashboard.emailNotifications': 'Recibir notificaciones por email',
         'dashboard.progressNotifications': 'Notificaciones de progreso',
         'dashboard.saveChanges': 'Guardar Cambios',
+        'dashboard.projectInfo': 'Información del Proyecto',
+        'dashboard.projectName': 'Nombre del Proyecto:',
+        'dashboard.projectType': 'Tipo de Proyecto:',
+        'dashboard.projectStatus': 'Estado:',
+        'dashboard.projectValue': 'Valor del Proyecto:',
         
         // Modal translations
         'modal.whatIncludes': '¿Qué incluye?',
         'modal.technologies': 'Tecnologías',
-        'modal.deliveryTime': 'Tiempo de entrega'
+        'modal.deliveryTime': 'Tiempo de entrega',
+        
+        // Project Management translations
+        'project.title': 'Gestión de Proyecto',
+        'project.subtitle': 'Configura el valor del proyecto y los extras',
+        'project.info': 'Información del Proyecto',
+        'project.name': 'Nombre del Proyecto:',
+        'project.namePlaceholder': 'Ej: Sitio Web Corporativo',
+        'project.client': 'Cliente:',
+        'project.type': 'Tipo de Proyecto:',
+        'project.pricing': 'Valor del Proyecto',
+        'project.basePrice': 'Precio Base (USD):',
+        'project.basePricePlaceholder': '0.00',
+        'project.basePriceDisplay': 'Precio Base:',
+        'project.extrasDisplay': 'Extras:',
+        'project.totalDisplay': 'Total:',
+        'project.extras': 'Extras del Proyecto',
+        'project.addExtra': 'Agregar Extra',
+        'project.extraNamePlaceholder': 'Nombre del extra (ej: Chat en vivo)',
+        'project.extraPricePlaceholder': 'Precio',
+        'project.cancel': 'Cancelar',
+        'project.save': 'Guardar Proyecto',
+        'project.saved': 'Proyecto guardado exitosamente',
+        'project.manage': 'Gestionar Proyecto',
+        'project.valueColumn': 'Valor Proyecto',
+        'project.notDefined': 'No definido',
+        'project.clientEmail': 'Email del Cliente',
+        'project.clientEmailPlaceholder': 'cliente@empresa.com',
+        'project.createUser': 'Crear Usuario',
+        'project.userExists': 'Usuario existe',
+        'project.userNotExists': 'Usuario no existe - Puede crear uno nuevo',
+        'project.userCreated': 'Usuario creado exitosamente - Se vinculará automáticamente cuando se registre'
       },
       en: {
         // Navigation
@@ -453,11 +489,47 @@ class CompleteLanguageSwitcher {
         'dashboard.emailNotifications': 'Receive email notifications',
         'dashboard.progressNotifications': 'Progress notifications',
         'dashboard.saveChanges': 'Save Changes',
+        'dashboard.projectInfo': 'Project Information',
+        'dashboard.projectName': 'Project Name:',
+        'dashboard.projectType': 'Project Type:',
+        'dashboard.projectStatus': 'Status:',
+        'dashboard.projectValue': 'Project Value:',
         
         // Modal translations
         'modal.whatIncludes': 'What includes?',
         'modal.technologies': 'Technologies',
-        'modal.deliveryTime': 'Delivery time'
+        'modal.deliveryTime': 'Delivery time',
+        
+        // Project Management translations
+        'project.title': 'Project Management',
+        'project.subtitle': 'Configure project value and extras',
+        'project.info': 'Project Information',
+        'project.name': 'Project Name:',
+        'project.namePlaceholder': 'Ex: Corporate Website',
+        'project.client': 'Client:',
+        'project.type': 'Project Type:',
+        'project.pricing': 'Project Value',
+        'project.basePrice': 'Base Price (USD):',
+        'project.basePricePlaceholder': '0.00',
+        'project.basePriceDisplay': 'Base Price:',
+        'project.extrasDisplay': 'Extras:',
+        'project.totalDisplay': 'Total:',
+        'project.extras': 'Project Extras',
+        'project.addExtra': 'Add Extra',
+        'project.extraNamePlaceholder': 'Extra name (ex: Live Chat)',
+        'project.extraPricePlaceholder': 'Price',
+        'project.cancel': 'Cancel',
+        'project.save': 'Save Project',
+        'project.saved': 'Project saved successfully',
+        'project.manage': 'Manage Project',
+        'project.valueColumn': 'Project Value',
+        'project.notDefined': 'Not defined',
+        'project.clientEmail': 'Client Email',
+        'project.clientEmailPlaceholder': 'client@company.com',
+        'project.createUser': 'Create User',
+        'project.userExists': 'User exists',
+        'project.userNotExists': 'User does not exist - You can create a new one',
+        'project.userCreated': 'User created successfully - Will be linked automatically when they register'
       }
     };
     

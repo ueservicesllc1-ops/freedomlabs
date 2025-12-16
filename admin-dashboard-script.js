@@ -1,54 +1,84 @@
 // Admin Dashboard JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('Admin Dashboard loaded successfully');
     
-    // Check admin access
-    checkAdminAccess();
-    
-    // Initialize dashboard
-    initializeAdminDashboard();
+    // Initialize dashboard (this will check admin access)
+    await initializeAdminDashboard();
     
     // Setup navigation
     setupAdminNavigation();
     
     // Setup interactions
     setupAdminInteractions();
-    
-    // Load data
-    loadAdminData();
 });
 
 // Check admin access
-function checkAdminAccess() {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const adminEmail = 'ueservicesllc1@gmail.com';
-    
-    if (user.email !== adminEmail) {
-        // Redirect to main page if not admin
+async function checkAdminAccess() {
+    try {
+        // Import Firebase auth functions
+        const { onAuthStateChanged } = await import('firebase/auth');
+        const { auth } = await import('./firebase-config.js');
+        
+        return new Promise((resolve) => {
+            onAuthStateChanged(auth, (user) => {
+                if (!user || user.email !== 'ueservicesllc1@gmail.com') {
+                    // Clear localStorage and redirect if not authenticated or not admin
+                    localStorage.removeItem('user');
+                    window.location.href = 'index.html';
+                    resolve(false);
+                } else {
+                    // Update localStorage with current user data
+                    localStorage.setItem('user', JSON.stringify({
+                        id: user.uid,
+                        email: user.email,
+                        name: user.displayName || user.email.split('@')[0],
+                        isAdmin: true
+                    }));
+                    console.log('Admin access granted');
+                    resolve(true);
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error checking admin access:', error);
+        // Clear localStorage and redirect on error
+        localStorage.removeItem('user');
         window.location.href = 'index.html';
-        return;
+        return false;
     }
-    
-    console.log('Admin access granted');
 }
 
 // Initialize admin dashboard
-function initializeAdminDashboard() {
+async function initializeAdminDashboard() {
+    // Check admin access first
+    const hasAccess = await checkAdminAccess();
+    if (!hasAccess) {
+        return; // Will redirect if no access
+    }
+    
     // Load admin data
-    loadAdminData();
+    await loadAdminData();
     
     // Setup real-time updates
     setupRealTimeUpdates();
+    
+    // Load users for project creation
+    loadUsersForProject();
 }
 
 // Setup navigation
 function setupAdminNavigation() {
+    console.log('Setting up admin navigation...');
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.admin-section');
+    
+    console.log('Found nav items:', navItems.length);
+    console.log('Found sections:', sections.length);
     
     navItems.forEach(item => {
         item.addEventListener('click', function(e) {
             e.preventDefault();
+            console.log('Navigation clicked:', this.getAttribute('data-section'));
             
             // Remove active class from all items
             navItems.forEach(nav => nav.classList.remove('active'));
@@ -58,14 +88,24 @@ function setupAdminNavigation() {
             
             // Get section name
             const sectionName = this.getAttribute('data-section');
+            console.log('Switching to section:', sectionName);
             
             // Hide all sections
-            sections.forEach(section => section.classList.remove('active'));
+            sections.forEach(section => {
+                section.classList.remove('active');
+                console.log('Hiding section:', section.id);
+            });
             
             // Show selected section
             const targetSection = document.getElementById(sectionName);
             if (targetSection) {
                 targetSection.classList.add('active');
+                console.log('Showing section:', sectionName);
+                
+                // Load section-specific data
+                loadSectionData(sectionName);
+            } else {
+                console.error('Section not found:', sectionName);
             }
         });
     });
@@ -111,116 +151,197 @@ function setupAdminInteractions() {
     });
 }
 
+// Admin data loading state
+let isLoadingAdminData = false;
+
 // Load admin data
-function loadAdminData() {
-    // Load stats
-    loadStats();
+async function loadAdminData() {
+    if (isLoadingAdminData) {
+        console.log('Admin data is already loading, skipping...');
+        return;
+    }
     
-    // Load users
-    loadUsers();
+    isLoadingAdminData = true;
+    console.log('Loading admin data from Firebase...');
     
-    // Load projects
-    loadProjects();
-    
-    // Load files
-    loadFiles();
-    
-    // Load messages
-    loadMessages();
-    
-    // Load recent activity
-    loadRecentActivity();
+    try {
+        // Load data sequentially to avoid conflicts
+        console.log('Loading stats...');
+        await loadStats();
+        
+        console.log('Loading users...');
+        await loadUsers();
+        
+        console.log('Loading projects...');
+        await loadProjects();
+        
+        console.log('Loading files...');
+        await loadFiles();
+        
+        console.log('Loading messages...');
+        await loadMessages();
+        
+        console.log('Loading recent activity...');
+        await loadRecentActivity();
+        
+        console.log('Loading requirements...');
+        await loadAdminRequirements();
+        
+        console.log('Loading costs...');
+        await loadAdminCosts();
+        
+        console.log('Loading multimedia projects...');
+        await loadMultimediaProjects();
+        
+        console.log('Admin data loaded successfully');
+    } catch (error) {
+        console.error('Error loading admin data:', error);
+        showNotification('Error al cargar datos del admin', 'error');
+    } finally {
+        isLoadingAdminData = false;
+    }
 }
 
-// Load stats
-function loadStats() {
-    // Simulate loading stats
-    const stats = {
-        users: 25,
-        projects: 12,
-        files: 48,
-        messages: 8
-    };
+// Load stats with debounce
+let statsLoadingTimeout = null;
+
+async function loadStats() {
+    // Clear previous timeout
+    if (statsLoadingTimeout) {
+        clearTimeout(statsLoadingTimeout);
+    }
     
-    document.getElementById('totalUsers').textContent = stats.users;
-    document.getElementById('totalProjects').textContent = stats.projects;
-    document.getElementById('totalFiles').textContent = stats.files;
-    document.getElementById('totalMessages').textContent = stats.messages;
-    
-    // Update badges
-    document.getElementById('usersBadge').textContent = stats.users;
-    document.getElementById('projectsBadge').textContent = stats.projects;
-    document.getElementById('filesBadge').textContent = stats.files;
-    document.getElementById('messagesBadge').textContent = stats.messages;
+    // Debounce the function
+    statsLoadingTimeout = setTimeout(async () => {
+        try {
+            console.log('Loading stats from Firebase...');
+            const { getDocs, collection } = await import('firebase/firestore');
+            const { db } = await import('./firebase-config.js');
+        
+        // Load users count
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const usersCount = usersSnapshot.size;
+        console.log('Users count from Firebase:', usersCount);
+        
+        // Load projects count
+        const projectsSnapshot = await getDocs(collection(db, 'projects'));
+        const projectsCount = projectsSnapshot.size;
+        console.log('Projects count from Firebase:', projectsCount);
+        
+        // Load files count
+        const filesSnapshot = await getDocs(collection(db, 'files'));
+        const filesCount = filesSnapshot.size;
+        console.log('Files count from Firebase:', filesCount);
+        
+        // Load messages count
+        const messagesSnapshot = await getDocs(collection(db, 'messages'));
+        const messagesCount = messagesSnapshot.size;
+        console.log('Messages count from Firebase:', messagesCount);
+        
+        // Update stats
+        document.getElementById('totalUsers').textContent = usersCount;
+        document.getElementById('totalProjects').textContent = projectsCount;
+        document.getElementById('totalFiles').textContent = filesCount;
+        document.getElementById('totalMessages').textContent = messagesCount;
+        
+        // Update badges
+        document.getElementById('usersBadge').textContent = usersCount;
+        document.getElementById('projectsBadge').textContent = projectsCount;
+        document.getElementById('filesBadge').textContent = filesCount;
+        document.getElementById('messagesBadge').textContent = messagesCount;
+        
+        console.log('Stats updated successfully');
+        
+    } catch (error) {
+        console.error('Error loading stats:', error);
+        // Set to 0 if error
+        document.getElementById('totalUsers').textContent = '0';
+        document.getElementById('totalProjects').textContent = '0';
+        document.getElementById('totalFiles').textContent = '0';
+        document.getElementById('totalMessages').textContent = '0';
+        
+        document.getElementById('usersBadge').textContent = '0';
+        document.getElementById('projectsBadge').textContent = '0';
+        document.getElementById('filesBadge').textContent = '0';
+        document.getElementById('messagesBadge').textContent = '0';
+        }
+    }, 300); // 300ms debounce
 }
 
 // Load users
-function loadUsers() {
-    const users = [
-        {
-            id: 1,
-            name: 'Juan Pérez',
-            email: 'juan@ejemplo.com',
-            projects: 3,
-            lastActivity: 'Hace 2 horas',
-            status: 'active'
-        },
-        {
-            id: 2,
-            name: 'María García',
-            email: 'maria@ejemplo.com',
-            projects: 2,
-            lastActivity: 'Hace 1 día',
-            status: 'active'
-        },
-        {
-            id: 3,
-            name: 'Carlos López',
-            email: 'carlos@ejemplo.com',
-            projects: 1,
-            lastActivity: 'Hace 3 días',
-            status: 'inactive'
+async function loadUsers() {
+    console.log('Loading users from Firebase...');
+    try {
+        const { getDocs, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const tbody = document.getElementById('usersTableBody');
+        if (!tbody) {
+            console.error('usersTableBody element not found!');
+            return;
         }
-    ];
-    
-    const tbody = document.getElementById('usersTableBody');
-    tbody.innerHTML = '';
-    
-    users.forEach(user => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
+        
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando usuarios...</td></tr>';
+        
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        console.log('Users found:', usersSnapshot.size);
+        tbody.innerHTML = '';
+        
+        if (usersSnapshot.empty) {
+            console.log('No users found in Firebase');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay usuarios registrados</td></tr>';
+            return;
+        }
+        
+        usersSnapshot.forEach(doc => {
+            const userData = doc.data();
+            console.log('Creating row for user:', userData.email);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <div class="user-name">${userData.name || 'Sin nombre'}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="user-name">${user.name}</div>
+                </td>
+                <td>${userData.email || 'Sin email'}</td>
+                <td>${userData.projects ? userData.projects.length : 0}</td>
+                <td>${userData.lastActivity || 'Nunca'}</td>
+                <td>
+                    <span class="status-badge ${userData.status || 'inactive'}">${userData.status === 'active' ? 'Activo' : 'Inactivo'}</span>
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-secondary" onclick="viewUser('${doc.id}')" title="Ver detalles">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                              <button class="btn-primary" onclick="openUserEditModal('${doc.id}')" title="Editar usuario">
+                                  <i class="fas fa-edit"></i>
+                              </button>
+                        <button class="btn-info" onclick="viewUserPanel('${doc.id}', '${userData.email}')" title="Ver panel de usuario">
+                            <i class="fas fa-user-cog"></i>
+                        </button>
+                        <button class="btn-delete" onclick="deleteUser('${doc.id}')" title="Eliminar usuario">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
-                </div>
-            </td>
-            <td>${user.email}</td>
-            <td>${user.projects}</td>
-            <td>${user.lastActivity}</td>
-            <td>
-                <span class="status-badge ${user.status}">${user.status === 'active' ? 'Activo' : 'Inactivo'}</span>
-            </td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn-secondary" onclick="viewUser(${user.id})">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn-primary" onclick="editUser(${user.id})">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn-delete" onclick="deleteUser(${user.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </td>
-        `;
-        tbody.appendChild(row);
-    });
+                </td>
+            `;
+            tbody.appendChild(row);
+            console.log('Row added for user:', userData.email);
+        });
+        
+        console.log('Users loaded successfully');
+        
+    } catch (error) {
+        console.error('Error loading users:', error);
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Error al cargar usuarios</td></tr>';
+    }
 }
 
 // Load projects
@@ -371,45 +492,11 @@ function loadMessages() {
 
 // Load recent activity
 function loadRecentActivity() {
-    const activities = [
-        {
-            icon: 'fas fa-user-plus',
-            title: 'Nuevo usuario registrado',
-            description: 'María García se registró en el sistema',
-            time: 'Hace 1 hora'
-        },
-        {
-            icon: 'fas fa-file-upload',
-            title: 'Archivo subido',
-            description: 'Juan Pérez subió un nuevo archivo al proyecto',
-            time: 'Hace 2 horas'
-        },
-        {
-            icon: 'fas fa-envelope',
-            title: 'Nuevo mensaje',
-            description: 'Carlos López envió un mensaje',
-            time: 'Hace 3 horas'
-        }
-    ];
-    
+    // Load real activity from Firebase instead of hardcoded data
     const activityList = document.getElementById('recentActivity');
-    activityList.innerHTML = '';
+    activityList.innerHTML = '<div class="activity-item"><p>No hay actividades recientes</p></div>';
     
-    activities.forEach(activity => {
-        const item = document.createElement('div');
-        item.className = 'activity-item';
-        item.innerHTML = `
-            <div class="activity-icon">
-                <i class="${activity.icon}"></i>
-            </div>
-            <div class="activity-content">
-                <h4>${activity.title}</h4>
-                <p>${activity.description}</p>
-                <span class="activity-time">${activity.time}</span>
-            </div>
-        `;
-        activityList.appendChild(item);
-    });
+    // This will be populated by Firebase data
 }
 
 // Setup real-time updates
@@ -627,35 +714,8 @@ function deleteFile(fileName) {
 
 // Get messages data
 function getMessages() {
-    return [
-        {
-            id: 1,
-            name: 'Juan Pérez',
-            email: 'juan@ejemplo.com',
-            subject: 'Consulta sobre proyecto web',
-            message: 'Hola, me gustaría saber el progreso del proyecto.',
-            time: '2 min ago',
-            status: 'new'
-        },
-        {
-            id: 2,
-            name: 'María García',
-            email: 'maria@ejemplo.com',
-            subject: 'Actualización de requerimientos',
-            message: 'Necesito agregar una nueva funcionalidad al sistema.',
-            time: '5 min ago',
-            status: 'read'
-        },
-        {
-            id: 3,
-            name: 'Carlos López',
-            email: 'carlos@ejemplo.com',
-            subject: 'Problema con la aplicación',
-            message: 'La aplicación no está funcionando correctamente.',
-            time: '10 min ago',
-            status: 'new'
-        }
-    ];
+    // Load real messages from Firebase instead of hardcoded data
+    return [];
 }
 
 // Message management functions
@@ -983,10 +1043,12 @@ async function uploadProject() {
     const demoUrl = document.getElementById('projectDemoUrl').value.trim();
     const githubUrl = document.getElementById('projectGithubUrl').value.trim();
     const technologies = document.getElementById('projectTechnologies').value.trim();
+    const price = parseFloat(document.getElementById('projectPrice').value) || 0;
+    const userId = document.getElementById('projectUser').value;
     const status = document.getElementById('projectStatus').value;
     
-    if (!title || !description || !category) {
-        showNotification('Por favor completa todos los campos requeridos', 'error');
+    if (!title || !description || !category || price <= 0 || !userId) {
+        showNotification('Por favor completa todos los campos requeridos, asegúrate de que el precio sea mayor a 0 y selecciona un usuario', 'error');
         return;
     }
     
@@ -1005,6 +1067,9 @@ async function uploadProject() {
         // Upload image to Backblaze B2
         const imageData = await uploadProjectImageToB2(selectedProjectImage);
         
+        // Get user info
+        const selectedUser = users.find(user => user.id === userId);
+        
         // Save project to Firestore
         await saveProjectToFirestore({
             id: Date.now().toString(),
@@ -1014,6 +1079,10 @@ async function uploadProject() {
             demoUrl: demoUrl,
             githubUrl: githubUrl,
             technologies: technologies.split(',').map(tech => tech.trim()).filter(tech => tech),
+            price: price,
+            userId: userId,
+            userEmail: selectedUser ? selectedUser.email : '',
+            userName: selectedUser ? selectedUser.name : '',
             imageUrl: imageData.url,
             imageKey: imageData.key,
             status: status,
@@ -1025,6 +1094,7 @@ async function uploadProject() {
         showNotification('Proyecto subido exitosamente', 'success');
         closeProjectUploadModal();
         loadProjects(); // Reload projects list
+        // Stats will be reloaded automatically
         
     } catch (error) {
         console.error('Upload error:', error);
@@ -1097,6 +1167,7 @@ async function loadProjects() {
                 projects.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 
                 projects.forEach(project => {
+                    console.log('Creating admin project card for:', project.title, 'Demo URL:', project.demoUrl);
                     const projectCard = createProjectCard(project);
                     projectsContainer.appendChild(projectCard);
                 });
@@ -1134,6 +1205,7 @@ function createProjectCard(project) {
             <div class="project-meta">
                 <span>Categoría: ${project.category}</span>
                 <span>Fecha: ${createdDate}</span>
+                <span class="project-price">Precio: $${project.price ? project.price.toFixed(2) : '0.00'}</span>
             </div>
         </div>
         <div class="project-actions">
@@ -1141,8 +1213,8 @@ function createProjectCard(project) {
                 <i class="fas fa-edit"></i>
                 Editar
             </button>
-            ${project.demoUrl ? `<a href="${project.demoUrl}" target="_blank" class="btn-secondary">Ver Demo</a>` : ''}
-            ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="btn-secondary">GitHub</a>` : ''}
+            ${project.demoUrl ? `<a href="${project.demoUrl.startsWith('http') ? project.demoUrl : 'https://' + project.demoUrl}" target="_blank" class="btn-secondary demo-link" onclick="event.stopPropagation()">Ver Demo</a>` : ''}
+            ${project.githubUrl ? `<a href="${project.githubUrl.startsWith('http') ? project.githubUrl : 'https://' + project.githubUrl}" target="_blank" class="btn-secondary" onclick="event.stopPropagation()">GitHub</a>` : ''}
             <button class="btn-danger" onclick="deleteProject('${project.id}')">
                 <i class="fas fa-trash"></i>
                 Eliminar
@@ -1624,6 +1696,7 @@ async function uploadFile() {
         showNotification('Archivo subido exitosamente', 'success');
         closeFileUploadModal();
         loadFiles(); // Reload files list
+        // Stats will be reloaded automatically
         
     } catch (error) {
         console.error('Upload error:', error);
@@ -1671,18 +1744,28 @@ function videoCall(userId) {
 }
 
 // Logout function
-function logout() {
+async function logout() {
     if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        // Clear user data
-        localStorage.removeItem('user');
-        
-        // Show notification
-        showNotification('Sesión cerrada exitosamente', 'success');
-        
-        // Redirect to main page
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
+        try {
+            // Import Firebase auth functions
+            const { logout: firebaseLogout } = await import('./firebase-config.js');
+            await firebaseLogout();
+            
+            // Clear user data
+            localStorage.removeItem('user');
+            
+            // Show notification
+            showNotification('Sesión cerrada exitosamente', 'success');
+            
+            // Redirect to main page
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Logout error:', error);
+            showNotification('Error al cerrar sesión: ' + error.message, 'error');
+        }
     }
 }
 
@@ -1821,3 +1904,1367 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// User Management Functions
+let users = [];
+
+// Load users for project creation
+async function loadUsersForProject() {
+    try {
+        // Load users from Firebase Firestore
+        const { getDocs, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const usersQuery = collection(db, 'users');
+        const usersSnapshot = await getDocs(usersQuery);
+        
+        users = [];
+        usersSnapshot.forEach(doc => {
+            const userData = doc.data();
+            userData.id = doc.id;
+            users.push(userData);
+        });
+        
+        console.log('Loaded users from Firebase:', users);
+        
+        const userSelect = document.getElementById('projectUser');
+        if (userSelect) {
+            // Clear existing options except the first two
+            userSelect.innerHTML = `
+                <option value="">Selecciona un usuario</option>
+                <option value="new">+ Crear nuevo usuario</option>
+            `;
+            
+            // Add existing users
+            users.forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.name || user.email} (${user.email})`;
+                userSelect.appendChild(option);
+            });
+            
+            console.log(`Added ${users.length} users to dropdown`);
+        }
+    } catch (error) {
+        console.error('Error loading users from Firebase:', error);
+        showNotification('Error al cargar usuarios desde Firebase', 'error');
+        
+        // Fallback to localStorage if Firebase fails
+        users = JSON.parse(localStorage.getItem('users') || '[]');
+        console.log('Using localStorage fallback:', users);
+    }
+}
+
+// Handle user selection
+function handleUserSelection() {
+    const userSelect = document.getElementById('projectUser');
+    const newUserForm = document.getElementById('newUserForm');
+    
+    if (userSelect.value === 'new') {
+        newUserForm.style.display = 'block';
+    } else {
+        newUserForm.style.display = 'none';
+    }
+}
+
+// Check if user exists
+function checkUserExists() {
+    const email = document.getElementById('newUserEmail').value;
+    const userStatus = document.getElementById('userStatus');
+    
+    if (!email) {
+        userStatus.innerHTML = '';
+        return;
+    }
+    
+    const existingUser = users.find(user => user.email === email);
+    
+    if (existingUser) {
+        userStatus.innerHTML = '✅ Usuario ya existe';
+        userStatus.className = 'user-status success';
+    } else {
+        userStatus.innerHTML = '⚠️ Usuario no existe - Se creará uno nuevo';
+        userStatus.className = 'user-status warning';
+    }
+}
+
+// Create new user
+async function createNewUser() {
+    const email = document.getElementById('newUserEmail').value;
+    const name = document.getElementById('newUserName').value;
+    const userStatus = document.getElementById('userStatus');
+    
+    if (!email) {
+        userStatus.innerHTML = '❌ Email es requerido';
+        userStatus.className = 'user-status error';
+        return;
+    }
+    
+    // Check if user already exists
+    const existingUser = users.find(user => user.email === email);
+    if (existingUser) {
+        userStatus.innerHTML = '✅ Usuario ya existe';
+        userStatus.className = 'user-status success';
+        
+        // Update the select to show this user
+        const userSelect = document.getElementById('projectUser');
+        userSelect.value = existingUser.id;
+        document.getElementById('newUserForm').style.display = 'none';
+        return;
+    }
+    
+    // Create new user
+    const newUser = {
+        email: email.toLowerCase().trim(), // Normalize email
+        name: name || email.split('@')[0],
+        createdBy: 'admin',
+        status: 'pending_registration', // Waiting for user to register
+        createdAt: new Date().toISOString(),
+        isAdminCreated: true,
+        waitingForRegistration: true,
+        projects: [] // Array to store project IDs when user registers
+    };
+    
+    try {
+        // Save user to Firebase Firestore
+        const { addDoc, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const docRef = await addDoc(collection(db, 'users'), newUser);
+        newUser.id = docRef.id; // Get the Firebase document ID
+        
+        users.push(newUser);
+        
+        userStatus.innerHTML = '✅ Usuario creado exitosamente en Firebase';
+        userStatus.className = 'user-status success';
+        
+        console.log('User created in Firebase:', newUser);
+    } catch (error) {
+        console.error('Error creating user in Firebase:', error);
+        
+        // Fallback to localStorage if Firebase fails
+        newUser.id = Date.now().toString();
+        users.push(newUser);
+        localStorage.setItem('users', JSON.stringify(users));
+        
+        userStatus.innerHTML = '✅ Usuario creado en modo offline';
+        userStatus.className = 'user-status warning';
+    }
+    
+    // Update the select to show this user
+    const userSelect = document.getElementById('projectUser');
+    userSelect.innerHTML = `
+        <option value="">Selecciona un usuario</option>
+        <option value="new">+ Crear nuevo usuario</option>
+    `;
+    
+    users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.name || user.email} (${user.email})`;
+        userSelect.appendChild(option);
+    });
+    
+    userSelect.value = newUser.id;
+    document.getElementById('newUserForm').style.display = 'none';
+    
+    // Clear form
+    document.getElementById('newUserEmail').value = '';
+    document.getElementById('newUserName').value = '';
+    
+    // Reload data
+    loadUsers();
+    // Stats will be updated automatically
+}
+
+// View user panel function
+async function viewUserPanel(userId, userEmail) {
+    try {
+        // Get user data from Firebase to have complete information
+        const { getDocs, collection, query, where } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const usersQuery = query(collection(db, 'users'), where('email', '==', userEmail));
+        const usersSnapshot = await getDocs(usersQuery);
+        
+        let userData = {
+            id: userId,
+            email: userEmail,
+            name: userEmail.split('@')[0],
+            isAdmin: false,
+            isDeveloper: true, // Mark as developer to show admin features
+            createdBy: 'admin',
+            status: 'active',
+            originalUserId: userId, // Store original user ID
+            originalUserEmail: userEmail // Store original user email
+        };
+        
+        // If user exists in Firebase, use their data
+        if (!usersSnapshot.empty) {
+            const userDoc = usersSnapshot.docs[0];
+            const firebaseUserData = userDoc.data();
+            userData = {
+                ...userData,
+                ...firebaseUserData,
+                isDeveloper: true, // Override to show admin features
+                originalUserId: userId,
+                originalUserEmail: userEmail
+            };
+        }
+        
+        // Store user data in localStorage for the panel
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Open user panel in new window
+        const userPanelUrl = window.location.origin + '/dashboard.html';
+        const newWindow = window.open(userPanelUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+        
+        if (newWindow) {
+            newWindow.focus();
+            showNotification(`Panel de usuario abierto para ${userEmail}`, 'success');
+            
+            // Add a note to the new window about developer mode
+            newWindow.addEventListener('load', function() {
+                console.log('Panel de usuario abierto en modo desarrollador para:', userEmail);
+                console.log('Datos del usuario:', userData);
+            });
+        } else {
+            showNotification('No se pudo abrir el panel de usuario. Verifica que los pop-ups estén habilitados.', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Error opening user panel:', error);
+        showNotification('Error al abrir el panel de usuario: ' + error.message, 'error');
+    }
+}
+
+// Admin Requirements and Costs Management
+async function loadAdminRequirements() {
+    try {
+        const { getDocs, collection, query, orderBy } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const requirementsQuery = query(collection(db, 'requirements'), orderBy('createdAt', 'desc'));
+        const requirementsSnapshot = await getDocs(requirementsQuery);
+        const requirementsList = document.getElementById('adminRequirementsList');
+        
+        if (requirementsList) {
+            requirementsList.innerHTML = '';
+            
+            if (requirementsSnapshot.empty) {
+                requirementsList.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No hay requerimientos de usuarios</p>
+                        <small>Los requerimientos aparecerán aquí cuando los usuarios los envíen</small>
+                    </div>
+                `;
+            } else {
+                requirementsSnapshot.forEach(doc => {
+                    const requirement = doc.data();
+                    requirement.id = doc.id;
+                    const requirementCard = createAdminRequirementCard(requirement);
+                    requirementsList.appendChild(requirementCard);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading admin requirements:', error);
+        showNotification('Error al cargar requerimientos', 'error');
+    }
+}
+
+async function loadAdminCosts() {
+    try {
+        const { getDocs, collection, query, orderBy } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const costsQuery = query(collection(db, 'costs'), orderBy('createdAt', 'desc'));
+        const costsSnapshot = await getDocs(costsQuery);
+        const costsList = document.getElementById('adminCostsList');
+        
+        if (costsList) {
+            costsList.innerHTML = '';
+            
+            if (costsSnapshot.empty) {
+                costsList.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-dollar-sign"></i>
+                        <p>No hay costos adicionales</p>
+                        <small>Los costos aparecerán aquí cuando se agreguen</small>
+                    </div>
+                `;
+            } else {
+                costsSnapshot.forEach(doc => {
+                    const cost = doc.data();
+                    cost.id = doc.id;
+                    const costCard = createAdminCostCard(cost);
+                    costsList.appendChild(costCard);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading admin costs:', error);
+        showNotification('Error al cargar costos', 'error');
+    }
+}
+
+// Create admin requirement card
+function createAdminRequirementCard(requirement) {
+    const card = document.createElement('div');
+    card.className = 'admin-requirement-card';
+    
+    const priorityClass = {
+        'low': 'priority-low',
+        'medium': 'priority-medium',
+        'high': 'priority-high',
+        'urgent': 'priority-urgent'
+    }[requirement.priority] || 'priority-medium';
+    
+    const statusClass = {
+        'pending': 'status-pending',
+        'approved': 'status-approved',
+        'rejected': 'status-rejected',
+        'in-progress': 'status-progress',
+        'completed': 'status-completed'
+    }[requirement.status] || 'status-pending';
+    
+    const statusText = {
+        'pending': 'Pendiente',
+        'approved': 'Aprobado',
+        'rejected': 'Rechazado',
+        'in-progress': 'En Progreso',
+        'completed': 'Completado'
+    }[requirement.status] || 'Pendiente';
+    
+    const priorityText = {
+        'low': 'Baja',
+        'medium': 'Media',
+        'high': 'Alta',
+        'urgent': 'Urgente'
+    }[requirement.priority] || 'Media';
+    
+    const createdDate = new Date(requirement.createdAt).toLocaleDateString('es-ES');
+    
+    card.innerHTML = `
+        <div class="requirement-header">
+            <div class="requirement-info">
+                <h3>${requirement.title}</h3>
+                <p class="requirement-user">Usuario: ${requirement.userEmail}</p>
+            </div>
+            <div class="requirement-badges">
+                <span class="priority-badge ${priorityClass}">${priorityText}</span>
+                <span class="status-badge ${statusClass}">${statusText}</span>
+            </div>
+        </div>
+        <div class="requirement-content">
+            <p>${requirement.description}</p>
+            <div class="requirement-meta">
+                <span><i class="fas fa-calendar"></i> ${createdDate}</span>
+                ${requirement.projectId ? `<span><i class="fas fa-folder"></i> Proyecto relacionado</span>` : ''}
+            </div>
+        </div>
+        <div class="requirement-actions">
+            <button class="btn-primary" onclick="updateRequirementStatus('${requirement.id}', 'approved')">
+                <i class="fas fa-check"></i>
+                Aprobar
+            </button>
+            <button class="btn-warning" onclick="updateRequirementStatus('${requirement.id}', 'in-progress')">
+                <i class="fas fa-play"></i>
+                En Progreso
+            </button>
+            <button class="btn-success" onclick="updateRequirementStatus('${requirement.id}', 'completed')">
+                <i class="fas fa-check-circle"></i>
+                Completar
+            </button>
+            <button class="btn-danger" onclick="updateRequirementStatus('${requirement.id}', 'rejected')">
+                <i class="fas fa-times"></i>
+                Rechazar
+            </button>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Create admin cost card
+function createAdminCostCard(cost) {
+    const card = document.createElement('div');
+    card.className = 'admin-cost-card';
+    
+    const statusClass = {
+        'pending': 'status-pending',
+        'approved': 'status-approved',
+        'rejected': 'status-rejected'
+    }[cost.status] || 'status-pending';
+    
+    const statusText = {
+        'pending': 'Pendiente',
+        'approved': 'Aprobado',
+        'rejected': 'Rechazado'
+    }[cost.status] || 'Pendiente';
+    
+    const priorityClass = {
+        'low': 'priority-low',
+        'medium': 'priority-medium',
+        'high': 'priority-high',
+        'urgent': 'priority-urgent'
+    }[cost.priority] || 'priority-medium';
+    
+    const priorityText = {
+        'low': 'Baja',
+        'medium': 'Media',
+        'high': 'Alta',
+        'urgent': 'Urgente'
+    }[cost.priority] || 'Media';
+    
+    const createdDate = new Date(cost.createdAt).toLocaleDateString('es-ES');
+    
+    card.innerHTML = `
+        <div class="cost-header">
+            <div class="cost-info">
+                <h3>${cost.title}</h3>
+                <p class="cost-user">Usuario: ${cost.userEmail}</p>
+                ${cost.requirementId ? `<p class="cost-requirement"><i class="fas fa-clipboard-list"></i> Basado en requerimiento</p>` : ''}
+            </div>
+            <div class="cost-amount">$${cost.amount.toFixed(2)}</div>
+        </div>
+        <div class="cost-content">
+            <p>${cost.description}</p>
+            <div class="cost-meta">
+                <span class="status-badge ${statusClass}">${statusText}</span>
+                <span class="priority-badge ${priorityClass}">${priorityText}</span>
+                <span><i class="fas fa-calendar"></i> ${createdDate}</span>
+                ${cost.projectId ? `<span><i class="fas fa-folder"></i> Proyecto relacionado</span>` : ''}
+            </div>
+        </div>
+        <div class="cost-actions">
+            <button class="btn-primary" onclick="updateCostStatus('${cost.id}', 'approved')">
+                <i class="fas fa-check"></i>
+                Aprobar
+            </button>
+            <button class="btn-danger" onclick="updateCostStatus('${cost.id}', 'rejected')">
+                <i class="fas fa-times"></i>
+                Rechazar
+            </button>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Update requirement status
+async function updateRequirementStatus(requirementId, newStatus) {
+    try {
+        const { updateDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        await updateDoc(doc(db, 'requirements', requirementId), {
+            status: newStatus,
+            updatedAt: new Date().toISOString()
+        });
+        
+        showNotification('Estado del requerimiento actualizado', 'success');
+        loadAdminRequirements();
+        
+    } catch (error) {
+        console.error('Error updating requirement status:', error);
+        showNotification('Error al actualizar estado: ' + error.message, 'error');
+    }
+}
+
+// Update cost status
+async function updateCostStatus(costId, newStatus) {
+    try {
+        const { updateDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        await updateDoc(doc(db, 'costs', costId), {
+            status: newStatus,
+            updatedAt: new Date().toISOString()
+        });
+        
+        showNotification('Estado del costo actualizado', 'success');
+        loadAdminCosts();
+        
+    } catch (error) {
+        console.error('Error updating cost status:', error);
+        showNotification('Error al actualizar estado: ' + error.message, 'error');
+    }
+}
+
+// Cost Creation Functions
+function openCostCreationModal() {
+    const modal = document.getElementById('costCreationModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Load users for the select
+    loadUsersForCostCreation();
+    
+    // Add event listener manually as backup
+    const userSelect = document.getElementById('adminCostUser');
+    if (userSelect) {
+        userSelect.removeEventListener('change', loadUserProjectsAndRequirements);
+        userSelect.addEventListener('change', loadUserProjectsAndRequirements);
+        console.log('Event listener added to user select');
+        
+        // Test the function
+        setTimeout(() => {
+            console.log('Testing loadUserProjectsAndRequirements function...');
+            // Simulate user selection for testing
+            if (userSelect.options.length > 1) {
+                userSelect.selectedIndex = 1; // Select first user
+                console.log('Simulated user selection:', userSelect.value);
+                loadUserProjectsAndRequirements();
+            }
+        }, 1000);
+    }
+}
+
+function closeCostCreationModal() {
+    const modal = document.getElementById('costCreationModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    
+    // Reset form
+    document.getElementById('adminCostTitle').value = '';
+    document.getElementById('adminCostDescription').value = '';
+    document.getElementById('adminCostAmount').value = '';
+    document.getElementById('adminCostUser').value = '';
+    document.getElementById('adminCostProject').value = '';
+    document.getElementById('adminCostRequirement').value = '';
+    document.getElementById('adminCostPriority').value = 'medium';
+}
+
+// Load users for cost creation
+async function loadUsersForCostCreation() {
+    try {
+        console.log('Loading users for cost creation...');
+        const { getDocs, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        console.log('Found users:', usersSnapshot.size);
+        
+        const userSelect = document.getElementById('adminCostUser');
+        
+        if (userSelect) {
+            userSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
+            
+            usersSnapshot.forEach((doc, index) => {
+                const userData = doc.data();
+                console.log(`User ${index + 1}:`, userData.email, 'Name:', userData.name);
+                
+                const option = document.createElement('option');
+                option.value = userData.email;
+                option.textContent = `${userData.name || userData.email} (${userData.email})`;
+                userSelect.appendChild(option);
+            });
+            
+            console.log('Users loaded successfully');
+        } else {
+            console.error('User select element not found');
+        }
+    } catch (error) {
+        console.error('Error loading users for cost creation:', error);
+        showNotification('Error al cargar usuarios', 'error');
+    }
+}
+
+// Load projects and requirements for selected user
+async function loadUserProjectsAndRequirements() {
+    console.log('loadUserProjectsAndRequirements called');
+    
+    const userSelect = document.getElementById('adminCostUser');
+    if (!userSelect) {
+        console.error('adminCostUser element not found');
+        return;
+    }
+    
+    const selectedUserEmail = userSelect.value;
+    console.log('Loading projects and requirements for user:', selectedUserEmail);
+    
+    if (!selectedUserEmail) {
+        // Clear projects and requirements
+        const projectSelect = document.getElementById('adminCostProject');
+        const requirementSelect = document.getElementById('adminCostRequirement');
+        
+        if (projectSelect) {
+            projectSelect.innerHTML = '<option value="">Seleccionar proyecto</option>';
+        }
+        if (requirementSelect) {
+            requirementSelect.innerHTML = '<option value="">Seleccionar requerimiento</option>';
+        }
+        return;
+    }
+    
+    try {
+        console.log('Starting to load projects and requirements...');
+        const { getDocs, collection, query, where } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        console.log('Firebase imported successfully');
+        console.log('Loading projects for user:', selectedUserEmail);
+        
+        // Load projects for the selected user
+        const projectsQuery = query(
+            collection(db, 'projects'),
+            where('userEmail', '==', selectedUserEmail)
+        );
+        
+        console.log('Executing projects query...');
+        const projectsSnapshot = await getDocs(projectsQuery);
+        console.log('Projects query executed. Found projects:', projectsSnapshot.size);
+        
+        const projectSelect = document.getElementById('adminCostProject');
+        console.log('Project select element found:', !!projectSelect);
+        
+        if (projectSelect) {
+            projectSelect.innerHTML = '<option value="">Seleccionar proyecto</option>';
+            console.log('Cleared project select options');
+            
+            if (projectsSnapshot.empty) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No hay proyectos disponibles';
+                option.disabled = true;
+                projectSelect.appendChild(option);
+                console.log('No projects found for user, added disabled option');
+            } else {
+                console.log('Adding project options...');
+                projectsSnapshot.forEach((doc, index) => {
+                    const project = doc.data();
+                    console.log(`Project ${index + 1}:`, project.title, 'ID:', doc.id);
+                    
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = project.title;
+                    projectSelect.appendChild(option);
+                    console.log('Added project option:', project.title);
+                });
+                console.log('All project options added');
+            }
+        } else {
+            console.error('Project select element not found');
+        }
+        
+        console.log('Loading requirements for user:', selectedUserEmail);
+        
+        // Load requirements for the selected user
+        const requirementsQuery = query(
+            collection(db, 'requirements'),
+            where('userEmail', '==', selectedUserEmail)
+        );
+        const requirementsSnapshot = await getDocs(requirementsQuery);
+        
+        console.log('Found requirements:', requirementsSnapshot.size);
+        
+        const requirementSelect = document.getElementById('adminCostRequirement');
+        if (requirementSelect) {
+            requirementSelect.innerHTML = '<option value="">Seleccionar requerimiento</option>';
+            
+            if (requirementsSnapshot.empty) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No hay requerimientos disponibles';
+                option.disabled = true;
+                requirementSelect.appendChild(option);
+                console.log('No requirements found for user');
+            } else {
+                requirementsSnapshot.forEach(doc => {
+                    const requirement = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = `${requirement.title} (${requirement.priority})`;
+                    requirementSelect.appendChild(option);
+                    console.log('Added requirement option:', requirement.title);
+                });
+            }
+        } else {
+            console.error('Requirement select element not found');
+        }
+        
+    } catch (error) {
+        console.error('Error loading user projects and requirements:', error);
+        showNotification('Error al cargar proyectos y requerimientos: ' + error.message, 'error');
+    }
+}
+
+// Submit admin cost
+async function submitAdminCost() {
+    const userEmail = document.getElementById('adminCostUser').value;
+    const projectId = document.getElementById('adminCostProject').value;
+    const requirementId = document.getElementById('adminCostRequirement').value;
+    const title = document.getElementById('adminCostTitle').value.trim();
+    const amount = parseFloat(document.getElementById('adminCostAmount').value);
+    const priority = document.getElementById('adminCostPriority').value;
+    const description = document.getElementById('adminCostDescription').value.trim();
+    
+    // Validar campos obligatorios
+    if (!userEmail) {
+        showNotification('Por favor selecciona un usuario', 'error');
+        return;
+    }
+    
+    if (!title) {
+        showNotification('Por favor ingresa el título del costo', 'error');
+        return;
+    }
+    
+    if (isNaN(amount) || amount <= 0) {
+        showNotification('Por favor ingresa un monto válido', 'error');
+        return;
+    }
+    
+    try {
+        const { addDoc, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const costData = {
+            title: title,
+            description: description,
+            amount: amount,
+            userEmail: userEmail,
+            projectId: projectId || null,
+            requirementId: requirementId || null,
+            priority: priority,
+            status: 'pending',
+            createdBy: 'admin',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        await addDoc(collection(db, 'costs'), costData);
+        
+        showNotification('Costo creado exitosamente', 'success');
+        closeCostCreationModal();
+        loadAdminCosts();
+        
+    } catch (error) {
+        console.error('Error creating cost:', error);
+        showNotification('Error al crear costo: ' + error.message, 'error');
+    }
+}
+
+// Multimedia Projects Management
+function openMultimediaUploadModal() {
+    const modal = document.getElementById('multimediaUploadModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Load users for the select
+    loadUsersForMultimedia();
+}
+
+function closeMultimediaUploadModal() {
+    const modal = document.getElementById('multimediaUploadModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    
+    // Reset form
+    document.getElementById('multimediaUser').value = '';
+    document.getElementById('multimediaType').value = '';
+    document.getElementById('multimediaTitle').value = '';
+    document.getElementById('multimediaDescription').value = '';
+    document.getElementById('multimediaFile').value = '';
+    document.getElementById('multimediaRelatedProject').value = '';
+    
+    // Hide preview
+    document.getElementById('multimediaPreview').style.display = 'none';
+    document.getElementById('uploadMultimediaBtn').disabled = true;
+}
+
+// Load users for multimedia upload
+async function loadUsersForMultimedia() {
+    try {
+        const { getDocs, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        const userSelect = document.getElementById('multimediaUser');
+        
+        if (userSelect) {
+            userSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
+            
+            usersSnapshot.forEach(doc => {
+                const userData = doc.data();
+                const option = document.createElement('option');
+                option.value = userData.email;
+                option.textContent = `${userData.name || userData.email} (${userData.email})`;
+                userSelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading users for multimedia:', error);
+        showNotification('Error al cargar usuarios', 'error');
+    }
+}
+
+// Update file input based on multimedia type
+function updateFileInput() {
+    const type = document.getElementById('multimediaType').value;
+    const fileInput = document.getElementById('multimediaFile');
+    
+    if (type === 'video') {
+        fileInput.accept = 'video/*';
+        fileInput.setAttribute('data-type', 'video');
+    } else if (type === 'audio') {
+        fileInput.accept = 'audio/*';
+        fileInput.setAttribute('data-type', 'audio');
+    } else {
+        fileInput.accept = 'video/*,audio/*';
+        fileInput.removeAttribute('data-type');
+    }
+}
+
+// Preview multimedia file
+function previewMultimedia() {
+    const fileInput = document.getElementById('multimediaFile');
+    const file = fileInput.files[0];
+    const preview = document.getElementById('multimediaPreview');
+    const videoPreview = document.getElementById('videoPreview');
+    const audioPreview = document.getElementById('audioPreview');
+    
+    if (!file) {
+        preview.style.display = 'none';
+        document.getElementById('uploadMultimediaBtn').disabled = true;
+        return;
+    }
+    
+    // Show preview
+    preview.style.display = 'block';
+    
+    // Update file info
+    const fileName = preview.querySelector('.file-name');
+    const fileSize = preview.querySelector('.file-size');
+    
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+    
+    // Create preview URL
+    const url = URL.createObjectURL(file);
+    
+    // Hide both previews first
+    videoPreview.style.display = 'none';
+    audioPreview.style.display = 'none';
+    
+    // Show appropriate preview
+    if (file.type.startsWith('video/')) {
+        videoPreview.src = url;
+        videoPreview.style.display = 'block';
+    } else if (file.type.startsWith('audio/')) {
+        audioPreview.src = url;
+        audioPreview.style.display = 'block';
+    }
+    
+    // Enable upload button
+    document.getElementById('uploadMultimediaBtn').disabled = false;
+}
+
+// Format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Upload multimedia project
+async function uploadMultimediaProject() {
+    const userEmail = document.getElementById('multimediaUser').value;
+    const type = document.getElementById('multimediaType').value;
+    const title = document.getElementById('multimediaTitle').value.trim();
+    const description = document.getElementById('multimediaDescription').value.trim();
+    const fileInput = document.getElementById('multimediaFile');
+    const relatedProject = document.getElementById('multimediaRelatedProject').value;
+    
+    // Validate required fields
+    if (!userEmail || !type || !title || !fileInput.files[0]) {
+        showNotification('Por favor completa todos los campos requeridos', 'error');
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    
+    // Validate file type
+    if (type === 'video' && !file.type.startsWith('video/')) {
+        showNotification('Por favor selecciona un archivo de video válido', 'error');
+        return;
+    }
+    
+    if (type === 'audio' && !file.type.startsWith('audio/')) {
+        showNotification('Por favor selecciona un archivo de audio válido', 'error');
+        return;
+    }
+    
+    try {
+        // Upload file to server
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'multimedia');
+        
+        const uploadResponse = await fetch('http://localhost:3001/upload', {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!uploadResponse.ok) {
+            throw new Error('Error al subir el archivo');
+        }
+        
+        const uploadResult = await uploadResponse.json();
+        
+        // Save multimedia project data to Firestore
+        const { addDoc, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const multimediaData = {
+            title: title,
+            description: description,
+            type: type,
+            userEmail: userEmail,
+            fileName: file.name,
+            fileUrl: uploadResult.url,
+            fileSize: file.size,
+            mimeType: file.type,
+            relatedProject: relatedProject || null,
+            uploadedBy: 'admin',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        await addDoc(collection(db, 'multimedia'), multimediaData);
+        
+        showNotification('Proyecto multimedia subido exitosamente', 'success');
+        closeMultimediaUploadModal();
+        loadMultimediaProjects();
+        
+    } catch (error) {
+        console.error('Error uploading multimedia project:', error);
+        showNotification('Error al subir proyecto multimedia: ' + error.message, 'error');
+    }
+}
+
+// Load multimedia projects
+async function loadMultimediaProjects() {
+    try {
+        const { getDocs, collection, query, orderBy } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const multimediaQuery = query(collection(db, 'multimedia'), orderBy('createdAt', 'desc'));
+        const multimediaSnapshot = await getDocs(multimediaQuery);
+        const multimediaList = document.getElementById('adminMultimediaList');
+        
+        if (multimediaList) {
+            multimediaList.innerHTML = '';
+            
+            if (multimediaSnapshot.empty) {
+                multimediaList.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-video"></i>
+                        <p>No hay proyectos multimedia</p>
+                        <small>Los proyectos multimedia aparecerán aquí cuando se suban</small>
+                    </div>
+                `;
+            } else {
+                multimediaSnapshot.forEach(doc => {
+                    const multimedia = doc.data();
+                    multimedia.id = doc.id;
+                    const multimediaCard = createAdminMultimediaCard(multimedia);
+                    multimediaList.appendChild(multimediaCard);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading multimedia projects:', error);
+        showNotification('Error al cargar proyectos multimedia', 'error');
+    }
+}
+
+// Create admin multimedia card
+function createAdminMultimediaCard(multimedia) {
+    const card = document.createElement('div');
+    card.className = 'admin-multimedia-card';
+    
+    const typeIcon = multimedia.type === 'video' ? 'fas fa-video' : 'fas fa-music';
+    const typeText = multimedia.type === 'video' ? 'Video' : 'Audio';
+    const createdDate = new Date(multimedia.createdAt).toLocaleDateString('es-ES');
+    
+    card.innerHTML = `
+        <div class="multimedia-header">
+            <div class="multimedia-info">
+                <h3>${multimedia.title}</h3>
+                <p class="multimedia-user">Usuario: ${multimedia.userEmail}</p>
+                <p class="multimedia-type"><i class="${typeIcon}"></i> ${typeText}</p>
+            </div>
+            <div class="multimedia-actions">
+                <button class="btn-primary" onclick="viewMultimedia('${multimedia.id}')">
+                    <i class="fas fa-eye"></i>
+                    Ver
+                </button>
+                <button class="btn-danger" onclick="deleteMultimedia('${multimedia.id}')">
+                    <i class="fas fa-trash"></i>
+                    Eliminar
+                </button>
+            </div>
+        </div>
+        <div class="multimedia-content">
+            <p>${multimedia.description}</p>
+            <div class="multimedia-meta">
+                <span><i class="fas fa-calendar"></i> ${createdDate}</span>
+                <span><i class="fas fa-file"></i> ${multimedia.fileName}</span>
+                <span><i class="fas fa-weight"></i> ${formatFileSize(multimedia.fileSize)}</span>
+                ${multimedia.relatedProject ? `<span><i class="fas fa-folder"></i> Proyecto relacionado</span>` : ''}
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// View multimedia
+function viewMultimedia(multimediaId) {
+    // Open multimedia in new tab or modal
+    console.log('View multimedia:', multimediaId);
+    // Implementation depends on how you want to display it
+}
+
+// Delete multimedia
+async function deleteMultimedia(multimediaId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este proyecto multimedia?')) {
+        return;
+    }
+    
+    try {
+        const { deleteDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        await deleteDoc(doc(db, 'multimedia', multimediaId));
+        
+        showNotification('Proyecto multimedia eliminado', 'success');
+        loadMultimediaProjects();
+        
+    } catch (error) {
+        console.error('Error deleting multimedia:', error);
+        showNotification('Error al eliminar proyecto multimedia: ' + error.message, 'error');
+    }
+}
+
+// User Edit Functions
+let currentEditingUserId = null;
+
+function openUserEditModal(userId) {
+    currentEditingUserId = userId;
+    const modal = document.getElementById('userEditModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Load user data
+    loadUserDataForEdit(userId);
+}
+
+function closeUserEditModal() {
+    const modal = document.getElementById('userEditModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    currentEditingUserId = null;
+    
+    // Reset form
+    document.getElementById('editUserName').value = '';
+    document.getElementById('editUserEmail').value = '';
+    document.getElementById('editUserPhone').value = '';
+    document.getElementById('editUserStatus').value = 'active';
+    document.getElementById('editUserRole').value = 'client';
+    document.getElementById('editUserNotes').value = '';
+}
+
+async function loadUserDataForEdit(userId) {
+    try {
+        const { getDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            
+            // Populate form with user data
+            document.getElementById('editUserName').value = userData.name || '';
+            document.getElementById('editUserEmail').value = userData.email || '';
+            document.getElementById('editUserPhone').value = userData.phone || '';
+            document.getElementById('editUserStatus').value = userData.status || 'active';
+            document.getElementById('editUserRole').value = userData.role || 'client';
+            document.getElementById('editUserNotes').value = userData.notes || '';
+            
+            console.log('User data loaded for editing:', userData);
+        } else {
+            showNotification('Usuario no encontrado', 'error');
+            closeUserEditModal();
+        }
+    } catch (error) {
+        console.error('Error loading user data:', error);
+        showNotification('Error al cargar datos del usuario: ' + error.message, 'error');
+    }
+}
+
+async function saveUserChanges() {
+    if (!currentEditingUserId) {
+        showNotification('Error: No hay usuario seleccionado para editar', 'error');
+        return;
+    }
+    
+    const name = document.getElementById('editUserName').value.trim();
+    const email = document.getElementById('editUserEmail').value.trim();
+    const phone = document.getElementById('editUserPhone').value.trim();
+    const status = document.getElementById('editUserStatus').value;
+    const role = document.getElementById('editUserRole').value;
+    const notes = document.getElementById('editUserNotes').value.trim();
+    
+    if (!name || !email) {
+        showNotification('Por favor completa el nombre y correo electrónico', 'error');
+        return;
+    }
+    
+    if (!isValidEmail(email)) {
+        showNotification('Por favor ingresa un correo electrónico válido', 'error');
+        return;
+    }
+    
+    try {
+        const { updateDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const updateData = {
+            name: name,
+            email: email,
+            phone: phone,
+            status: status,
+            role: role,
+            notes: notes,
+            updatedAt: new Date().toISOString()
+        };
+        
+        await updateDoc(doc(db, 'users', currentEditingUserId), updateData);
+        
+        showNotification('Usuario actualizado exitosamente', 'success');
+        closeUserEditModal();
+        loadUsers(); // Reload users list
+        
+    } catch (error) {
+        console.error('Error updating user:', error);
+        showNotification('Error al actualizar usuario: ' + error.message, 'error');
+    }
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// User Linking Functions
+async function linkPendingUser(userEmail, userId) {
+    try {
+        console.log('Linking pending user:', userEmail, 'to user ID:', userId);
+        
+        const { getDocs, collection, updateDoc, doc, query, where } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        // Search for pending user with this email
+        const pendingUsersQuery = query(
+            collection(db, 'users'),
+            where('email', '==', userEmail.toLowerCase().trim()),
+            where('waitingForRegistration', '==', true)
+        );
+        
+        const pendingUsersSnapshot = await getDocs(pendingUsersQuery);
+        
+        if (!pendingUsersSnapshot.empty) {
+            const pendingUserDoc = pendingUsersSnapshot.docs[0];
+            const pendingUserData = pendingUserDoc.data();
+            
+            console.log('Found pending user:', pendingUserData);
+            
+            // Update the pending user with the new user ID and status
+            await updateDoc(doc(db, 'users', pendingUserDoc.id), {
+                status: 'active',
+                waitingForRegistration: false,
+                linkedUserId: userId,
+                linkedAt: new Date().toISOString()
+            });
+            
+            // Also update the new user with admin-created data
+            await updateDoc(doc(db, 'users', userId), {
+                name: pendingUserData.name,
+                createdBy: 'admin',
+                isAdminCreated: true,
+                adminCreatedAt: pendingUserData.createdAt,
+                linkedFromPending: true
+            });
+            
+            console.log('Successfully linked pending user to new registration');
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Error linking pending user:', error);
+        return false;
+    }
+}
+
+// Function to check and link pending users (call this after user registration)
+async function checkAndLinkPendingUser(userEmail, userId) {
+    const linked = await linkPendingUser(userEmail, userId);
+    if (linked) {
+        console.log('User successfully linked to pending admin-created account');
+        // You can show a notification here if needed
+    }
+    return linked;
+}
+
+// Load section-specific data
+function loadSectionData(sectionName) {
+    console.log('Loading data for section:', sectionName);
+    
+    switch(sectionName) {
+        case 'users':
+            loadUsersData();
+            break;
+        case 'projects':
+            loadProjects();
+            break;
+        case 'files':
+            loadFilesData();
+            break;
+        case 'messages':
+            loadMessagesData();
+            break;
+        case 'chat':
+            loadChatData();
+            break;
+        case 'settings':
+            loadSettingsData();
+            break;
+        case 'overview':
+            loadOverviewData();
+            break;
+        default:
+            console.log('No specific data loading for section:', sectionName);
+    }
+}
+
+// Load users data
+async function loadUsersData() {
+    console.log('Loading users data...');
+    try {
+        const { getDocs, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const usersQuery = collection(db, 'users');
+        const usersSnapshot = await getDocs(usersQuery);
+        
+        const usersContainer = document.getElementById('usersTableBody');
+        if (usersContainer) {
+            usersContainer.innerHTML = '';
+            
+            if (usersSnapshot.empty) {
+                usersContainer.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="no-data">
+                            <i class="fas fa-users"></i>
+                            <p>No hay usuarios registrados</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                usersSnapshot.forEach(doc => {
+                    const userData = doc.data();
+                    userData.id = doc.id;
+                    const userRow = createUserRow(userData);
+                    usersContainer.appendChild(userRow);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+}
+
+// Create user row
+function createUserRow(user) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <div class="user-name">${user.name || 'Sin nombre'}</div>
+                </div>
+            </div>
+        </td>
+        <td>${user.email || 'Sin email'}</td>
+        <td>${user.projects ? user.projects.length : 0}</td>
+        <td>${user.lastActivity || 'Nunca'}</td>
+        <td>
+            <span class="status-badge ${user.status || 'inactive'}">${user.status === 'active' ? 'Activo' : 'Inactivo'}</span>
+        </td>
+        <td>
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="viewUser('${user.id}')" title="Ver detalles">
+                    <i class="fas fa-eye"></i>
+                </button>
+                              <button class="btn-primary" onclick="openUserEditModal('${user.id}')" title="Editar usuario">
+                                  <i class="fas fa-edit"></i>
+                              </button>
+                <button class="btn-info" onclick="viewUserPanel('${user.id}', '${user.email}')" title="Ver panel de usuario">
+                    <i class="fas fa-user-cog"></i>
+                </button>
+                <button class="btn-delete" onclick="deleteUser('${user.id}')" title="Eliminar usuario">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </td>
+    `;
+    return row;
+}
+
+// Load files data
+async function loadFilesData() {
+    console.log('Loading files data...');
+    // Implementation for files data loading
+}
+
+// Load messages data
+async function loadMessagesData() {
+    console.log('Loading messages data...');
+    // Implementation for messages data loading
+}
+
+// Load chat data
+async function loadChatData() {
+    console.log('Loading chat data...');
+    // Implementation for chat data loading
+}
+
+// Load settings data
+async function loadSettingsData() {
+    console.log('Loading settings data...');
+    // Implementation for settings data loading
+}
+
+// Load overview data
+async function loadOverviewData() {
+    console.log('Loading overview data...');
+    // Implementation for overview data loading
+}
+
+// Make functions globally available
+window.handleUserSelection = handleUserSelection;
+window.checkUserExists = checkUserExists;
+window.createNewUser = createNewUser;
+window.loadSectionData = loadSectionData;
+window.checkAndLinkPendingUser = checkAndLinkPendingUser;

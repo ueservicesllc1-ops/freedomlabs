@@ -7,6 +7,12 @@ document.addEventListener('DOMContentLoaded', function() {
     loadQuotes();
     updateStats();
     setupEventListeners();
+    
+    // Add event listener for base price input
+    const basePriceInput = document.getElementById('basePrice');
+    if (basePriceInput) {
+        basePriceInput.addEventListener('input', updatePriceDisplay);
+    }
 });
 
 // Load quotes from localStorage
@@ -394,3 +400,6 @@ function generateCSV() {
     
     return [headers, ...rows].map(row => row.join(',')).join('\n');
 }
+
+
+

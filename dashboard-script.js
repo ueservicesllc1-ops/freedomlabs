@@ -60,21 +60,98 @@ function loadUserData() {
 }
 
 // Load dashboard data
-function loadDashboardData() {
-    // Simulate loading data
+async function loadDashboardData() {
+    // Load real data
     console.log('Loading dashboard data...');
     
-    // Animate stats cards
-    animateStatsCards();
+    // Check if we're in developer mode
+    setupDeveloperMode();
     
-    // Load projects
-    loadProjects();
+    // Load projects first
+    await loadProjects();
     
     // Load messages
     loadMessages();
     
     // Load files
     loadFiles();
+    
+    // Load recent activity
+    loadRecentActivity();
+    
+    // Load requirements
+    loadRequirements();
+    
+    // Load costs
+    loadCosts();
+    
+    // Load multimedia projects
+    loadMultimediaProjects();
+    
+    // Preload projects for modals
+    preloadProjectsForModals();
+    
+    // Update stats based on real data
+    updateDashboardStats();
+    
+    // Animate stats cards
+    animateStatsCards();
+}
+
+// Setup developer mode indicator
+function setupDeveloperMode() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const isDeveloperMode = user.isDeveloper && user.originalUserEmail;
+    
+    if (isDeveloperMode) {
+        // Add developer mode indicator to header
+        const headerContent = document.querySelector('.header-content');
+        if (headerContent) {
+            const devIndicator = document.createElement('div');
+            devIndicator.className = 'developer-indicator';
+            devIndicator.innerHTML = `
+                <div class="dev-badge">
+                    <i class="fas fa-code"></i>
+                    <span>Vista de Desarrollador</span>
+                </div>
+                <div class="dev-user-info">
+                    <small>Viendo como: ${user.originalUserEmail}</small>
+                </div>
+            `;
+            devIndicator.style.cssText = `
+                background: linear-gradient(135deg, #f59e0b, #d97706);
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: 8px;
+                margin-left: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            `;
+            
+            // Insert before the user info
+            const userInfo = headerContent.querySelector('.user-info');
+            if (userInfo) {
+                headerContent.insertBefore(devIndicator, userInfo);
+            }
+        }
+        
+        // Update user info to show the original user
+        const userName = document.querySelector('.user-name');
+        const userEmail = document.querySelector('.user-email');
+        
+        if (userName) {
+            userName.textContent = user.originalUserEmail.split('@')[0];
+        }
+        if (userEmail) {
+            userEmail.textContent = user.originalUserEmail;
+        }
+        
+        console.log('Developer mode activated for:', user.originalUserEmail);
+    }
 }
 
 // Setup navigation
@@ -166,53 +243,546 @@ function animateStatsCards() {
 }
 
 // Load projects
-function loadProjects() {
-    // Simulate loading projects
+async function loadProjects() {
     console.log('Loading projects...');
     
-    // Add click handlers to project cards
-    const projectCards = document.querySelectorAll('.project-card');
-    projectCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const projectName = this.querySelector('h3').textContent;
-            showProjectDetails(projectName);
-        });
+    try {
+        // Load projects from Firebase
+        await loadProjectsFromFirebase();
+    } catch (error) {
+        console.error('Error loading projects:', error);
+        // Fallback to static projects if Firebase fails
+        loadStaticProjects();
+    }
+}
+
+// Load projects from Firebase
+async function loadProjectsFromFirebase() {
+    const { getDocs, collection, query, where } = await import('firebase/firestore');
+    const { db } = await import('./firebase-config.js');
+    
+    // Get current user
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    // Check if we're in developer mode (viewing as another user)
+    const isDeveloperMode = user.isDeveloper && user.originalUserEmail;
+    const userEmail = isDeveloperMode ? user.originalUserEmail : user.email;
+    
+    console.log('Loading projects for user:', userEmail, 'Developer mode:', isDeveloperMode);
+    
+    if (!userEmail) {
+        console.error('No user email found');
+        return;
+    }
+    
+    // Query projects for this specific user
+    const projectsQuery = query(
+        collection(db, 'projects'),
+        where('userEmail', '==', userEmail)
+    );
+    
+    const projectsSnapshot = await getDocs(projectsQuery);
+    const projectsContainer = document.querySelector('.projects-grid');
+    
+    if (projectsContainer) {
+        projectsContainer.innerHTML = '';
+        
+        if (projectsSnapshot.empty) {
+            const message = isDeveloperMode ? 
+                `No hay proyectos asignados a ${userEmail}` : 
+                'No hay proyectos asignados a tu cuenta';
+            const subtitle = isDeveloperMode ?
+                `Vista de desarrollador: ${userEmail}` :
+                `Los proyectos aparecerán aquí cuando el administrador los asigne a tu email: ${userEmail}`;
+                
+            projectsContainer.innerHTML = `
+                <div class="no-projects">
+                    <i class="fas fa-folder-open"></i>
+                    <p>${message}</p>
+                    <small>${subtitle}</small>
+                </div>
+            `;
+            console.log('No projects found for user:', userEmail);
+        } else {
+            // Sort projects by creation date (newest first)
+            const projects = [];
+            projectsSnapshot.forEach(doc => {
+                const projectData = doc.data();
+                projectData.id = doc.id;
+                projects.push(projectData);
+            });
+            
+            projects.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            console.log(`Found ${projects.length} projects for user:`, userEmail);
+            
+            projects.forEach(project => {
+                console.log('Creating project card for:', project.title, 'Demo URL:', project.demoUrl);
+                const projectCard = createClientProjectCard(project);
+                projectsContainer.appendChild(projectCard);
+            });
+        }
+    }
+}
+
+// Create project card for client dashboard
+function createClientProjectCard(project) {
+    const projectCard = document.createElement('div');
+    projectCard.className = 'project-card';
+    
+    const createdDate = new Date(project.createdAt).toLocaleDateString('es-ES');
+    const statusClass = project.status === 'completed' ? 'active' : 
+                       project.status === 'in-progress' ? 'active' : 'pending';
+    const statusText = project.status === 'completed' ? 'Completado' : 
+                      project.status === 'in-progress' ? 'En Progreso' : 'Pendiente';
+    
+    // Calculate progress based on status
+    const progress = project.status === 'completed' ? 100 : 
+                   project.status === 'in-progress' ? 75 : 30;
+    
+    projectCard.innerHTML = `
+        <div class="project-header">
+            <h3>${project.title}</h3>
+            <span class="project-status ${statusClass}">${statusText}</span>
+        </div>
+        <div class="project-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: ${progress}%"></div>
+            </div>
+            <span class="progress-text">${progress}% Completado</span>
+        </div>
+        <div class="project-details">
+            <p><i class="fas fa-calendar"></i> Fecha: ${createdDate}</p>
+            <p><i class="fas fa-dollar-sign"></i> Precio Acordado: $${project.price ? project.price.toFixed(2) : '0.00'}</p>
+            <p><i class="fas fa-tag"></i> Categoría: ${project.category}</p>
+            ${project.demoUrl ? `<p><i class="fas fa-external-link-alt"></i> <a href="${project.demoUrl.startsWith('http') ? project.demoUrl : 'https://' + project.demoUrl}" target="_blank" onclick="event.stopPropagation()" class="demo-link">Ver Demo</a></p>` : ''}
+        </div>
+    `;
+    
+    // Add click handler (but not for links)
+    projectCard.addEventListener('click', function(e) {
+        // Don't trigger if clicking on a link
+        if (e.target.tagName === 'A' || e.target.closest('a')) {
+            return;
+        }
+        showProjectDetails(project.title);
     });
+    
+    return projectCard;
+}
+
+// Fallback to static projects
+function loadStaticProjects() {
+    const projectsContainer = document.querySelector('.projects-grid');
+    if (projectsContainer) {
+        // Keep the existing static content as fallback
+        console.log('Using static projects as fallback');
+    }
+}
+
+// Update dashboard stats based on real data
+function updateDashboardStats() {
+    const projectsContainer = document.querySelector('.projects-grid');
+    const activeProjectsCount = document.getElementById('activeProjectsCount');
+    const daysRemaining = document.getElementById('daysRemaining');
+    const totalValue = document.getElementById('totalValue');
+    
+    if (!projectsContainer) return;
+    
+    // Count active projects
+    const projectCards = projectsContainer.querySelectorAll('.project-card');
+    const activeProjects = Array.from(projectCards).filter(card => {
+        const statusElement = card.querySelector('.project-status');
+        return statusElement && !statusElement.classList.contains('pending');
+    });
+    
+    // Update active projects count
+    if (activeProjectsCount) {
+        activeProjectsCount.textContent = activeProjects.length;
+    }
+    
+    // Calculate total value from projects
+    let totalProjectValue = 0;
+    projectCards.forEach(card => {
+        const priceElement = card.querySelector('.project-details p:has(.fa-dollar-sign)');
+        if (priceElement) {
+            const priceText = priceElement.textContent;
+            const priceMatch = priceText.match(/\$([\d,]+\.?\d*)/);
+            if (priceMatch) {
+                const price = parseFloat(priceMatch[1].replace(',', ''));
+                if (!isNaN(price)) {
+                    totalProjectValue += price;
+                }
+            }
+        }
+    });
+    
+    // Update total value
+    if (totalValue) {
+        totalValue.textContent = `$${totalProjectValue.toLocaleString()}`;
+    }
+    
+    // Update days remaining (simplified calculation)
+    if (daysRemaining) {
+        if (activeProjects.length > 0) {
+            // Simple calculation: 30 days per project
+            const estimatedDays = activeProjects.length * 30;
+            daysRemaining.textContent = estimatedDays;
+        } else {
+            daysRemaining.textContent = '-';
+        }
+    }
+    
+    console.log(`Updated stats: ${activeProjects.length} active projects, $${totalProjectValue} total value`);
 }
 
 // Load messages
-function loadMessages() {
-    // Simulate loading messages
+async function loadMessages() {
     console.log('Loading messages...');
     
-    // Add click handlers to message items
-    const messageItems = document.querySelectorAll('.message-item');
-    messageItems.forEach(item => {
-        item.addEventListener('click', function() {
-            const sender = this.querySelector('h4').textContent;
-            const message = this.querySelector('p').textContent;
-            showMessageDetails(sender, message);
-        });
+    try {
+        // Load messages from Firebase
+        await loadMessagesFromFirebase();
+    } catch (error) {
+        console.error('Error loading messages:', error);
+        // Show empty state
+        const messagesContainer = document.querySelector('.messages-list');
+        if (messagesContainer) {
+            messagesContainer.innerHTML = `
+                <div class="no-messages">
+                    <i class="fas fa-envelope-open"></i>
+                    <p>No hay mensajes disponibles</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Load messages from Firebase
+async function loadMessagesFromFirebase() {
+    const { getDocs, collection, query, where } = await import('firebase/firestore');
+    const { db } = await import('./firebase-config.js');
+    
+    // Get current user
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userEmail = user.email;
+    
+    if (!userEmail) {
+        console.error('No user email found for messages');
+        return;
+    }
+    
+    // Query messages for this specific user
+    const messagesQuery = query(
+        collection(db, 'messages'),
+        where('userEmail', '==', userEmail)
+    );
+    
+    const messagesSnapshot = await getDocs(messagesQuery);
+    const messagesContainer = document.querySelector('.messages-list');
+    
+    if (messagesContainer) {
+        messagesContainer.innerHTML = '';
+        
+        if (messagesSnapshot.empty) {
+            messagesContainer.innerHTML = `
+                <div class="no-messages">
+                    <i class="fas fa-envelope-open"></i>
+                    <p>No hay mensajes disponibles</p>
+                </div>
+            `;
+        } else {
+            const messages = [];
+            messagesSnapshot.forEach(doc => {
+                const messageData = doc.data();
+                messageData.id = doc.id;
+                messages.push(messageData);
+            });
+            
+            // Sort by date (newest first)
+            messages.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            messages.forEach(message => {
+                const messageElement = createMessageElement(message);
+                messagesContainer.appendChild(messageElement);
+            });
+        }
+    }
+}
+
+// Create message element
+function createMessageElement(message) {
+    const messageElement = document.createElement('div');
+    messageElement.className = `message-item ${message.isRead ? '' : 'unread'}`;
+    
+    const timeAgo = getTimeAgo(message.createdAt);
+    
+    messageElement.innerHTML = `
+        <div class="message-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <div class="message-content">
+            <div class="message-header">
+                <h4>${message.senderName || 'Sistema'}</h4>
+                <span class="message-time">${timeAgo}</span>
+            </div>
+            <p>${message.content}</p>
+        </div>
+    `;
+    
+    // Add click handler
+    messageElement.addEventListener('click', function() {
+        const sender = this.querySelector('h4').textContent;
+        const message = this.querySelector('p').textContent;
+        showMessageDetails(sender, message);
     });
+    
+    return messageElement;
+}
+
+// Get time ago string
+function getTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Hace unos minutos';
+    if (diffInHours < 24) return `Hace ${diffInHours} horas`;
+    if (diffInHours < 48) return 'Ayer';
+    return date.toLocaleDateString('es-ES');
 }
 
 // Load files
-function loadFiles() {
-    // Simulate loading files
+async function loadFiles() {
     console.log('Loading files...');
     
-    // Add click handlers to file items
-    const fileItems = document.querySelectorAll('.file-item');
-    fileItems.forEach(item => {
-        const downloadBtn = item.querySelector('.btn-download');
-        if (downloadBtn) {
-            downloadBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const fileName = item.querySelector('h4').textContent;
-                downloadFile(fileName);
+    try {
+        // Load files from Firebase
+        await loadFilesFromFirebase();
+    } catch (error) {
+        console.error('Error loading files:', error);
+        // Show empty state
+        const filesContainer = document.querySelector('.files-grid');
+        if (filesContainer) {
+            filesContainer.innerHTML = `
+                <div class="no-files">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No hay archivos disponibles</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Load files from Firebase
+async function loadFilesFromFirebase() {
+    const { getDocs, collection, query, where } = await import('firebase/firestore');
+    const { db } = await import('./firebase-config.js');
+    
+    // Get current user
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userEmail = user.email;
+    
+    if (!userEmail) {
+        console.error('No user email found for files');
+        return;
+    }
+    
+    // Query files for this specific user
+    const filesQuery = query(
+        collection(db, 'files'),
+        where('userEmail', '==', userEmail)
+    );
+    
+    const filesSnapshot = await getDocs(filesQuery);
+    const filesContainer = document.querySelector('.files-grid');
+    
+    if (filesContainer) {
+        filesContainer.innerHTML = '';
+        
+        if (filesSnapshot.empty) {
+            filesContainer.innerHTML = `
+                <div class="no-files">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No hay archivos disponibles</p>
+                </div>
+            `;
+        } else {
+            const files = [];
+            filesSnapshot.forEach(doc => {
+                const fileData = doc.data();
+                fileData.id = doc.id;
+                files.push(fileData);
+            });
+            
+            // Sort by date (newest first)
+            files.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            files.forEach(file => {
+                const fileElement = createFileElement(file);
+                filesContainer.appendChild(fileElement);
             });
         }
-    });
+    }
+}
+
+// Create file element
+function createFileElement(file) {
+    const fileElement = document.createElement('div');
+    fileElement.className = 'file-item';
+    
+    const fileIcon = getFileIcon(file.type);
+    
+    fileElement.innerHTML = `
+        <div class="file-icon">
+            <i class="${fileIcon}"></i>
+        </div>
+        <div class="file-info">
+            <h4>${file.name}</h4>
+            <p>${file.description || 'Archivo del proyecto'}</p>
+            <span class="file-size">${formatFileSize(file.size)}</span>
+        </div>
+        <div class="file-actions">
+            <button class="btn-download" onclick="downloadFile('${file.id}')">
+                <i class="fas fa-download"></i>
+            </button>
+        </div>
+    `;
+    
+    return fileElement;
+}
+
+// Get file icon based on type
+function getFileIcon(fileType) {
+    if (fileType.includes('image')) return 'fas fa-file-image';
+    if (fileType.includes('pdf')) return 'fas fa-file-pdf';
+    if (fileType.includes('word')) return 'fas fa-file-word';
+    if (fileType.includes('excel')) return 'fas fa-file-excel';
+    if (fileType.includes('powerpoint')) return 'fas fa-file-powerpoint';
+    if (fileType.includes('code')) return 'fas fa-file-code';
+    return 'fas fa-file';
+}
+
+// Format file size
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Load recent activity
+async function loadRecentActivity() {
+    console.log('Loading recent activity...');
+    
+    try {
+        // Load activity from Firebase
+        await loadActivityFromFirebase();
+    } catch (error) {
+        console.error('Error loading activity:', error);
+        // Show empty state
+        const activityContainer = document.getElementById('activityList');
+        if (activityContainer) {
+            activityContainer.innerHTML = `
+                <div class="no-activity">
+                    <i class="fas fa-clock"></i>
+                    <p>No hay actividad reciente</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Load activity from Firebase
+async function loadActivityFromFirebase() {
+    const { getDocs, collection, query, where, orderBy, limit } = await import('firebase/firestore');
+    const { db } = await import('./firebase-config.js');
+    
+    // Get current user
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userEmail = user.email;
+    
+    if (!userEmail) {
+        console.error('No user email found for activity');
+        return;
+    }
+    
+    // Query activity for this specific user
+    const activityQuery = query(
+        collection(db, 'activity'),
+        where('userEmail', '==', userEmail),
+        orderBy('createdAt', 'desc'),
+        limit(10)
+    );
+    
+    const activitySnapshot = await getDocs(activityQuery);
+    const activityContainer = document.getElementById('activityList');
+    
+    if (activityContainer) {
+        activityContainer.innerHTML = '';
+        
+        if (activitySnapshot.empty) {
+            activityContainer.innerHTML = `
+                <div class="no-activity">
+                    <i class="fas fa-clock"></i>
+                    <p>No hay actividad reciente</p>
+                </div>
+            `;
+        } else {
+            const activities = [];
+            activitySnapshot.forEach(doc => {
+                const activityData = doc.data();
+                activityData.id = doc.id;
+                activities.push(activityData);
+            });
+            
+            activities.forEach(activity => {
+                const activityElement = createActivityElement(activity);
+                activityContainer.appendChild(activityElement);
+            });
+        }
+    }
+}
+
+// Create activity element
+function createActivityElement(activity) {
+    const activityElement = document.createElement('div');
+    activityElement.className = 'activity-item';
+    
+    const timeAgo = getTimeAgo(activity.createdAt);
+    const activityIcon = getActivityIcon(activity.type);
+    
+    activityElement.innerHTML = `
+        <div class="activity-icon">
+            <i class="${activityIcon}"></i>
+        </div>
+        <div class="activity-content">
+            <h4>${activity.title}</h4>
+            <p>${activity.description}</p>
+            <span class="activity-time">${timeAgo}</span>
+        </div>
+    `;
+    
+    return activityElement;
+}
+
+// Get activity icon based on type
+function getActivityIcon(activityType) {
+    const iconMap = {
+        'project_created': 'fas fa-plus-circle',
+        'project_updated': 'fas fa-edit',
+        'project_completed': 'fas fa-check-circle',
+        'file_uploaded': 'fas fa-upload',
+        'message_sent': 'fas fa-envelope',
+        'bug_fixed': 'fas fa-bug',
+        'feature_added': 'fas fa-code',
+        'status_changed': 'fas fa-sync',
+        'payment_received': 'fas fa-dollar-sign',
+        'meeting_scheduled': 'fas fa-calendar'
+    };
+    
+    return iconMap[activityType] || 'fas fa-info-circle';
 }
 
 // Logout function
@@ -903,3 +1473,824 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Load project information from admin data
+function loadProjectInfo() {
+    // Get quotes from localStorage (admin data)
+    const quotes = JSON.parse(localStorage.getItem('quotes')) || [];
+    
+    // Find the current user's project
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userProject = quotes.find(quote => quote.email === user.email);
+    
+    if (userProject) {
+        // Update project information
+        updateProjectInfo(userProject);
+        
+        // Update stats cards
+        updateStatsCards(userProject);
+    } else {
+        // No project found, show default values
+        showNoProjectMessage();
+    }
+}
+
+// Update project information display
+function updateProjectInfo(project) {
+    // Project name
+    const projectNameEl = document.getElementById('projectName');
+    if (projectNameEl) {
+        projectNameEl.textContent = project.projectName || 'Proyecto sin nombre';
+    }
+    
+    // Project type
+    const projectTypeEl = document.getElementById('projectType');
+    if (projectTypeEl) {
+        projectTypeEl.textContent = getProjectTypeLabel(project.projectType);
+    }
+    
+    // Project status
+    const projectStatusEl = document.getElementById('projectStatus');
+    if (projectStatusEl) {
+        projectStatusEl.textContent = getStatusLabel(project.status);
+        projectStatusEl.className = `status-badge status-${project.status}`;
+    }
+    
+    // Project value
+    const projectValueEl = document.getElementById('projectValue');
+    if (projectValueEl) {
+        const totalPrice = project.totalPrice || project.basePrice || 0;
+        projectValueEl.textContent = `$${totalPrice.toFixed(2)}`;
+    }
+}
+
+// Update stats cards
+function updateStatsCards(project) {
+    // Active projects count
+    const activeProjectsEl = document.getElementById('activeProjectsCount');
+    if (activeProjectsEl) {
+        activeProjectsEl.textContent = '1';
+    }
+    
+    // Days remaining (calculate based on project date and estimated delivery)
+    const daysRemainingEl = document.getElementById('daysRemaining');
+    if (daysRemainingEl) {
+        const projectDate = new Date(project.date);
+        const estimatedDays = getEstimatedDays(project.projectType);
+        const deliveryDate = new Date(projectDate.getTime() + (estimatedDays * 24 * 60 * 60 * 1000));
+        const today = new Date();
+        const daysLeft = Math.ceil((deliveryDate - today) / (24 * 60 * 60 * 1000));
+        
+        if (daysLeft > 0) {
+            daysRemainingEl.textContent = daysLeft;
+        } else if (project.status === 'completed') {
+            daysRemainingEl.textContent = 'Completado';
+        } else {
+            daysRemainingEl.textContent = 'En progreso';
+        }
+    }
+    
+    // Project progress
+    const projectProgressEl = document.getElementById('projectProgress');
+    if (projectProgressEl) {
+        const progress = getProjectProgress(project.status);
+        projectProgressEl.textContent = `${progress}%`;
+    }
+    
+    // Total investment
+    const totalInvestmentEl = document.getElementById('totalInvestment');
+    if (totalInvestmentEl) {
+        const totalPrice = project.totalPrice || project.basePrice || 0;
+        totalInvestmentEl.textContent = `$${totalPrice.toFixed(2)}`;
+    }
+}
+
+// Get project type label
+function getProjectTypeLabel(type) {
+    const labels = {
+        'sitio-web': 'Sitio Web',
+        'app-movil': 'Aplicación Móvil',
+        'app-web': 'Aplicación Web',
+        'ecommerce': 'Tienda Online',
+        'sistema-empresarial': 'Sistema Empresarial'
+    };
+    return labels[type] || type;
+}
+
+// Preload projects for modals
+async function preloadProjectsForModals() {
+    try {
+        const { getDocs, collection, query, where } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const isDeveloperMode = user.isDeveloper && user.originalUserEmail;
+        const userEmail = isDeveloperMode ? user.originalUserEmail : user.email;
+        
+        const projectsQuery = query(
+            collection(db, 'projects'),
+            where('userEmail', '==', userEmail)
+        );
+        
+        const projectsSnapshot = await getDocs(projectsQuery);
+        console.log('Preloaded projects for modals:', projectsSnapshot.size);
+        
+        // Store projects in a global variable for quick access
+        window.userProjects = [];
+        projectsSnapshot.forEach(doc => {
+            window.userProjects.push({
+                id: doc.id,
+                title: doc.data().title
+            });
+        });
+        
+    } catch (error) {
+        console.error('Error preloading projects:', error);
+    }
+}
+
+// Requirements and Costs Management
+function openRequirementModal() {
+    const modal = document.getElementById('requirementModal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Load projects for the select
+    setTimeout(() => {
+        loadProjectsForSelect('requirementProject');
+    }, 100);
+}
+
+function closeRequirementModal() {
+    const modal = document.getElementById('requirementModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    
+    // Reset form
+    document.getElementById('requirementTitle').value = '';
+    document.getElementById('requirementDescription').value = '';
+    document.getElementById('requirementPriority').value = 'medium';
+    document.getElementById('requirementProject').value = '';
+}
+
+
+// Load projects for select dropdowns
+async function loadProjectsForSelect(selectId) {
+    try {
+        console.log('Loading projects for select:', selectId);
+        const select = document.getElementById(selectId);
+        
+        if (!select) {
+            console.error('Select element not found:', selectId);
+            return;
+        }
+        
+        // Clear existing options
+        select.innerHTML = '<option value="">Seleccionar proyecto</option>';
+        
+        // Check if we have preloaded projects
+        if (window.userProjects && window.userProjects.length > 0) {
+            console.log('Using preloaded projects:', window.userProjects.length);
+            window.userProjects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.title;
+                select.appendChild(option);
+                console.log('Added project option:', project.title);
+            });
+        } else {
+            // Fallback: load from Firebase
+            console.log('Loading projects from Firebase...');
+            const { getDocs, collection, query, where } = await import('firebase/firestore');
+            const { db } = await import('./firebase-config.js');
+            
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const isDeveloperMode = user.isDeveloper && user.originalUserEmail;
+            const userEmail = isDeveloperMode ? user.originalUserEmail : user.email;
+            
+            console.log('Loading projects for user:', userEmail, 'Developer mode:', isDeveloperMode);
+            
+            const projectsQuery = query(
+                collection(db, 'projects'),
+                where('userEmail', '==', userEmail)
+            );
+            
+            const projectsSnapshot = await getDocs(projectsQuery);
+            console.log('Found projects:', projectsSnapshot.size);
+            
+            if (projectsSnapshot.empty) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No hay proyectos disponibles';
+                option.disabled = true;
+                select.appendChild(option);
+                console.log('No projects found for user');
+            } else {
+                projectsSnapshot.forEach(doc => {
+                    const project = doc.data();
+                    const option = document.createElement('option');
+                    option.value = doc.id;
+                    option.textContent = project.title;
+                    select.appendChild(option);
+                    console.log('Added project option:', project.title);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading projects for select:', error);
+        showNotification('Error al cargar proyectos: ' + error.message, 'error');
+    }
+}
+
+// Submit requirement
+async function submitRequirement() {
+    const title = document.getElementById('requirementTitle').value.trim();
+    const description = document.getElementById('requirementDescription').value.trim();
+    const priority = document.getElementById('requirementPriority').value;
+    const projectId = document.getElementById('requirementProject').value;
+    
+    if (!title || !description) {
+        showNotification('Por favor completa todos los campos requeridos', 'error');
+        return;
+    }
+    
+    try {
+        const { addDoc, collection } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const isDeveloperMode = user.isDeveloper && user.originalUserEmail;
+        const userEmail = isDeveloperMode ? user.originalUserEmail : user.email;
+        
+        const requirementData = {
+            title: title,
+            description: description,
+            priority: priority,
+            projectId: projectId,
+            userEmail: userEmail,
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        
+        await addDoc(collection(db, 'requirements'), requirementData);
+        
+        showNotification('Requerimiento enviado exitosamente', 'success');
+        closeRequirementModal();
+        loadRequirements();
+        
+    } catch (error) {
+        console.error('Error submitting requirement:', error);
+        showNotification('Error al enviar requerimiento: ' + error.message, 'error');
+    }
+}
+
+
+// Load requirements
+async function loadRequirements() {
+    try {
+        const { getDocs, collection, query, where, orderBy } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const isDeveloperMode = user.isDeveloper && user.originalUserEmail;
+        const userEmail = isDeveloperMode ? user.originalUserEmail : user.email;
+        
+        const requirementsQuery = query(
+            collection(db, 'requirements'),
+            where('userEmail', '==', userEmail),
+            orderBy('createdAt', 'desc')
+        );
+        
+        const requirementsSnapshot = await getDocs(requirementsQuery);
+        const requirementsList = document.getElementById('requirementsList');
+        
+        if (requirementsList) {
+            requirementsList.innerHTML = '';
+            
+            if (requirementsSnapshot.empty) {
+                requirementsList.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-clipboard-list"></i>
+                        <p>No hay requerimientos de cambio</p>
+                        <small>Los requerimientos aparecerán aquí cuando los solicites</small>
+                    </div>
+                `;
+            } else {
+                requirementsSnapshot.forEach(doc => {
+                    const requirement = doc.data();
+                    const requirementCard = createRequirementCard(requirement);
+                    requirementsList.appendChild(requirementCard);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading requirements:', error);
+    }
+}
+
+// Load costs
+async function loadCosts() {
+    try {
+        const { getDocs, collection, query, where, orderBy } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const isDeveloperMode = user.isDeveloper && user.originalUserEmail;
+        const userEmail = isDeveloperMode ? user.originalUserEmail : user.email;
+        
+        const costsQuery = query(
+            collection(db, 'costs'),
+            where('userEmail', '==', userEmail),
+            orderBy('createdAt', 'desc')
+        );
+        
+        const costsSnapshot = await getDocs(costsQuery);
+        const costsList = document.getElementById('costsList');
+        
+        if (costsList) {
+            costsList.innerHTML = '';
+            
+            if (costsSnapshot.empty) {
+                costsList.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-dollar-sign"></i>
+                        <p>No hay costos adicionales</p>
+                        <small>Los costos adicionales aparecerán aquí cuando se agreguen</small>
+                    </div>
+                `;
+            } else {
+                costsSnapshot.forEach(doc => {
+                    const cost = doc.data();
+                    const costCard = createCostCard(cost);
+                    costsList.appendChild(costCard);
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading costs:', error);
+    }
+}
+
+// Create requirement card
+function createRequirementCard(requirement) {
+    const card = document.createElement('div');
+    card.className = 'requirement-card';
+    
+    const priorityClass = {
+        'low': 'priority-low',
+        'medium': 'priority-medium',
+        'high': 'priority-high',
+        'urgent': 'priority-urgent'
+    }[requirement.priority] || 'priority-medium';
+    
+    const statusClass = {
+        'pending': 'status-pending',
+        'approved': 'status-approved',
+        'rejected': 'status-rejected',
+        'in-progress': 'status-progress',
+        'completed': 'status-completed'
+    }[requirement.status] || 'status-pending';
+    
+    const statusText = {
+        'pending': 'Pendiente',
+        'approved': 'Aprobado',
+        'rejected': 'Rechazado',
+        'in-progress': 'En Progreso',
+        'completed': 'Completado'
+    }[requirement.status] || 'Pendiente';
+    
+    const priorityText = {
+        'low': 'Baja',
+        'medium': 'Media',
+        'high': 'Alta',
+        'urgent': 'Urgente'
+    }[requirement.priority] || 'Media';
+    
+    const createdDate = new Date(requirement.createdAt).toLocaleDateString('es-ES');
+    
+    card.innerHTML = `
+        <div class="requirement-header">
+            <h3>${requirement.title}</h3>
+            <div class="requirement-badges">
+                <span class="priority-badge ${priorityClass}">${priorityText}</span>
+                <span class="status-badge ${statusClass}">${statusText}</span>
+            </div>
+        </div>
+        <div class="requirement-content">
+            <p>${requirement.description}</p>
+            <div class="requirement-meta">
+                <span><i class="fas fa-calendar"></i> ${createdDate}</span>
+                ${requirement.projectId ? `<span><i class="fas fa-folder"></i> Proyecto relacionado</span>` : ''}
+            </div>
+        </div>
+    `;
+    
+    return card;
+}
+
+// Create cost card for user dashboard
+function createCostCard(cost) {
+    const card = document.createElement('div');
+    card.className = 'cost-card';
+    
+    const statusClass = {
+        'pending': 'status-pending',
+        'approved': 'status-approved',
+        'rejected': 'status-rejected'
+    }[cost.status] || 'status-pending';
+    
+    const statusText = {
+        'pending': 'Pendiente de Aprobación',
+        'approved': 'Aprobado',
+        'rejected': 'Rechazado'
+    }[cost.status] || 'Pendiente de Aprobación';
+    
+    const createdDate = new Date(cost.createdAt).toLocaleDateString('es-ES');
+    
+    // Only show action buttons if status is pending
+    const actionButtons = cost.status === 'pending' ? `
+        <div class="cost-actions">
+            <button class="btn-success" onclick="approveCost('${cost.id}')">
+                <i class="fas fa-check"></i>
+                Aprobar
+            </button>
+            <button class="btn-danger" onclick="rejectCost('${cost.id}')">
+                <i class="fas fa-times"></i>
+                Rechazar
+            </button>
+        </div>
+    ` : '';
+    
+    card.innerHTML = `
+        <div class="cost-header">
+            <h3>${cost.title}</h3>
+            <div class="cost-amount">$${cost.amount.toFixed(2)}</div>
+        </div>
+        <div class="cost-content">
+            <p>${cost.description}</p>
+            <div class="cost-meta">
+                <span class="status-badge ${statusClass}">${statusText}</span>
+                <span><i class="fas fa-calendar"></i> ${createdDate}</span>
+                ${cost.projectId ? `<span><i class="fas fa-folder"></i> Proyecto relacionado</span>` : ''}
+            </div>
+        </div>
+        ${actionButtons}
+    `;
+    
+    return card;
+}
+
+// Approve cost
+async function approveCost(costId) {
+    if (!confirm('¿Estás seguro de que quieres aprobar este costo adicional?')) {
+        return;
+    }
+    
+    try {
+        const { updateDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        await updateDoc(doc(db, 'costs', costId), {
+            status: 'approved',
+            updatedAt: new Date().toISOString(),
+            approvedBy: 'user',
+            approvedAt: new Date().toISOString()
+        });
+        
+        showNotification('Costo aprobado exitosamente', 'success');
+        loadCosts();
+        
+    } catch (error) {
+        console.error('Error approving cost:', error);
+        showNotification('Error al aprobar costo: ' + error.message, 'error');
+    }
+}
+
+// Reject cost
+async function rejectCost(costId) {
+    if (!confirm('¿Estás seguro de que quieres rechazar este costo adicional?')) {
+        return;
+    }
+    
+    try {
+        const { updateDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        await updateDoc(doc(db, 'costs', costId), {
+            status: 'rejected',
+            updatedAt: new Date().toISOString(),
+            rejectedBy: 'user',
+            rejectedAt: new Date().toISOString()
+        });
+        
+        showNotification('Costo rechazado', 'success');
+        loadCosts();
+        
+    } catch (error) {
+        console.error('Error rejecting cost:', error);
+        showNotification('Error al rechazar costo: ' + error.message, 'error');
+    }
+}
+
+// Get status label
+function getStatusLabel(status) {
+    const labels = {
+        'planning': 'Planificación',
+        'in-progress': 'En Progreso',
+        'completed': 'Completado',
+        'cancelled': 'Cancelado'
+    };
+    return labels[status] || status;
+}
+
+// Get estimated days for project type
+function getEstimatedDays(projectType) {
+    const estimates = {
+        'sitio-web': 14,
+        'app-movil': 21,
+        'app-web': 18,
+        'ecommerce': 21,
+        'sistema-empresarial': 30
+    };
+    return estimates[projectType] || 14;
+}
+
+// Get project progress based on status
+function getProjectProgress(status) {
+    const progress = {
+        'planning': 10,
+        'in-progress': 50,
+        'completed': 100,
+        'cancelled': 0
+    };
+    return progress[status] || 0;
+}
+
+// Show message when no project is found
+function showNoProjectMessage() {
+    const projectNameEl = document.getElementById('projectName');
+    const projectTypeEl = document.getElementById('projectType');
+    const projectStatusEl = document.getElementById('projectStatus');
+    const projectValueEl = document.getElementById('projectValue');
+    
+    if (projectNameEl) projectNameEl.textContent = 'No hay proyecto asignado';
+    if (projectTypeEl) projectTypeEl.textContent = '-';
+    if (projectStatusEl) {
+        projectStatusEl.textContent = 'Sin proyecto';
+        projectStatusEl.className = 'status-badge';
+    }
+    if (projectValueEl) projectValueEl.textContent = '$0.00';
+}
+
+// Call loadProjectInfo when dashboard loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add a small delay to ensure all elements are loaded
+    setTimeout(loadProjectInfo, 100);
+});
+
+// Multimedia Projects Management
+let currentMultimediaData = null;
+
+// Load multimedia projects for the current user
+async function loadMultimediaProjects() {
+    try {
+        const { getDocs, collection, query, where, orderBy } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        // Get current user email
+        const userEmail = localStorage.getItem('userEmail') || 
+                         (localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).email : null);
+        
+        if (!userEmail) {
+            console.error('No user email found');
+            return;
+        }
+        
+        console.log('Loading multimedia projects for user:', userEmail);
+        
+        // Query multimedia projects for this user
+        const multimediaQuery = query(
+            collection(db, 'multimedia'),
+            where('userEmail', '==', userEmail),
+            orderBy('createdAt', 'desc')
+        );
+        
+        const multimediaSnapshot = await getDocs(multimediaQuery);
+        const multimediaList = document.getElementById('multimediaList');
+        
+        if (multimediaList) {
+            multimediaList.innerHTML = '';
+            
+            if (multimediaSnapshot.empty) {
+                multimediaList.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-video"></i>
+                        <p>No hay proyectos multimedia</p>
+                        <small>Los proyectos multimedia aparecerán aquí cuando el administrador los suba</small>
+                    </div>
+                `;
+            } else {
+                multimediaSnapshot.forEach(doc => {
+                    const multimedia = doc.data();
+                    multimedia.id = doc.id;
+                    const multimediaCard = createMultimediaCard(multimedia);
+                    multimediaList.appendChild(multimediaCard);
+                });
+            }
+        }
+        
+        console.log('Multimedia projects loaded successfully');
+        
+    } catch (error) {
+        console.error('Error loading multimedia projects:', error);
+        const multimediaList = document.getElementById('multimediaList');
+        if (multimediaList) {
+            multimediaList.innerHTML = `
+                <div class="no-data">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Error al cargar proyectos multimedia</p>
+                    <small>Intenta recargar la página</small>
+                </div>
+            `;
+        }
+    }
+}
+
+// Create multimedia card for user dashboard
+function createMultimediaCard(multimedia) {
+    const card = document.createElement('div');
+    card.className = 'multimedia-card';
+    
+    const typeIcon = multimedia.type === 'video' ? 'fas fa-video' : 'fas fa-music';
+    const typeText = multimedia.type === 'video' ? 'Video' : 'Audio';
+    const createdDate = new Date(multimedia.createdAt).toLocaleDateString('es-ES');
+    
+    card.innerHTML = `
+        <div class="multimedia-card-header">
+            <div class="multimedia-type-badge">
+                <i class="${typeIcon}"></i>
+                <span>${typeText}</span>
+            </div>
+            <div class="multimedia-date">
+                <i class="fas fa-calendar"></i>
+                <span>${createdDate}</span>
+            </div>
+        </div>
+        <div class="multimedia-card-content">
+            <h3 class="multimedia-title">${multimedia.title}</h3>
+            <p class="multimedia-description">${multimedia.description}</p>
+            <div class="multimedia-file-info">
+                <span class="file-name">
+                    <i class="fas fa-file"></i>
+                    ${multimedia.fileName}
+                </span>
+                <span class="file-size">
+                    <i class="fas fa-weight"></i>
+                    ${formatFileSize(multimedia.fileSize)}
+                </span>
+            </div>
+        </div>
+        <div class="multimedia-card-actions">
+            <button class="btn-primary" onclick="viewMultimedia('${multimedia.id}')">
+                <i class="fas fa-play"></i>
+                Ver ${typeText}
+            </button>
+            <button class="btn-secondary" onclick="downloadMultimediaFile('${multimedia.fileUrl}', '${multimedia.fileName}')">
+                <i class="fas fa-download"></i>
+                Descargar
+            </button>
+        </div>
+    `;
+    
+    return card;
+}
+
+// View multimedia in modal
+async function viewMultimedia(multimediaId) {
+    try {
+        const { getDoc, doc } = await import('firebase/firestore');
+        const { db } = await import('./firebase-config.js');
+        
+        const multimediaDoc = await getDoc(doc(db, 'multimedia', multimediaId));
+        
+        if (!multimediaDoc.exists()) {
+            showNotification('Proyecto multimedia no encontrado', 'error');
+            return;
+        }
+        
+        const multimedia = multimediaDoc.data();
+        currentMultimediaData = multimedia;
+        
+        // Open modal
+        const modal = document.getElementById('multimediaViewerModal');
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Set title
+        document.getElementById('multimediaViewerTitle').textContent = multimedia.title;
+        
+        // Set description
+        document.getElementById('multimediaDescription').textContent = multimedia.description;
+        
+        // Set metadata
+        const metadata = document.getElementById('multimediaMeta');
+        const createdDate = new Date(multimedia.createdAt).toLocaleDateString('es-ES');
+        metadata.innerHTML = `
+            <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                <span>Subido: ${createdDate}</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-file"></i>
+                <span>Archivo: ${multimedia.fileName}</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-weight"></i>
+                <span>Tamaño: ${formatFileSize(multimedia.fileSize)}</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-tag"></i>
+                <span>Tipo: ${multimedia.type === 'video' ? 'Video' : 'Audio'}</span>
+            </div>
+        `;
+        
+        // Create player
+        const player = document.getElementById('multimediaPlayer');
+        player.innerHTML = '';
+        
+        if (multimedia.type === 'video') {
+            const video = document.createElement('video');
+            video.src = multimedia.fileUrl;
+            video.controls = true;
+            video.style.width = '100%';
+            video.style.maxHeight = '400px';
+            video.style.borderRadius = '8px';
+            video.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            player.appendChild(video);
+        } else {
+            const audio = document.createElement('audio');
+            audio.src = multimedia.fileUrl;
+            audio.controls = true;
+            audio.style.width = '100%';
+            audio.style.borderRadius = '8px';
+            audio.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
+            player.appendChild(audio);
+        }
+        
+    } catch (error) {
+        console.error('Error viewing multimedia:', error);
+        showNotification('Error al cargar el proyecto multimedia', 'error');
+    }
+}
+
+// Close multimedia viewer
+function closeMultimediaViewer() {
+    const modal = document.getElementById('multimediaViewerModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+    
+    // Clear player
+    const player = document.getElementById('multimediaPlayer');
+    player.innerHTML = '';
+    
+    currentMultimediaData = null;
+}
+
+// Download multimedia file
+function downloadMultimediaFile(fileUrl, fileName) {
+    try {
+        // Create a temporary link element
+        const link = document.createElement('a');
+        link.href = fileUrl;
+        link.download = fileName;
+        link.target = '_blank';
+        
+        // Trigger download
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification('Descarga iniciada', 'success');
+        
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        showNotification('Error al descargar el archivo', 'error');
+    }
+}
+
+// Download multimedia from modal
+function downloadMultimedia() {
+    if (currentMultimediaData) {
+        downloadMultimediaFile(currentMultimediaData.fileUrl, currentMultimediaData.fileName);
+    }
+}
+
+// Format file size helper function
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}

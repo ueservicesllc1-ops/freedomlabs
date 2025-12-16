@@ -9,6 +9,17 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://unpkg.com/i18next@23.7.6/dist/umd/i18next.min.js"></script>
     <script src="https://unpkg.com/i18next-browser-languagedetector@7.2.0/dist/umd/i18nextBrowserLanguageDetector.min.js"></script>
+    <!-- Import Map for Firebase ES Modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "firebase/app": "https://jspm.dev/firebase@12.4.0/app",
+            "firebase/auth": "https://jspm.dev/firebase@12.4.0/auth",
+            "firebase/firestore": "https://jspm.dev/firebase@12.4.0/firestore",
+            "firebase/storage": "https://jspm.dev/firebase@12.4.0/storage"
+        }
+    }
+    </script>
 </head>
 <body class="home-page">
     <!-- Matrix Rain Effect -->
@@ -47,26 +58,14 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form class="auth-form" id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail" data-i18n="auth.email">Correo Electrónico</label>
-                    <input type="email" id="loginEmail" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword" data-i18n="auth.password">Contraseña</label>
-                    <input type="password" id="loginPassword" name="password" required>
-                </div>
-                <button type="submit" class="btn-auth">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span data-i18n="auth.loginButton">Iniciar Sesión</span>
-                </button>
-                <div class="divider">
-                </div>
-                <button type="button" class="btn-google" onclick="loginWithGoogle()">
+            <div class="auth-content">
+                <p class="auth-description">Inicia sesión con tu cuenta de Google para acceder a tu panel personalizado</p>
+                <button class="btn-google" onclick="loginWithGoogle()">
                     <i class="fab fa-google"></i>
                     Continuar con Google
                 </button>
-            </form>
+                <p class="auth-note">Solo se requiere una cuenta de Google para acceder al sistema</p>
+            </div>
         </div>
     </div>
 
@@ -79,34 +78,14 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <form class="auth-form" id="registerForm">
-                <div class="form-group">
-                    <label for="registerName" data-i18n="auth.fullName">Nombre Completo</label>
-                    <input type="text" id="registerName" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail" data-i18n="auth.email">Correo Electrónico</label>
-                    <input type="email" id="registerEmail" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword" data-i18n="auth.password">Contraseña</label>
-                    <input type="password" id="registerPassword" name="password" required>
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword" data-i18n="auth.confirmPassword">Confirmar Contraseña</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" required>
-                </div>
-                <button type="submit" class="btn-auth">
-                    <i class="fas fa-user-plus"></i>
-                    <span data-i18n="auth.registerButton">Crear Cuenta</span>
-                </button>
-                <div class="divider">
-                </div>
-                <button type="button" class="btn-google" onclick="registerWithGoogle()">
+            <div class="auth-content">
+                <p class="auth-description">Crea tu cuenta usando tu cuenta de Google para acceder a tu panel personalizado</p>
+                <button class="btn-google" onclick="registerWithGoogle()">
                     <i class="fab fa-google"></i>
                     Registrarse con Google
                 </button>
-            </form>
+                <p class="auth-note">Solo se requiere una cuenta de Google para registrarse</p>
+            </div>
         </div>
     </div>
 

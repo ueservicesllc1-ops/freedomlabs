@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freedom Labs - Admin</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="productivity-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+</head>
+
+<body>
+    <!-- PIN Screen -->
+    <div id="pinScreen" class="screen active">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="assets/logo.png" alt="Freedom Labs" class="logo">
+                <h1>Freedom Labs Admin</h1>
+                <p>Panel de Administración</p>
+            </div>
+
+            <div class="auth-form">
+                <div class="form-group">
+                    <label>PIN de Acceso</label>
+                    <input type="password" id="pinInput" placeholder="Ingresa el PIN" maxlength="10" required autofocus>
+                </div>
+                <button type="button" id="pinSubmitBtn" class="btn-primary">Acceder</button>
+            </div>
+
+            <div id="pinError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="dashboardScreen" class="screen">
+        <header class="app-header">
+            <div class="header-left">
+                <h2>Freedom Labs Admin Panel</h2>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <span id="userNameDisplay"></span>
+                </div>
+                <button id="logoutBtn" class="btn-secondary">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <main class="app-main">
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <a href="#" class="nav-item active" data-view="assistants">
+                        <i class="fas fa-users"></i>
+                        <span>Ayudantes</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="create-user">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Crear Usuario</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="projects">
+                        <i class="fas fa-folder"></i>
+                        <span>Proyectos</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="analytics">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analíticas</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="productivity">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Productividad</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="notifications">
+                        <i class="fas fa-bell"></i>
+                        <span>Notificaciones</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Configuración</span>
+                    </a>
+                </nav>
+            </aside>
+
+            <div class="content-area">
+                <!-- Assistants View -->
+                <div id="assistantsView" class="view active">
+                    <div class="view-header">
+                        <h2>Gestión de Ayudantes</h2>
+                        <div class="view-stats">
+                            <div class="stat-badge">
+                                <span class="stat-label">En línea:</span>
+                                <span class="stat-value" id="onlineCount">0</span>
+                            </div>
+                            <div class="stat-badge">
+                                <span class="stat-label">Total:</span>
+                                <span class="stat-value" id="totalCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="assistants-table">
+                        <div class="assistants-header">
+                            <div class="assistants-col-name">Nombre / Rol</div>
+                            <div class="assistants-col-email">Email</div>
+                            <div class="assistants-col-username">Usuario</div>
+                            <div class="assistants-col-hours">Horas</div>
+                            <div class="assistants-col-lastseen">Última conexión</div>
+                            <div class="assistants-col-status">Estado</div>
+                            <div class="assistants-col-details">Detalles</div>
+                            <div class="assistants-col-actions">Acciones</div>
+                        </div>
+                        <div id="assistantsList" class="assistants-grid"></div>
+                    </div>
+                </div>
+
+                <!-- Create User View -->
+                <div id="create-userView" class="view">
+                    <h2>Crear Nuevo Ayudante</h2>
+                    <div class="create-user-container">
+                        <form id="createUserForm" class="create-user-form">
+                            <div class="form-group">
+                                <label>Nombre Completo</label>
+                                <input type="text" id="createUserName" placeholder="Ej: Juan Pérez" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="createUserEmail" placeholder="juan@ejemplo.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Nombre de Usuario</label>
+                                <input type="text" id="createUserUsername" placeholder="juanperez" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Contraseña</label>
+                                <input type="password" id="createUserPassword" placeholder="Mínimo 6 caracteres"
+                                    required minlength="6">
+                            </div>
+                            <div class="form-group">
+                                <label>Rol</label>
+                                <select id="createUserRole" required>
+                                    <option value="">Selecciona un rol</option>
+                                    <option value="designer">Diseñador Gráfico</option>
+                                    <option value="community_manager">Community Manager</option>
+                                    <option value="digitizer">Digitador</option>
+                                    <option value="videografo">Videógrafo</option>
+                                    <option value="desarrollador">Desarrollador</option>
+                                </select>
+                            </div>
+                            <div id="createUserError" class="error-message"></div>
+                            <div id="createUserSuccess" class="success-message"></div>
+                            <button type="submit" class="btn-primary">Crear Usuario</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Projects View -->
+                <div id="projectsView" class="view">
+                    <div class="view-header">
+                        <h2>Proyectos</h2>
+                        <button id="createProjectBtn" class="btn-primary" style="padding: 10px 20px;">
+                            <i class="fas fa-plus"></i> Crear Nuevo Proyecto
+                        </button>
+                    </div>
+                    <div id="projectsList" class="projects-grid"></div>
+                </div>
+
+                <!-- Analytics View -->
+                <div id="analyticsView" class="view">
+                    <h2>Analíticas y Reportes</h2>
+                    <div class="analytics-container">
+                        <div class="analytics-card">
+                            <h3>Horas Totales Trabajadas</h3>
+                            <p class="analytics-value" id="totalHoursWorked">0</p>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>Promedio Diario</h3>
+                            <p class="analytics-value" id="dailyAverage">0</p>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>Ayudante Más Activo</h3>
+                            <p class="analytics-value" id="mostActive">-</p>
+                        </div>
+                    </div>
+                    <div id="sessionsChart" class="chart-container">
+                        <h3>Sesiones de Trabajo</h3>
+                        <div id="sessionsList" class="sessions-list"></div>
+                    </div>
+                </div>
+
+                <!-- Productivity View -->
+                <div id="productivityView" class="view">
+                    <div class="view-header">
+                        <h2>Monitoreo de Productividad</h2>
+                        <div class="view-stats">
+                            <div class="stat-badge">
+                                <span class="stat-label">Asistente:</span>
+                                <select id="productivityUserSelect"
+                                    style="padding: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: white; font-size: 14px;">
+                                    <option value="">Seleccionar...</option>
+                                </select>
+                            </div>
+                            <div class="stat-badge">
+                                <span class="stat-label">Período:</span>
+                                <select id="productivityPeriodSelect"
+                                    style="padding: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px; color: white; font-size: 14px;">
+                                    <option value="today">Hoy</option>
+                                    <option value="week">Esta semana</option>
+                                    <option value="month">Este mes</option>
+                                </select>
+                            </div>
+                            <button id="refreshProductivityBtn" class="btn-primary" style="padding: 8px 16px;">
+                                <i class="fas fa-sync"></i> Actualizar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="productivityContent" class="productivity-container">
+                        <p style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
+                            Selecciona un asistente para ver su productividad
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Notifications View -->
+                <div id="notificationsView" class="view">
+                    <div class="view-header">
+                        <h2>Gestión de Notificaciones</h2>
+                        <button class="btn-primary" onclick="openCreateNotificationModal()">
+                            <i class="fas fa-plus"></i> Nueva Notificación
+                        </button>
+                    </div>
+
+                    <div id="notificationsList" style="margin-top: 20px;">
+                        <div class="loading-message">Cargando notificaciones...</div>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="settingsView" class="view">
+                    <h2>Configuración</h2>
+                    <div class="settings-container">
+                        <div class="setting-item">
+                            <label>Actualizar cada:</label>
+                            <select id="refreshInterval">
+                                <option value="5000">5 segundos</option>
+                                <option value="10000" selected>10 segundos</option>
+                                <option value="30000">30 segundos</option>
+                                <option value="60000">1 minuto</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Assistant Detail Modal -->
+    <div id="assistantModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalAssistantName">Detalles del Ayudante</h2>
+            <div id="modalAssistantDetails"></div>
+        </div>
+    </div>
+
+    <!-- Edit Assistant Modal -->
+    <div id="editAssistantModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-edit-modal">&times;</span>
+            <h2>Editar Ayudante</h2>
+            <form id="editAssistantForm" class="create-user-form">
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="editAssistantName" placeholder="Ej: Juan Pérez" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editAssistantEmail" placeholder="juan@ejemplo.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre de Usuario</label>
+                    <input type="text" id="editAssistantUsername" placeholder="juanperez" required>
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select id="editAssistantRole" required>
+                        <option value="">Selecciona un rol</option>
+                        <option value="designer">Diseñador Gráfico</option>
+                        <option value="community_manager">Community Manager</option>
+                        <option value="digitizer">Digitador</option>
+                        <option value="videografo">Videógrafo</option>
+                        <option value="desarrollador">Desarrollador</option>
+                    </select>
+                </div>
+                <div id="editAssistantError" class="error-message"></div>
+                <div id="editAssistantSuccess" class="success-message"></div>
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">Guardar Cambios</button>
+                    <button type="button" id="deleteAssistantBtn" class="btn-danger"
+                        style="flex: 1; background: #ef4444;">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Project Modal -->
+    <div id="createProjectModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close-project-modal">&times;</span>
+            <h2>Crear Nuevo Proyecto</h2>
+            <form id="createProjectForm" class="create-user-form">
+                <div class="form-group">
+                    <label>Nombre del Proyecto</label>
+                    <input type="text" id="projectName" placeholder="Ej: Sitio Web Corporativo" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción / Detalles</label>
+                    <textarea id="projectDescription" placeholder="Describe el proyecto..." rows="4"
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Asignar a Asistentes</label>
+                    <div id="assistantsCheckboxList"
+                        style="max-height: 200px; overflow-y: auto; background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <p style="color: rgba(255,255,255,0.5);">Cargando asistentes...</p>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Carpeta Compartida de Google Drive (Opcional)</label>
+                    <input type="url" id="projectDriveFolder" placeholder="https://drive.google.com/drive/folders/..."
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%;">
+                    <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;">Comparte la carpeta de
+                        Drive y pega el enlace aquí. Los usuarios podrán acceder directamente desde su app.</p>
+                </div>
+                <div class="form-group">
+                    <label>Archivos del Proyecto (Subir a B2)</label>
+                    <div style="border: 2px dashed rgba(255, 255, 255, 0.3); border-radius: 10px; padding: 20px; text-align: center; cursor: pointer;"
+                        id="projectFilesDropZone" onclick="document.getElementById('projectFilesInput').click()">
+                        <i class="fas fa-cloud-upload-alt"
+                            style="font-size: 48px; color: rgba(255,255,255,0.5); margin-bottom: 10px;"></i>
+                        <p style="color: rgba(255,255,255,0.7);">Arrastra archivos aquí o haz clic para seleccionar</p>
+                        <p style="font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px;">Puedes seleccionar
+                            múltiples archivos</p>
+                    </div>
+                    <input type="file" id="projectFilesInput" multiple style="display: none;">
+                    <div id="projectFilesPreview" style="margin-top: 15px;"></div>
+                </div>
+                <div id="createProjectError" class="error-message"></div>
+                <div id="createProjectSuccess" class="success-message"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> Crear Proyecto
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="closeCreateProjectModal()" style="flex: 1;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Project Details Modal -->
+    <div id="projectDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <span class="close-project-details">&times;</span>
+            <h2 id="projectDetailsName">Detalles del Proyecto</h2>
+            <div id="projectDetailsContent"></div>
+        </div>
+    </div>
+
+    <!-- Edit Project Assignments Modal -->
+    <div id="editProjectAssignmentsModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-edit-assignments">&times;</span>
+            <h2>Editar Asignaciones del Proyecto</h2>
+            <form id="editProjectAssignmentsForm" class="create-user-form">
+                <div class="form-group">
+                    <label>Asignar a Asistentes (puedes seleccionar múltiples)</label>
+                    <div id="editAssistantsCheckboxList"
+                        style="max-height: 300px; overflow-y: auto; background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                        <p style="color: rgba(255,255,255,0.5);">Cargando asistentes...</p>
+                    </div>
+                </div>
+                <div id="editAssignmentsError" class="error-message"></div>
+                <div id="editAssignmentsSuccess" class="success-message"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> Guardar Asignaciones
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="closeEditAssignmentsModal()" style="flex: 1;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Drive Folder Modal -->
+    <div id="editDriveFolderModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-edit-drive-folder">&times;</span>
+            <h2>Editar Carpeta de Google Drive</h2>
+            <form id="editDriveFolderForm" class="create-user-form">
+                <div class="form-group">
+                    <label>URL de la Carpeta Compartida de Google Drive</label>
+                    <input type="url" id="editDriveFolderUrl" placeholder="https://drive.google.com/drive/folders/..."
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%;">
+                    <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;">Comparte la carpeta de
+                        Drive y pega el enlace aquí. Los usuarios podrán acceder directamente desde su app.</p>
+                </div>
+                <div id="editDriveFolderError" class="error-message"></div>
+                <div id="editDriveFolderSuccess" class="success-message"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="closeEditDriveFolderModal()" style="flex: 1;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Notification Modal -->
+    <div id="createNotificationModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" onclick="closeCreateNotificationModal()">&times;</span>
+            <h2>Crear Notificación</h2>
+            <form id="createNotificationForm" class="create-user-form">
+                <div class="form-group">
+                    <label>Tipo de Notificación</label>
+                    <select id="notificationType" required
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%;">
+                        <option value="general">General</option>
+                        <option value="update">Actualización de App</option>
+                        <option value="announcement">Anuncio</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="notificationTitle" placeholder="Título de la notificación" required
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%;">
+                </div>
+
+                <div class="form-group">
+                    <label>Mensaje</label>
+                    <textarea id="notificationMessage" placeholder="Mensaje de la notificación" rows="4" required
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%; resize: vertical;"></textarea>
+                </div>
+
+                <div id="updateFields" style="display: none;">
+                    <div class="form-group">
+                        <label>Versión (ej: 1.0.1)</label>
+                        <input type="text" id="notificationVersion" placeholder="1.0.1" pattern="[0-9]+\.[0-9]+\.[0-9]+"
+                            style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%;">
+                        <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;">Versión de la nueva
+                            actualización</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Link de Descarga (Google Drive)</label>
+                        <input type="url" id="notificationDownloadLink"
+                            placeholder="https://drive.google.com/file/d/..."
+                            style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%;">
+                        <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;">Link de descarga de
+                            la nueva versión</p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Enviar a</label>
+                    <select id="notificationTarget" required
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%;">
+                        <option value="all">Todos los usuarios</option>
+                    </select>
+                    <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;">Selecciona usuarios
+                        específicos o todos</p>
+                </div>
+
+                <div id="createNotificationError" class="error-message"></div>
+                <div id="createNotificationSuccess" class="success-message"></div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">
+                        <i class="fas fa-paper-plane"></i> Enviar Notificación
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="closeCreateNotificationModal()"
+                        style="flex: 1;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="firebase-config-web.js"></script>
+    <script src="productivity-dashboard.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

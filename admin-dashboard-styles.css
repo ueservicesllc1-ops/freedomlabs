@@ -999,6 +999,43 @@ td {
     color: var(--primary-color);
 }
 
+.btn-info {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-info:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Action buttons in tables */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.action-buttons .btn-info {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    min-width: auto;
+}
+
+.action-buttons .btn-info i {
+    font-size: 0.875rem;
+}
+
 /* Project Upload Modal Styles */
 .project-upload-modal {
     position: fixed;
@@ -1371,6 +1408,564 @@ td {
 
 .project-actions .btn-danger:hover {
     background: #dc2626;
+}
+
+/* Demo link styling in admin */
+.project-actions .demo-link {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: none !important;
+    text-decoration: none;
+}
+
+.project-actions .demo-link:hover {
+    background: var(--primary-dark) !important;
+    color: white !important;
+    text-decoration: none;
+}
+
+/* Admin Requirements and Costs Styling */
+.requirements-admin-list, .costs-admin-list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.admin-requirement-card, .admin-cost-card {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.admin-requirement-card:hover, .admin-cost-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.requirement-info, .cost-info {
+    flex: 1;
+}
+
+.requirement-user, .cost-user {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0 0 0;
+}
+
+.requirement-actions, .cost-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.requirement-actions button, .cost-actions button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.requirement-actions .btn-warning {
+    background: #f59e0b;
+    color: white;
+}
+
+.requirement-actions .btn-warning:hover {
+    background: #d97706;
+}
+
+.requirement-actions .btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.requirement-actions .btn-success:hover {
+    background: #059669;
+}
+
+/* User Edit Modal Styling */
+.user-edit-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.user-edit-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.user-edit-modal-content {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+}
+
+.user-edit-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.user-edit-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.user-edit-modal-body {
+    padding: 1.5rem;
+}
+
+.user-edit-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.user-edit-modal .form-group {
+    margin-bottom: 1rem;
+}
+
+.user-edit-modal .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.user-edit-modal .form-group input,
+.user-edit-modal .form-group select,
+.user-edit-modal .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.user-edit-modal .form-group input:focus,
+.user-edit-modal .form-group select:focus,
+.user-edit-modal .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.user-edit-modal .form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Cost Creation Modal Styling */
+.cost-creation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.cost-creation-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.cost-creation-modal-content {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+}
+
+.cost-creation-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.cost-creation-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.cost-creation-modal-body {
+    padding: 1.5rem;
+}
+
+.cost-creation-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.cost-creation-modal .form-group {
+    margin-bottom: 1rem;
+}
+
+.cost-creation-modal .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.cost-creation-modal .form-group input,
+.cost-creation-modal .form-group select,
+.cost-creation-modal .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.cost-creation-modal .form-group input:focus,
+.cost-creation-modal .form-group select:focus,
+.cost-creation-modal .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.cost-creation-modal .form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.cost-requirement {
+    font-size: 0.875rem;
+    color: var(--primary-color);
+    margin: 0.25rem 0 0 0;
+    font-weight: 500;
+}
+
+/* Multimedia Projects Styling */
+.multimedia-admin-list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.admin-multimedia-card {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.admin-multimedia-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.multimedia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.multimedia-info {
+    flex: 1;
+}
+
+.multimedia-info h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.multimedia-user, .multimedia-type {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0.25rem 0;
+}
+
+.multimedia-type i {
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+.multimedia-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.multimedia-content {
+    margin-bottom: 1rem;
+}
+
+.multimedia-content p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+.multimedia-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.multimedia-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Multimedia Upload Modal Styling */
+.multimedia-upload-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.multimedia-upload-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.multimedia-upload-modal-content {
+    background: var(--bg-primary);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-xl);
+}
+
+.multimedia-upload-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.multimedia-upload-modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.multimedia-upload-modal-body {
+    padding: 1.5rem;
+}
+
+.multimedia-upload-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.multimedia-upload-modal .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.multimedia-upload-modal .form-group label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.multimedia-upload-modal .form-group input,
+.multimedia-upload-modal .form-group select,
+.multimedia-upload-modal .form-group textarea {
+    width: 100%;
+    padding: 0.875rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--bg-primary);
+}
+
+.multimedia-upload-modal .form-group input:focus,
+.multimedia-upload-modal .form-group select:focus,
+.multimedia-upload-modal .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.multimedia-upload-modal .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* File Preview Styling */
+.file-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 2px dashed var(--border-color);
+}
+
+.preview-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.preview-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.file-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.file-size {
+    color: var(--text-secondary);
+}
+
+.preview-media {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+}
+
+.preview-media video,
+.preview-media audio {
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+}
+
+/* Cost Creation Form Styling */
+.cost-creation-modal .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.cost-creation-modal .form-group label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.cost-creation-modal .form-group input,
+.cost-creation-modal .form-group select,
+.cost-creation-modal .form-group textarea {
+    width: 100%;
+    padding: 0.875rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--bg-primary);
+}
+
+.cost-creation-modal .form-group input:focus,
+.cost-creation-modal .form-group select:focus,
+.cost-creation-modal .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.cost-creation-modal .form-group select {
+    cursor: pointer;
+}
+
+.cost-creation-modal .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Form flow indicators */
+.cost-creation-modal .form-group:nth-child(1) label::before {
+    content: "👤 ";
+}
+
+.cost-creation-modal .form-group:nth-child(2) label::before {
+    content: "📁 ";
+}
+
+.cost-creation-modal .form-group:nth-child(3) label::before {
+    content: "📋 ";
+}
+
+.cost-creation-modal .form-group:nth-child(4) label::before {
+    content: "💰 ";
+}
+
+.cost-creation-modal .form-group:nth-child(5) label::before {
+    content: "💵 ";
+}
+
+.cost-creation-modal .form-group:nth-child(6) label::before {
+    content: "⚡ ";
 }
 
 .no-projects {
@@ -1918,4 +2513,119 @@ td {
         align-items: flex-start;
         gap: 1rem;
     }
+}
+
+/* User Selector Styles */
+.user-selector {
+    position: relative;
+}
+
+.user-selector-header {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.user-selector-header select {
+    flex: 1;
+}
+
+.btn-reload-users {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+}
+
+.btn-reload-users:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.btn-reload-users i {
+    font-size: 0.9rem;
+}
+
+.new-user-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.new-user-form input {
+    width: 100%;
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.new-user-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.user-status {
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.user-status.success {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+
+.user-status.warning {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.user-status.error {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.btn-create-user {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-create-user:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-create-user:disabled {
+    background: var(--text-secondary);
+    cursor: not-allowed;
+    transform: none;
 }

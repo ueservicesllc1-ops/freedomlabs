@@ -1,0 +1,47 @@
+{
+  "name": "freedomlabs-admin-app",
+  "version": "1.0.16",
+  "buildNumber": 19,
+  "description": "Freedom Labs - Admin Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "prebuild": "node ../increment-build.js admin-app",
+    "prebuild:win": "node ../increment-build.js admin-app",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "electron",
+    "freedomlabs",
+    "admin"
+  ],
+  "author": "Freedom Labs",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "firebase": "^12.4.0",
+    "electron-updater": "^6.6.2"
+  },
+  "build": {
+    "appId": "com.freedomlabs.admin",
+    "productName": "Freedom Labs Admin",
+    "win": {
+      "target": "nsis",
+      "artifactName": "Freedom Labs Admin Setup.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "publish": {
+      "provider": "generic",
+      "url": "https://drive.google.com/uc?export=download&id=1j_cwLaJkfgoimdzt7n7ecGvMfoCpW9_9"
+    }
+  }
+}

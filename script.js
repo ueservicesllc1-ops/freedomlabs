@@ -645,13 +645,13 @@ function createProjectCard(project) {
             <p class="project-description">${project.description}</p>
             <div class="project-links">
                 ${project.demoUrl ? `
-                    <a href="${project.demoUrl}" class="project-link" target="_blank" rel="noopener">
+                    <a href="${project.demoUrl.startsWith('http') ? project.demoUrl : 'https://' + project.demoUrl}" class="project-link" target="_blank" rel="noopener">
                         <i class="fas fa-external-link-alt"></i>
                         Ver Demo
                     </a>
                 ` : ''}
                 ${project.githubUrl ? `
-                    <a href="${project.githubUrl}" class="project-link" target="_blank" rel="noopener">
+                    <a href="${project.githubUrl.startsWith('http') ? project.githubUrl : 'https://' + project.githubUrl}" class="project-link" target="_blank" rel="noopener">
                         <i class="fab fa-github"></i>
                         Código
                     </a>
@@ -724,107 +724,12 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Login form handler
+// Login form handler - Now only Google Sign-In
 document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                // Import Firebase auth functions
-                const { signIn } = await import('./firebase-config.js');
-                await signIn(email, password);
-                
-                // Show success message
-                showNotification('¡Inicio de sesión exitoso!', 'success');
-                closeLoginModal();
-                
-                // Save user data to localStorage
-                const user = {
-                    name: 'Cliente',
-                    email: email,
-                    loginTime: new Date().toISOString()
-                };
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                // Update UI to show user info
-                checkAuthStatus();
-                
-                // Check admin access
-                checkAdminAccess(email);
-                
-                // Redirect to dashboard
-                setTimeout(() => {
-                    window.location.href = window.location.origin + '/dashboard.html';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                showNotification('Error al iniciar sesión: ' + error.message, 'error');
-            }
-        });
-    }
+    console.log('Login form removed - only Google Sign-In available');
 
-    // Register form handler
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Validate passwords match
-            if (password !== confirmPassword) {
-                showNotification('Las contraseñas no coinciden', 'error');
-                return;
-            }
-            
-            // Validate password strength
-            if (password.length < 6) {
-                showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
-                return;
-            }
-            
-            try {
-                // Import Firebase auth functions
-                const { register } = await import('./firebase-config.js');
-                
-                // Register with email and password
-                await register(email, password);
-                
-                // Show success message
-                showNotification('¡Cuenta creada exitosamente!', 'success');
-                closeRegisterModal();
-                
-                // Save user data to localStorage
-                const user = {
-                    name: name,
-                    email: email,
-                    loginTime: new Date().toISOString()
-                };
-                localStorage.setItem('user', JSON.stringify(user));
-                
-                // Check admin access
-                checkAdminAccess(email);
-                
-                // Redirect to dashboard
-                setTimeout(() => {
-                    window.location.href = window.location.origin + '/dashboard.html';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Register error:', error);
-                showNotification('Error al crear cuenta: ' + error.message, 'error');
-            }
-        });
-    }
+    // Register form handler - Now only Google Sign-In
+    console.log('Register form removed - only Google Sign-In available');
 });
 
 // Google authentication - Make global
@@ -877,12 +782,21 @@ window.registerWithGoogle = async function() {
         showNotification('¡Registro con Google exitoso!', 'success');
         closeRegisterModal();
         
+        // Check and link pending user created by admin
+        const { checkAndLinkPendingUser } = await import('./admin-dashboard-script.js');
+        const wasLinked = await checkAndLinkPendingUser(user.email, user.uid);
+        
+        if (wasLinked) {
+            showNotification('¡Cuenta vinculada a proyectos existentes!', 'success');
+        }
+        
         // Save user data to localStorage
         const userData = {
             name: user.displayName || 'Usuario Google',
             email: user.email,
             photoURL: user.photoURL,
-            loginTime: new Date().toISOString()
+            loginTime: new Date().toISOString(),
+            wasLinked: wasLinked
         };
         localStorage.setItem('user', JSON.stringify(userData));
         
@@ -895,7 +809,7 @@ window.registerWithGoogle = async function() {
         }, 1500);
         
     } catch (error) {
-        console.error('Google register error:', error);
+        console.error('Google registration error:', error);
         showNotification('Error con Google: ' + error.message, 'error');
     }
 }
@@ -903,6 +817,12 @@ window.registerWithGoogle = async function() {
 // Update authentication UI
 function updateAuthUI(isLoggedIn) {
     const authButtons = document.querySelector('.auth-buttons');
+    
+    // Check if the element exists before trying to modify it
+    if (!authButtons) {
+        console.log('Auth buttons element not found, skipping UI update');
+        return;
+    }
     
     if (isLoggedIn) {
         authButtons.innerHTML = `
@@ -926,8 +846,20 @@ window.logout = async function() {
         const { logout } = await import('./firebase-config.js');
         await logout();
         
+        // Clear user data from localStorage
+        localStorage.removeItem('user');
+        
         showNotification('Sesión cerrada exitosamente', 'success');
+        
+        // Update UI if auth buttons exist
         updateAuthUI(false);
+        
+        // If we're on the admin dashboard, redirect to main page
+        if (window.location.pathname.includes('admin-dashboard.html')) {
+            setTimeout(() => {
+                window.location.href = '/index.html';
+            }, 1000);
+        }
         
     } catch (error) {
         console.error('Logout error:', error);

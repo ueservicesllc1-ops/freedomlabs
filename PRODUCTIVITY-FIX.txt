@@ -1,0 +1,41 @@
+// Fix for productivity-dashboard.js - replace lines 695-end
+
+    }
+    
+    async takeManualScreenshot() {
+        if (!this.currentUserId) {
+            alert('Por favor selecciona un asistente primero');
+            return;
+        }
+        
+        try {
+            // Create a command in Firestore for the assistant to take a screenshot
+            await this.firebase.db.collection('screenshotCommands').add({
+                userId: this.currentUserId,
+                timestamp: new Date(),
+                status: 'pending',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            alert('Comando enviado. El screenshot se tomará en unos segundos...');
+            
+            // Reload data after 5 seconds
+            setTimeout(() => {
+                this.loadProductivityData();
+            }, 5000);
+            
+        } catch (error) {
+            console.error('Error taking manual screenshot:', error);
+            alert('Error al tomar screenshot: ' + error.message);
+        }
+    }
+    
+    destroy() {
+        // Clean up listeners
+        this.unsubscribes.forEach(unsub => unsub());
+        this.unsubscribes = [];
+    }
+}
+
+// Export for use in app.js
+window.ProductivityDashboard = ProductivityDashboard;
