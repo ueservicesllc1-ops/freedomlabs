@@ -6,42 +6,42 @@ console.log('Script.js loaded successfully');
 // Matrix Rain Effect - Canvas Implementation
 function initMatrixRain() {
     console.log('Initializing Matrix Rain Canvas...');
-    
+
     const canvas = document.getElementById('matrix-canvas');
     if (!canvas) {
         console.error('Matrix canvas not found!');
         return;
     }
-    
+
     const ctx = canvas.getContext('2d');
-    
+
     // Ajusta el tamaño del canvas a la ventana
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
-    
+
     // Caracteres Matrix auténticos (katakana, números, letras)
     const matrixChars = "アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
-    
+
     const fontSize = 18;
     const columns = canvas.width / fontSize;
-    
+
     // Arreglo para las posiciones de caída
     const drops = Array(Math.floor(columns)).fill(1);
-    
+
     function draw() {
         // Fondo negro para efecto Matrix
         ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+
         // Color verde Matrix
         ctx.fillStyle = "#00FF00";
         ctx.font = fontSize + "px monospace";
-        
+
         // Dibujar caracteres
         for (let i = 0; i < drops.length; i++) {
             const text = matrixChars[Math.floor(Math.random() * matrixChars.length)];
             ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-            
+
             // Reinicia la caída de una columna de vez en cuando
             if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
                 drops[i] = 0;
@@ -49,47 +49,47 @@ function initMatrixRain() {
             drops[i]++;
         }
     }
-    
+
     // Iniciar animación
     setInterval(draw, 60); // 60ms
-    
+
     // Redimensionar canvas si cambia el tamaño de ventana
     window.addEventListener('resize', () => {
         canvas.height = window.innerHeight;
         canvas.width = window.innerWidth;
     });
-    
+
     console.log('Matrix Rain Canvas initialized successfully');
 }
 
 // Initialize AOS (Animate On Scroll)
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM Content Loaded');
-    
+
     // Check authentication status
     checkAuthStatus();
-    
+
     // Initialize Matrix Rain first
     initMatrixRain();
-    
+
     // Start the sequence: Matrix -> Logo -> Full Page
     startMatrixSequence();
-    
+
     // Also show content immediately if user clicks anywhere
-    document.addEventListener('click', function() {
+    document.addEventListener('click', function () {
         const pageContent = document.querySelector('.page-content');
         if (pageContent && !pageContent.classList.contains('show')) {
             pageContent.classList.add('show');
             console.log('Page content shown by user click');
         }
     });
-    
+
     AOS.init({
         duration: 1000,
         once: true,
         offset: 100
     });
-    
+
     // Load projects from Firebase
     loadProjectsFromFirebase();
 });
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function startMatrixSequence() {
     // Start the timer immediately
     startMatrixTimer();
-    
+
     // Wait 8 seconds with Matrix full screen
     setTimeout(() => {
         // Fade Matrix to background
@@ -106,7 +106,7 @@ function startMatrixSequence() {
         if (canvas) {
             canvas.classList.add('fade-to-background');
         }
-        
+
         // Show page content
         const pageContent = document.querySelector('.page-content');
         if (pageContent) {
@@ -115,7 +115,7 @@ function startMatrixSequence() {
         } else {
             console.error('Page content not found');
         }
-        
+
         console.log('Matrix faded to background, page content shown');
     }, 3000);
 }
@@ -123,7 +123,7 @@ function startMatrixSequence() {
 // Matrix Timer Functions
 function startMatrixTimer() {
     let seconds = 0;
-    
+
     // Update timer every second
     const timerInterval = setInterval(() => {
         seconds++;
@@ -146,19 +146,19 @@ function updateAnalogClock(seconds) {
     const hourHand = document.getElementById('hourHand');
     const minuteHand = document.getElementById('minuteHand');
     const secondHand = document.getElementById('secondHand');
-    
+
     if (secondHand) {
         // Second hand rotates 6 degrees per second
         const secondRotation = (seconds % 60) * 6;
         secondHand.style.transform = `rotate(${secondRotation}deg)`;
     }
-    
+
     if (minuteHand) {
         // Minute hand rotates 0.1 degrees per second
         const minuteRotation = (seconds % 3600) * 0.1;
         minuteHand.style.transform = `rotate(${minuteRotation}deg)`;
     }
-    
+
     if (hourHand) {
         // Hour hand rotates 0.0083 degrees per second (30 degrees per hour)
         const hourRotation = (seconds % 43200) * 0.0083;
@@ -204,15 +204,15 @@ gsap.to('.shape', {
 
 // Project cards hover effect
 document.querySelectorAll('.project-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
+    card.addEventListener('mouseenter', function () {
         gsap.to(this, {
             scale: 1.05,
             duration: 0.3,
             ease: 'power2.out'
         });
     });
-    
-    card.addEventListener('mouseleave', function() {
+
+    card.addEventListener('mouseleave', function () {
         gsap.to(this, {
             scale: 1,
             duration: 0.3,
@@ -265,15 +265,15 @@ gsap.utils.toArray('.section-title, .section-subtitle').forEach(element => {
 
 // Form animations
 document.querySelectorAll('.form-input').forEach(input => {
-    input.addEventListener('focus', function() {
+    input.addEventListener('focus', function () {
         gsap.to(this, {
             scale: 1.02,
             duration: 0.3,
             ease: 'power2.out'
         });
     });
-    
-    input.addEventListener('blur', function() {
+
+    input.addEventListener('blur', function () {
         gsap.to(this, {
             scale: 1,
             duration: 0.3,
@@ -284,15 +284,15 @@ document.querySelectorAll('.form-input').forEach(input => {
 
 // Button hover effects
 document.querySelectorAll('.btn-primary, .btn-secondary').forEach(button => {
-    button.addEventListener('mouseenter', function() {
+    button.addEventListener('mouseenter', function () {
         gsap.to(this, {
             scale: 1.05,
             duration: 0.3,
             ease: 'power2.out'
         });
     });
-    
-    button.addEventListener('mouseleave', function() {
+
+    button.addEventListener('mouseleave', function () {
         gsap.to(this, {
             scale: 1,
             duration: 0.3,
@@ -314,28 +314,28 @@ function scrollToContact() {
 }
 
 // Form submission
-document.querySelector('.form').addEventListener('submit', function(e) {
+document.querySelector('.form').addEventListener('submit', function (e) {
     e.preventDefault();
-    
+
     // Get form data
     const formData = new FormData(this);
     const name = this.querySelector('input[type="text"]').value;
     const email = this.querySelector('input[type="email"]').value;
     const message = this.querySelector('textarea').value;
-    
+
     // Simple validation
     if (!name || !email || !message) {
         showNotification('Por favor, completa todos los campos', 'error');
         return;
     }
-    
+
     // Simulate form submission
     const submitBtn = this.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
-    
+
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
     submitBtn.disabled = true;
-    
+
     setTimeout(() => {
         showNotification('¡Mensaje enviado correctamente! Te contactaremos pronto.', 'success');
         this.reset();
@@ -354,7 +354,7 @@ function showNotification(message, type = 'info') {
             <span>${message}</span>
         </div>
     `;
-    
+
     // Add styles
     notification.style.cssText = `
         position: fixed;
@@ -369,16 +369,16 @@ function showNotification(message, type = 'info') {
         transform: translateX(100%);
         transition: transform 0.3s ease;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Animate in
     gsap.to(notification, {
         x: 0,
         duration: 0.5,
         ease: 'power2.out'
     });
-    
+
     // Auto remove
     setTimeout(() => {
         gsap.to(notification, {
@@ -410,7 +410,7 @@ document.querySelectorAll('.project-card, .service-card').forEach(el => {
 });
 
 // Mouse cursor effect
-document.addEventListener('mousemove', function(e) {
+document.addEventListener('mousemove', function (e) {
     const cursor = document.querySelector('.cursor');
     if (!cursor) {
         const newCursor = document.createElement('div');
@@ -427,7 +427,7 @@ document.addEventListener('mousemove', function(e) {
         `;
         document.body.appendChild(newCursor);
     }
-    
+
     gsap.to('.cursor', {
         x: e.clientX - 10,
         y: e.clientY - 10,
@@ -445,7 +445,7 @@ document.querySelectorAll('a, button, .project-card').forEach(el => {
             ease: 'power2.out'
         });
     });
-    
+
     el.addEventListener('mouseleave', () => {
         gsap.to('.cursor', {
             scale: 1,
@@ -456,7 +456,7 @@ document.querySelectorAll('a, button, .project-card').forEach(el => {
 });
 
 // Loading animation
-window.addEventListener('load', function() {
+window.addEventListener('load', function () {
     gsap.from('body', {
         opacity: 0,
         duration: 1,
@@ -499,7 +499,7 @@ function createParticles() {
         z-index: 1;
     `;
     document.querySelector('.hero').appendChild(particleContainer);
-    
+
     for (let i = 0; i < 50; i++) {
         const particle = document.createElement('div');
         particle.style.cssText = `
@@ -512,7 +512,7 @@ function createParticles() {
             top: ${Math.random() * 100}%;
         `;
         particleContainer.appendChild(particle);
-        
+
         gsap.to(particle, {
             y: -100,
             opacity: 0,
@@ -558,7 +558,7 @@ window.addEventListener('scroll', () => {
 });
 
 // Add keyboard navigation
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         // Close any open modals or overlays
         document.querySelectorAll('.modal, .overlay').forEach(el => {
@@ -571,11 +571,11 @@ document.addEventListener('keydown', function(e) {
 let touchStartY = 0;
 let touchEndY = 0;
 
-document.addEventListener('touchstart', function(e) {
+document.addEventListener('touchstart', function (e) {
     touchStartY = e.changedTouches[0].screenY;
 });
 
-document.addEventListener('touchend', function(e) {
+document.addEventListener('touchend', function (e) {
     touchEndY = e.changedTouches[0].screenY;
     handleSwipe();
 });
@@ -583,7 +583,7 @@ document.addEventListener('touchend', function(e) {
 function handleSwipe() {
     const swipeThreshold = 50;
     const diff = touchStartY - touchEndY;
-    
+
     if (Math.abs(diff) > swipeThreshold) {
         if (diff > 0) {
             // Swipe up - scroll down
@@ -625,12 +625,12 @@ function createProjectCard(project) {
     const card = document.createElement('div');
     card.className = 'project-card';
     card.setAttribute('data-aos', 'fade-up');
-    
+
     const imageUrl = project.imageUrl || '';
-    const technologies = project.technologies ? 
-        (Array.isArray(project.technologies) ? project.technologies : project.technologies.split(',').map(tech => tech.trim())) : 
+    const technologies = project.technologies ?
+        (Array.isArray(project.technologies) ? project.technologies : project.technologies.split(',').map(tech => tech.trim())) :
         [];
-    
+
     card.innerHTML = `
         <div class="project-image">
             ${imageUrl ? `<img src="${imageUrl}" alt="${project.title}" loading="lazy">` : '<i class="fas fa-laptop-code"></i>'}
@@ -659,12 +659,12 @@ function createProjectCard(project) {
             </div>
         </div>
     `;
-    
+
     return card;
 }
 
 // Auth Modal Functions - Make them global
-window.openLoginModal = function() {
+window.openLoginModal = function () {
     console.log('Opening login modal...');
     const modal = document.getElementById('loginModal');
     if (modal) {
@@ -676,7 +676,7 @@ window.openLoginModal = function() {
     }
 }
 
-window.closeLoginModal = function() {
+window.closeLoginModal = function () {
     console.log('Closing login modal...');
     const modal = document.getElementById('loginModal');
     if (modal) {
@@ -686,7 +686,7 @@ window.closeLoginModal = function() {
     }
 }
 
-window.openRegisterModal = function() {
+window.openRegisterModal = function () {
     console.log('Opening register modal...');
     const modal = document.getElementById('registerModal');
     if (modal) {
@@ -698,7 +698,7 @@ window.openRegisterModal = function() {
     }
 }
 
-window.closeRegisterModal = function() {
+window.closeRegisterModal = function () {
     console.log('Closing register modal...');
     const modal = document.getElementById('registerModal');
     if (modal) {
@@ -709,7 +709,7 @@ window.closeRegisterModal = function() {
 }
 
 // Close modals when clicking outside
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     if (e.target.classList.contains('auth-modal')) {
         closeLoginModal();
         closeRegisterModal();
@@ -717,7 +717,7 @@ document.addEventListener('click', function(e) {
 });
 
 // Close modals with Escape key
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         closeLoginModal();
         closeRegisterModal();
@@ -725,7 +725,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 // Login form handler - Now only Google Sign-In
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     console.log('Login form removed - only Google Sign-In available');
 
     // Register form handler - Now only Google Sign-In
@@ -733,19 +733,19 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Google authentication - Make global
-window.loginWithGoogle = async function() {
+window.loginWithGoogle = async function () {
     try {
         // Import Firebase auth functions
         const { signInWithGoogle } = await import('./firebase-config.js');
-        
+
         // Sign in with Google
         const result = await signInWithGoogle();
         const user = result.user;
-        
+
         // Show success message
         showNotification('¡Inicio de sesión con Google exitoso!', 'success');
         closeLoginModal();
-        
+
         // Save user data to localStorage
         const userData = {
             name: user.displayName || 'Usuario Google',
@@ -754,42 +754,42 @@ window.loginWithGoogle = async function() {
             loginTime: new Date().toISOString()
         };
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         // Check admin access
         checkAdminAccess(user.email);
-        
+
         // Redirect to dashboard
         setTimeout(() => {
             window.location.href = window.location.origin + '/dashboard.html';
         }, 1500);
-        
+
     } catch (error) {
         console.error('Google login error:', error);
         showNotification('Error con Google: ' + error.message, 'error');
     }
 }
 
-window.registerWithGoogle = async function() {
+window.registerWithGoogle = async function () {
     try {
         // Import Firebase auth functions
         const { signInWithGoogle } = await import('./firebase-config.js');
-        
+
         // Sign in with Google (same as login for Google)
         const result = await signInWithGoogle();
         const user = result.user;
-        
+
         // Show success message
         showNotification('¡Registro con Google exitoso!', 'success');
         closeRegisterModal();
-        
+
         // Check and link pending user created by admin
         const { checkAndLinkPendingUser } = await import('./admin-dashboard-script.js');
         const wasLinked = await checkAndLinkPendingUser(user.email, user.uid);
-        
+
         if (wasLinked) {
             showNotification('¡Cuenta vinculada a proyectos existentes!', 'success');
         }
-        
+
         // Save user data to localStorage
         const userData = {
             name: user.displayName || 'Usuario Google',
@@ -799,15 +799,15 @@ window.registerWithGoogle = async function() {
             wasLinked: wasLinked
         };
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         // Check admin access
         checkAdminAccess(user.email);
-        
+
         // Redirect to dashboard
         setTimeout(() => {
             window.location.href = window.location.origin + '/dashboard.html';
         }, 1500);
-        
+
     } catch (error) {
         console.error('Google registration error:', error);
         showNotification('Error con Google: ' + error.message, 'error');
@@ -817,13 +817,13 @@ window.registerWithGoogle = async function() {
 // Update authentication UI
 function updateAuthUI(isLoggedIn) {
     const authButtons = document.querySelector('.auth-buttons');
-    
+
     // Check if the element exists before trying to modify it
     if (!authButtons) {
         console.log('Auth buttons element not found, skipping UI update');
         return;
     }
-    
+
     if (isLoggedIn) {
         authButtons.innerHTML = `
             <button class="btn-login" onclick="logout()">
@@ -840,27 +840,27 @@ function updateAuthUI(isLoggedIn) {
 }
 
 // Logout function - Make global
-window.logout = async function() {
+window.logout = async function () {
     try {
         // Import Firebase auth functions
         const { logout } = await import('./firebase-config.js');
         await logout();
-        
+
         // Clear user data from localStorage
         localStorage.removeItem('user');
-        
+
         showNotification('Sesión cerrada exitosamente', 'success');
-        
+
         // Update UI if auth buttons exist
         updateAuthUI(false);
-        
+
         // If we're on the admin dashboard, redirect to main page
         if (window.location.pathname.includes('admin-dashboard.html')) {
             setTimeout(() => {
                 window.location.href = '/index.html';
             }, 1000);
         }
-        
+
     } catch (error) {
         console.error('Logout error:', error);
         showNotification('Error al cerrar sesión: ' + error.message, 'error');
@@ -870,7 +870,7 @@ window.logout = async function() {
 // Admin Functions
 function checkAdminAccess(userEmail) {
     const adminEmail = 'ueservicesllc1@gmail.com';
-    
+
     if (userEmail === adminEmail) {
         // Add admin button to header
         addAdminButton();
@@ -880,13 +880,13 @@ function checkAdminAccess(userEmail) {
 // Add admin button
 function addAdminButton() {
     const authButtons = document.querySelector('.auth-buttons-container');
-    
+
     if (authButtons && !document.querySelector('.admin-btn')) {
         const adminBtn = document.createElement('button');
         adminBtn.className = 'admin-btn';
         adminBtn.innerHTML = '<i class="fas fa-cog"></i> Admin';
         adminBtn.onclick = () => window.location.href = 'admin-dashboard.html';
-        
+
         authButtons.appendChild(adminBtn);
     }
 }
@@ -896,6 +896,7 @@ const serviceData = {
     mobile: {
         icon: 'fas fa-mobile-alt',
         title: 'Apps Móviles',
+        title_en: 'Mobile Apps',
         features: [
             'Diseño responsivo para iOS y Android',
             'Interfaz intuitiva y moderna',
@@ -904,12 +905,22 @@ const serviceData = {
             'Almacenamiento local y en la nube',
             'Sincronización de datos'
         ],
+        features_en: [
+            'Responsive design for iOS and Android',
+            'Intuitive and modern interface',
+            'API and service integration',
+            'Push notifications',
+            'Local and cloud storage',
+            'Data synchronization'
+        ],
         tech: ['React Native', 'Flutter', 'Swift', 'Kotlin', 'Firebase', 'Node.js'],
-        delivery: '7-10 días'
+        delivery: '7-10 días',
+        delivery_en: '7-10 days'
     },
     website: {
         icon: 'fas fa-laptop-code',
         title: 'Sitios Web',
+        title_en: 'Websites',
         features: [
             'Diseño responsive y moderno',
             'Optimización SEO',
@@ -918,12 +929,22 @@ const serviceData = {
             'Integración con redes sociales',
             'Certificado SSL incluido'
         ],
+        features_en: [
+            'Modern responsive design',
+            'SEO optimization',
+            'Admin panel',
+            'Contact forms',
+            'Social media integration',
+            'SSL certificate included'
+        ],
         tech: ['HTML5', 'CSS3', 'JavaScript', 'React', 'Vue.js', 'WordPress'],
         delivery: '5-7 días',
+        delivery_en: '5-7 days'
     },
     software: {
         icon: 'fas fa-desktop',
         title: 'Software',
+        title_en: 'Software',
         features: [
             'Desarrollo a medida',
             'Base de datos integrada',
@@ -932,12 +953,22 @@ const serviceData = {
             'Seguridad avanzada',
             'Soporte técnico incluido'
         ],
+        features_en: [
+            'Custom development',
+            'Integrated database',
+            'Intuitive user interface',
+            'Reports and analytics',
+            'Advanced security',
+            'Technical support included'
+        ],
         tech: ['Python', 'Java', 'C#', 'MySQL', 'PostgreSQL', 'Docker'],
         delivery: '8-10 días',
+        delivery_en: '8-10 days'
     },
     taxi: {
         icon: 'fas fa-taxi',
         title: 'Apps para Taxis',
+        title_en: 'Taxi Apps',
         features: [
             'Geolocalización en tiempo real',
             'Sistema de reservas',
@@ -946,12 +977,22 @@ const serviceData = {
             'Panel de administración',
             'Notificaciones automáticas'
         ],
+        features_en: [
+            'Real-time geolocation',
+            'Booking system',
+            'Integrated payments',
+            'Driver ratings',
+            'Admin panel',
+            'Automatic notifications'
+        ],
         tech: ['React Native', 'Google Maps API', 'Stripe', 'Firebase', 'Node.js', 'MongoDB'],
         delivery: '8-10 días',
+        delivery_en: '8-10 days'
     },
     restaurant: {
         icon: 'fas fa-utensils',
         title: 'Apps para Restaurantes',
+        title_en: 'Restaurant Apps',
         features: [
             'Menú digital interactivo con QR',
             'Sistema de pedidos online',
@@ -964,12 +1005,26 @@ const serviceData = {
             'Estadísticas y reportes',
             'Integración con cocina'
         ],
+        features_en: [
+            'Interactive digital menu with QR',
+            'Online ordering system',
+            'Table and reservation management',
+            'Delivery integration (Uber Eats, DoorDash)',
+            'Billing and payment system',
+            'Automatic invoicing',
+            'Inventory management',
+            'Integrated accounting',
+            'Statistics and reports',
+            'Kitchen integration'
+        ],
         tech: ['React', 'Node.js', 'MongoDB', 'Stripe', 'Twilio', 'AWS'],
         delivery: '7-9 días',
+        delivery_en: '7-9 days'
     },
     cafe: {
         icon: 'fas fa-coffee',
         title: 'Apps para Cafeterías',
+        title_en: 'Cafe Apps',
         features: [
             'Menú digital con QR para cafeterías',
             'Catálogo de bebidas y snacks',
@@ -982,12 +1037,26 @@ const serviceData = {
             'Estadísticas y reportes',
             'Integración con cocina'
         ],
+        features_en: [
+            'Digital menu with QR for cafes',
+            'Beverage and snack catalog',
+            'Points and rewards system',
+            'Takeaway and delivery orders',
+            'Billing and payment system',
+            'Automatic invoicing',
+            'Inventory management',
+            'Integrated accounting',
+            'Statistics and reports',
+            'Kitchen integration'
+        ],
         tech: ['Vue.js', 'Express.js', 'MySQL', 'Redis', 'Stripe', 'SendGrid'],
         delivery: '6-8 días',
+        delivery_en: '6-8 days'
     },
     icecream: {
         icon: 'fas fa-ice-cream',
         title: 'Apps para Heladerías',
+        title_en: 'Ice Cream Apps',
         features: [
             'Menú digital con QR para heladerías',
             'Catálogo de sabores y productos',
@@ -1000,12 +1069,26 @@ const serviceData = {
             'Estadísticas y reportes',
             'Integración con cocina'
         ],
+        features_en: [
+            'Digital menu with QR for ice cream shops',
+            'Flavor and product catalog',
+            'Ice cream customization',
+            'Online ordering system',
+            'Billing and payment system',
+            'Automatic invoicing',
+            'Inventory management',
+            'Integrated accounting',
+            'Statistics and reports',
+            'Kitchen integration'
+        ],
         tech: ['React', 'Node.js', 'PostgreSQL', 'Stripe', 'Cloudinary', 'Heroku'],
         delivery: '6-8 días',
+        delivery_en: '6-8 days'
     },
     commercial: {
         icon: 'fas fa-store',
         title: 'Apps Comerciales',
+        title_en: 'Commercial Apps',
         features: [
             'Catálogo de productos',
             'Sistema de inventario',
@@ -1014,12 +1097,22 @@ const serviceData = {
             'Integración con POS',
             'Análisis de datos'
         ],
+        features_en: [
+            'Product catalog',
+            'Inventory system',
+            'Customer management',
+            'Sales reports',
+            'POS integration',
+            'Data analytics'
+        ],
         tech: ['Angular', 'Laravel', 'MySQL', 'Redis', 'PayPal', 'AWS'],
         delivery: '7-9 días',
+        delivery_en: '7-9 days'
     },
     billing: {
         icon: 'fas fa-file-invoice',
         title: 'Sistemas de Facturación',
+        title_en: 'Billing Systems',
         features: [
             'Generación automática de facturas',
             'Gestión de clientes y proveedores',
@@ -1028,12 +1121,22 @@ const serviceData = {
             'Backup automático',
             'Cumplimiento legal'
         ],
+        features_en: [
+            'Automatic invoice generation',
+            'Client and vendor management',
+            'Tax reports',
+            'Accounting integration',
+            'Automatic backup',
+            'Legal compliance'
+        ],
         tech: ['PHP', 'Laravel', 'MySQL', 'PDF Generator', 'Email', 'SSL'],
         delivery: '8-10 días',
+        delivery_en: '8-10 days'
     },
     sales: {
         icon: 'fas fa-chart-line',
         title: 'Sistemas de Ventas',
+        title_en: 'Sales Systems',
         features: [
             'CRM integrado',
             'Pipeline de ventas',
@@ -1042,12 +1145,22 @@ const serviceData = {
             'Automatización de procesos',
             'Integración con email'
         ],
+        features_en: [
+            'Integrated CRM',
+            'Sales pipeline',
+            'Lead management',
+            'Reports and dashboards',
+            'Process automation',
+            'Email integration'
+        ],
         tech: ['React', 'Django', 'PostgreSQL', 'Chart.js', 'SendGrid', 'Docker'],
         delivery: '7-9 días',
+        delivery_en: '7-9 days'
     },
     ecommerce: {
         icon: 'fas fa-shopping-cart',
         title: 'Tiendas Online',
+        title_en: 'Online Stores',
         features: [
             'Catálogo de productos',
             'Carrito de compras',
@@ -1056,12 +1169,22 @@ const serviceData = {
             'Panel administrativo',
             'SEO optimizado'
         ],
+        features_en: [
+            'Product catalog',
+            'Shopping cart',
+            'Secure payments',
+            'Inventory management',
+            'Admin panel',
+            'SEO optimized'
+        ],
         tech: ['Shopify', 'WooCommerce', 'Magento', 'Stripe', 'PayPal', 'SSL'],
         delivery: '6-8 días',
+        delivery_en: '6-8 days'
     },
     webapp: {
         icon: 'fas fa-globe',
         title: 'Webs Apps',
+        title_en: 'Web Apps',
         features: [
             'Aplicación web completa',
             'Base de datos integrada',
@@ -1074,12 +1197,26 @@ const serviceData = {
             'Análisis predictivo',
             'Automatización de procesos'
         ],
+        features_en: [
+            'Complete web application',
+            'Integrated database',
+            'User authentication',
+            'REST API',
+            'Responsive interface',
+            'Cloud deployment',
+            'AI integration',
+            'Intelligent chatbots',
+            'Predictive analytics',
+            'Process automation'
+        ],
         tech: ['React', 'Node.js', 'MongoDB', 'Express', 'JWT', 'AWS', 'OpenAI', 'TensorFlow'],
         delivery: '7-9 días',
+        delivery_en: '7-9 days'
     },
     betting: {
         icon: 'fas fa-futbol',
         title: 'Casa de Apuestas',
+        title_en: 'Sports Betting',
         features: [
             'Plataforma de apuestas deportivas',
             'Sistema de cuentas de usuario',
@@ -1092,12 +1229,26 @@ const serviceData = {
             'Soporte multi-idioma',
             'Integración con proveedores de datos'
         ],
+        features_en: [
+            'Sports betting platform',
+            'User account system',
+            'Deposit and withdrawal management',
+            'Real-time sports data API',
+            'Dynamic odds system',
+            'Complete admin panel',
+            'Secure payment system',
+            'Reports and statistics',
+            'Multi-language support',
+            'Data provider integration'
+        ],
         tech: ['React', 'Node.js', 'PostgreSQL', 'Redis', 'Stripe', 'AWS', 'Socket.io', 'JWT'],
         delivery: '10-12 días',
+        delivery_en: '10-12 days'
     },
     casino: {
         icon: 'fas fa-dice',
         title: 'Casinos Online',
+        title_en: 'Online Casinos',
         features: [
             'Plataforma de casino virtual',
             'Juegos de mesa y slots',
@@ -1110,12 +1261,26 @@ const serviceData = {
             'Reportes de juego',
             'Integración con proveedores de juegos'
         ],
+        features_en: [
+            'Virtual casino platform',
+            'Table games and slots',
+            'Account and wallet system',
+            'Bonus and promotion management',
+            'Integrated payment system',
+            'Admin panel',
+            'Live support',
+            'Loyalty system',
+            'Game reports',
+            'Game provider integration'
+        ],
         tech: ['Vue.js', 'Node.js', 'MongoDB', 'Socket.io', 'Stripe', 'AWS', 'Docker', 'Kubernetes'],
         delivery: '12-15 días',
+        delivery_en: '12-15 days'
     },
     church_mobile: {
         icon: 'fas fa-church',
         title: 'Apps para Iglesias',
+        title_en: 'Church Apps',
         features: [
             'Aplicación móvil para congregación',
             'Streaming de servicios en vivo',
@@ -1128,12 +1293,26 @@ const serviceData = {
             'Integración con redes sociales',
             'Panel de administración'
         ],
+        features_en: [
+            'Mobile app for congregation',
+            'Live service streaming',
+            'Donation system',
+            'Event calendar',
+            'Push notifications',
+            'Sermon library',
+            'Prayer system',
+            'Small group management',
+            'Social media integration',
+            'Admin panel'
+        ],
         tech: ['React Native', 'Node.js', 'MongoDB', 'WebRTC', 'Stripe', 'Firebase', 'AWS', 'Twilio'],
         delivery: '8-10 días',
+        delivery_en: '8-10 days'
     },
     church_web: {
         icon: 'fas fa-cross',
         title: 'Webs para Iglesias',
+        title_en: 'Church Websites',
         features: [
             'Sitio web profesional para iglesia',
             'Streaming de servicios en vivo',
@@ -1146,37 +1325,60 @@ const serviceData = {
             'Integración con redes sociales',
             'Panel de administración'
         ],
+        features_en: [
+            'Professional church website',
+            'Live service streaming',
+            'Online donation system',
+            'Event calendar',
+            'Resource library',
+            'Contact forms',
+            'Photo gallery',
+            'Blog and news',
+            'Social media integration',
+            'Admin panel'
+        ],
         tech: ['WordPress', 'PHP', 'MySQL', 'Stripe', 'YouTube API', 'Facebook API', 'SSL', 'CDN'],
         delivery: '6-8 días',
+        delivery_en: '6-8 days'
     }
 };
 
 // Make functions global
-window.openServiceModal = function(serviceType) {
+window.openServiceModal = function (serviceType) {
     console.log('Opening modal for:', serviceType);
     const modal = document.getElementById('serviceModal');
     const data = serviceData[serviceType];
-    
+
+    // Get current language
+    const currentLang = localStorage.getItem('language') || 'es';
+    const isEnglish = currentLang === 'en';
+
     if (data && modal) {
         document.getElementById('modalIcon').className = data.icon;
-        document.getElementById('modalTitle').textContent = data.title;
-        
+
+        // Use English title/features/delivery if available and language is English
+        const title = (isEnglish && data.title_en) ? data.title_en : data.title;
+        const features = (isEnglish && data.features_en) ? data.features_en : data.features;
+        const delivery = (isEnglish && data.delivery_en) ? data.delivery_en : data.delivery;
+
+        document.getElementById('modalTitle').textContent = title;
+
         // Features
         const featuresList = document.getElementById('modalFeatures');
-        featuresList.innerHTML = data.features.map(feature => `<li>${feature}</li>`).join('');
-        
+        featuresList.innerHTML = features.map(feature => `<li>${feature}</li>`).join('');
+
         // Technologies
         const techContainer = document.getElementById('modalTech');
         techContainer.innerHTML = data.tech.map(tech => `<span class="tech-tag">${tech}</span>`).join('');
-        
+
         // Delivery
-        document.getElementById('modalDelivery').textContent = data.delivery;
-        
+        document.getElementById('modalDelivery').textContent = delivery;
+
         // Update translations after modal content is set
         if (window.languageSwitcher) {
             window.languageSwitcher.updateContent();
         }
-        
+
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
         console.log('Modal opened successfully');
@@ -1185,7 +1387,7 @@ window.openServiceModal = function(serviceType) {
     }
 }
 
-window.closeServiceModal = function() {
+window.closeServiceModal = function () {
     const modal = document.getElementById('serviceModal');
     if (modal) {
         modal.style.display = 'none';
@@ -1194,13 +1396,13 @@ window.closeServiceModal = function() {
     }
 }
 
-window.contactForService = function() {
+window.contactForService = function () {
     closeServiceModal();
     openQuoteModal();
 }
 
 // Quote Modal Functions
-window.openQuoteModal = function() {
+window.openQuoteModal = function () {
     const modal = document.getElementById('quoteModal');
     if (modal) {
         modal.style.display = 'block';
@@ -1208,7 +1410,7 @@ window.openQuoteModal = function() {
     }
 };
 
-window.closeQuoteModal = function() {
+window.closeQuoteModal = function () {
     const modal = document.getElementById('quoteModal');
     if (modal) {
         modal.style.display = 'none';
@@ -1216,11 +1418,11 @@ window.closeQuoteModal = function() {
     }
 };
 
-window.submitQuoteForm = function() {
+window.submitQuoteForm = function () {
     // Get form data
     const form = document.querySelector('.quote-form');
     const formData = new FormData(form);
-    
+
     // Create quote object
     const quote = {
         id: Date.now(), // Simple ID generation
@@ -1245,22 +1447,22 @@ window.submitQuoteForm = function() {
         status: 'pending',
         date: new Date().toISOString()
     };
-    
+
     // Save to localStorage
     let quotes = JSON.parse(localStorage.getItem('quotes')) || [];
     quotes.push(quote);
     localStorage.setItem('quotes', JSON.stringify(quotes));
-    
+
     console.log('Quote saved:', quote);
     alert('¡Gracias! Hemos recibido tu solicitud de cotización. Te contactaremos pronto.');
     closeQuoteModal();
-    
+
     // Reset form
     form.reset();
 };
 
 // Close modal when clicking outside
-window.onclick = function(event) {
+window.onclick = function (event) {
     const modal = document.getElementById('serviceModal');
     if (event.target === modal) {
         closeServiceModal();
@@ -1272,7 +1474,7 @@ function checkAuthStatus() {
     const user = localStorage.getItem('user');
     const authContainer = document.getElementById('authContainer');
     const userInfoContainer = document.getElementById('userInfoContainer');
-    
+
     if (user) {
         try {
             const userData = JSON.parse(user);
