@@ -1,13 +1,13 @@
 // Admin Dashboard JavaScript
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     console.log('Admin Dashboard loaded successfully');
-    
+
     // Initialize dashboard (this will check admin access)
     await initializeAdminDashboard();
-    
+
     // Setup navigation
     setupAdminNavigation();
-    
+
     // Setup interactions
     setupAdminInteractions();
 });
@@ -18,7 +18,7 @@ async function checkAdminAccess() {
         // Import Firebase auth functions
         const { onAuthStateChanged } = await import('firebase/auth');
         const { auth } = await import('./firebase-config.js');
-        
+
         return new Promise((resolve) => {
             onAuthStateChanged(auth, (user) => {
                 if (!user || user.email !== 'ueservicesllc1@gmail.com') {
@@ -55,13 +55,13 @@ async function initializeAdminDashboard() {
     if (!hasAccess) {
         return; // Will redirect if no access
     }
-    
+
     // Load admin data
     await loadAdminData();
-    
+
     // Setup real-time updates
     setupRealTimeUpdates();
-    
+
     // Load users for project creation
     loadUsersForProject();
 }
@@ -71,37 +71,37 @@ function setupAdminNavigation() {
     console.log('Setting up admin navigation...');
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.admin-section');
-    
+
     console.log('Found nav items:', navItems.length);
     console.log('Found sections:', sections.length);
-    
+
     navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('Navigation clicked:', this.getAttribute('data-section'));
-            
+
             // Remove active class from all items
             navItems.forEach(nav => nav.classList.remove('active'));
-            
+
             // Add active class to clicked item
             this.classList.add('active');
-            
+
             // Get section name
             const sectionName = this.getAttribute('data-section');
             console.log('Switching to section:', sectionName);
-            
+
             // Hide all sections
             sections.forEach(section => {
                 section.classList.remove('active');
                 console.log('Hiding section:', section.id);
             });
-            
+
             // Show selected section
             const targetSection = document.getElementById(sectionName);
             if (targetSection) {
                 targetSection.classList.add('active');
                 console.log('Showing section:', sectionName);
-                
+
                 // Load section-specific data
                 loadSectionData(sectionName);
             } else {
@@ -118,33 +118,33 @@ function setupAdminInteractions() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logout);
     }
-    
+
     // User search
     const userSearch = document.getElementById('userSearch');
     if (userSearch) {
         userSearch.addEventListener('input', filterUsers);
     }
-    
+
     // Chat search
     const chatSearch = document.getElementById('chatSearch');
     if (chatSearch) {
         chatSearch.addEventListener('input', filterChats);
     }
-    
+
     // Message input
     const messageInput = document.getElementById('messageInput');
     if (messageInput) {
-        messageInput.addEventListener('keypress', function(e) {
+        messageInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
     }
-    
+
     // Chat items
     const chatItems = document.querySelectorAll('.chat-item');
     chatItems.forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             const userId = this.getAttribute('data-user');
             openChat(userId);
         });
@@ -160,39 +160,39 @@ async function loadAdminData() {
         console.log('Admin data is already loading, skipping...');
         return;
     }
-    
+
     isLoadingAdminData = true;
     console.log('Loading admin data from Firebase...');
-    
+
     try {
         // Load data sequentially to avoid conflicts
         console.log('Loading stats...');
         await loadStats();
-        
+
         console.log('Loading users...');
         await loadUsers();
-        
+
         console.log('Loading projects...');
         await loadProjects();
-        
+
         console.log('Loading files...');
         await loadFiles();
-        
+
         console.log('Loading messages...');
         await loadMessages();
-        
+
         console.log('Loading recent activity...');
         await loadRecentActivity();
-        
+
         console.log('Loading requirements...');
         await loadAdminRequirements();
-        
+
         console.log('Loading costs...');
         await loadAdminCosts();
-        
+
         console.log('Loading multimedia projects...');
         await loadMultimediaProjects();
-        
+
         console.log('Admin data loaded successfully');
     } catch (error) {
         console.error('Error loading admin data:', error);
@@ -210,60 +210,60 @@ async function loadStats() {
     if (statsLoadingTimeout) {
         clearTimeout(statsLoadingTimeout);
     }
-    
+
     // Debounce the function
     statsLoadingTimeout = setTimeout(async () => {
         try {
             console.log('Loading stats from Firebase...');
             const { getDocs, collection } = await import('firebase/firestore');
             const { db } = await import('./firebase-config.js');
-        
-        // Load users count
-        const usersSnapshot = await getDocs(collection(db, 'users'));
-        const usersCount = usersSnapshot.size;
-        console.log('Users count from Firebase:', usersCount);
-        
-        // Load projects count
-        const projectsSnapshot = await getDocs(collection(db, 'projects'));
-        const projectsCount = projectsSnapshot.size;
-        console.log('Projects count from Firebase:', projectsCount);
-        
-        // Load files count
-        const filesSnapshot = await getDocs(collection(db, 'files'));
-        const filesCount = filesSnapshot.size;
-        console.log('Files count from Firebase:', filesCount);
-        
-        // Load messages count
-        const messagesSnapshot = await getDocs(collection(db, 'messages'));
-        const messagesCount = messagesSnapshot.size;
-        console.log('Messages count from Firebase:', messagesCount);
-        
-        // Update stats
-        document.getElementById('totalUsers').textContent = usersCount;
-        document.getElementById('totalProjects').textContent = projectsCount;
-        document.getElementById('totalFiles').textContent = filesCount;
-        document.getElementById('totalMessages').textContent = messagesCount;
-        
-        // Update badges
-        document.getElementById('usersBadge').textContent = usersCount;
-        document.getElementById('projectsBadge').textContent = projectsCount;
-        document.getElementById('filesBadge').textContent = filesCount;
-        document.getElementById('messagesBadge').textContent = messagesCount;
-        
-        console.log('Stats updated successfully');
-        
-    } catch (error) {
-        console.error('Error loading stats:', error);
-        // Set to 0 if error
-        document.getElementById('totalUsers').textContent = '0';
-        document.getElementById('totalProjects').textContent = '0';
-        document.getElementById('totalFiles').textContent = '0';
-        document.getElementById('totalMessages').textContent = '0';
-        
-        document.getElementById('usersBadge').textContent = '0';
-        document.getElementById('projectsBadge').textContent = '0';
-        document.getElementById('filesBadge').textContent = '0';
-        document.getElementById('messagesBadge').textContent = '0';
+
+            // Load users count
+            const usersSnapshot = await getDocs(collection(db, 'users'));
+            const usersCount = usersSnapshot.size;
+            console.log('Users count from Firebase:', usersCount);
+
+            // Load projects count
+            const projectsSnapshot = await getDocs(collection(db, 'projects'));
+            const projectsCount = projectsSnapshot.size;
+            console.log('Projects count from Firebase:', projectsCount);
+
+            // Load files count
+            const filesSnapshot = await getDocs(collection(db, 'files'));
+            const filesCount = filesSnapshot.size;
+            console.log('Files count from Firebase:', filesCount);
+
+            // Load messages count
+            const messagesSnapshot = await getDocs(collection(db, 'messages'));
+            const messagesCount = messagesSnapshot.size;
+            console.log('Messages count from Firebase:', messagesCount);
+
+            // Update stats
+            document.getElementById('totalUsers').textContent = usersCount;
+            document.getElementById('totalProjects').textContent = projectsCount;
+            document.getElementById('totalFiles').textContent = filesCount;
+            document.getElementById('totalMessages').textContent = messagesCount;
+
+            // Update badges
+            document.getElementById('usersBadge').textContent = usersCount;
+            document.getElementById('projectsBadge').textContent = projectsCount;
+            document.getElementById('filesBadge').textContent = filesCount;
+            document.getElementById('messagesBadge').textContent = messagesCount;
+
+            console.log('Stats updated successfully');
+
+        } catch (error) {
+            console.error('Error loading stats:', error);
+            // Set to 0 if error
+            document.getElementById('totalUsers').textContent = '0';
+            document.getElementById('totalProjects').textContent = '0';
+            document.getElementById('totalFiles').textContent = '0';
+            document.getElementById('totalMessages').textContent = '0';
+
+            document.getElementById('usersBadge').textContent = '0';
+            document.getElementById('projectsBadge').textContent = '0';
+            document.getElementById('filesBadge').textContent = '0';
+            document.getElementById('messagesBadge').textContent = '0';
         }
     }, 300); // 300ms debounce
 }
@@ -274,25 +274,25 @@ async function loadUsers() {
     try {
         const { getDocs, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const tbody = document.getElementById('usersTableBody');
         if (!tbody) {
             console.error('usersTableBody element not found!');
             return;
         }
-        
+
         tbody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando usuarios...</td></tr>';
-        
+
         const usersSnapshot = await getDocs(collection(db, 'users'));
         console.log('Users found:', usersSnapshot.size);
         tbody.innerHTML = '';
-        
+
         if (usersSnapshot.empty) {
             console.log('No users found in Firebase');
             tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay usuarios registrados</td></tr>';
             return;
         }
-        
+
         usersSnapshot.forEach(doc => {
             const userData = doc.data();
             console.log('Creating row for user:', userData.email);
@@ -334,9 +334,9 @@ async function loadUsers() {
             tbody.appendChild(row);
             console.log('Row added for user:', userData.email);
         });
-        
+
         console.log('Users loaded successfully');
-        
+
     } catch (error) {
         console.error('Error loading users:', error);
         const tbody = document.getElementById('usersTableBody');
@@ -345,34 +345,26 @@ async function loadUsers() {
 }
 
 // Load projects
-function loadProjects() {
-    // Projects are already in HTML, just add event listeners
-    const projectCards = document.querySelectorAll('.project-card');
-    projectCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const projectId = this.getAttribute('data-project-id') || '1';
-            viewProject(projectId);
-        });
-    });
-}
+// Load projects function removed (duplicate)
+// Real implementation is async function loadProjects() below
 
 // Load files from Firestore
 async function loadFiles() {
     try {
         const { getDocs, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const filesQuery = collection(db, 'files');
         const filesSnapshot = await getDocs(filesQuery);
         const filesContainer = document.getElementById('files-grid');
-        
+
         if (!filesContainer) {
             console.warn('Files container not found, skipping files load');
             return;
         }
-        
+
         filesContainer.innerHTML = '';
-        
+
         if (filesSnapshot.empty) {
             filesContainer.innerHTML = `
                 <div class="no-files">
@@ -388,16 +380,16 @@ async function loadFiles() {
                 fileData.id = doc.id;
                 files.push(fileData);
             });
-            
+
             files.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
-            
+
             files.forEach(file => {
                 const fileDiv = document.createElement('div');
                 fileDiv.className = 'file-item';
-                
+
                 const uploadDate = new Date(file.uploadedAt).toLocaleDateString('es-ES');
                 const fileSize = formatFileSize(file.size);
-                
+
                 fileDiv.innerHTML = `
                     <div class="file-icon">
                         <i class="fas fa-${getFileIcon(file.type)}"></i>
@@ -440,7 +432,7 @@ async function downloadFileFromAdmin(url, filename) {
     try {
         const response = await fetch(url);
         const blob = await response.blob();
-        
+
         const downloadUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = downloadUrl;
@@ -449,7 +441,7 @@ async function downloadFileFromAdmin(url, filename) {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(downloadUrl);
-        
+
         showNotification('Archivo descargado exitosamente', 'success');
     } catch (error) {
         console.error('Download error:', error);
@@ -461,11 +453,11 @@ async function deleteFileFromAdmin(fileId) {
     if (!confirm('¿Estás seguro de que quieres eliminar este archivo?')) {
         return;
     }
-    
+
     try {
         const { deleteDoc, doc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         await deleteDoc(doc(db, 'files', fileId));
         showNotification('Archivo eliminado exitosamente', 'success');
         loadFiles(); // Reload files
@@ -482,7 +474,7 @@ function loadMessages() {
     messageItems.forEach(item => {
         const replyBtn = item.querySelector('.btn-primary');
         if (replyBtn) {
-            replyBtn.addEventListener('click', function() {
+            replyBtn.addEventListener('click', function () {
                 const messageId = item.getAttribute('data-message-id') || '1';
                 replyMessage(messageId);
             });
@@ -495,7 +487,7 @@ function loadRecentActivity() {
     // Load real activity from Firebase instead of hardcoded data
     const activityList = document.getElementById('recentActivity');
     activityList.innerHTML = '<div class="activity-item"><p>No hay actividades recientes</p></div>';
-    
+
     // This will be populated by Firebase data
 }
 
@@ -524,11 +516,11 @@ function updateNotifications() {
 function filterUsers() {
     const searchTerm = document.getElementById('userSearch').value.toLowerCase();
     const rows = document.querySelectorAll('#usersTableBody tr');
-    
+
     rows.forEach(row => {
         const userName = row.querySelector('.user-name').textContent.toLowerCase();
         const userEmail = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-        
+
         if (userName.includes(searchTerm) || userEmail.includes(searchTerm)) {
             row.style.display = '';
         } else {
@@ -541,11 +533,11 @@ function filterUsers() {
 function filterChats() {
     const searchTerm = document.getElementById('chatSearch').value.toLowerCase();
     const chatItems = document.querySelectorAll('.chat-item');
-    
+
     chatItems.forEach(item => {
         const userName = item.querySelector('h4').textContent.toLowerCase();
         const lastMessage = item.querySelector('p').textContent.toLowerCase();
-        
+
         if (userName.includes(searchTerm) || lastMessage.includes(searchTerm)) {
             item.style.display = '';
         } else {
@@ -560,20 +552,20 @@ function openChat(userId) {
     document.querySelectorAll('.chat-item').forEach(item => {
         item.classList.remove('active');
     });
-    
+
     // Add active class to selected chat
     const selectedChat = document.querySelector(`[data-user="${userId}"]`);
     if (selectedChat) {
         selectedChat.classList.add('active');
     }
-    
+
     // Update chat header
     const chatHeader = document.querySelector('.chat-header');
     const chatDetails = chatHeader.querySelector('.chat-details');
     const userName = selectedChat.querySelector('h4').textContent;
-    
+
     chatDetails.querySelector('h4').textContent = userName;
-    
+
     // Load chat messages (simulate)
     loadChatMessages(userId);
 }
@@ -581,7 +573,7 @@ function openChat(userId) {
 // Load chat messages
 function loadChatMessages(userId) {
     const chatMessages = document.getElementById('chatMessages');
-    
+
     // Simulate loading messages
     const messages = [
         {
@@ -595,9 +587,9 @@ function loadChatMessages(userId) {
             time: '14:32'
         }
     ];
-    
+
     chatMessages.innerHTML = '';
-    
+
     messages.forEach(message => {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${message.type}`;
@@ -615,7 +607,7 @@ function loadChatMessages(userId) {
 function sendMessage() {
     const messageInput = document.getElementById('messageInput');
     const message = messageInput.value.trim();
-    
+
     if (message) {
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
@@ -627,13 +619,13 @@ function sendMessage() {
             </div>
         `;
         chatMessages.appendChild(messageDiv);
-        
+
         // Clear input
         messageInput.value = '';
-        
+
         // Scroll to bottom
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        
+
         // Show notification
         showNotification('Mensaje enviado', 'success');
     }
@@ -643,7 +635,7 @@ function sendMessage() {
 function addUser() {
     const userName = prompt('Nombre del usuario:');
     const userEmail = prompt('Email del usuario:');
-    
+
     if (userName && userEmail) {
         showNotification(`Usuario ${userName} agregado exitosamente`, 'success');
         loadUsers(); // Reload users
@@ -669,7 +661,7 @@ function deleteUser(userId) {
 function addProject() {
     const projectName = prompt('Nombre del proyecto:');
     const clientName = prompt('Nombre del cliente:');
-    
+
     if (projectName && clientName) {
         showNotification(`Proyecto ${projectName} creado exitosamente`, 'success');
     }
@@ -689,15 +681,15 @@ function uploadFile() {
     input.type = 'file';
     input.multiple = true;
     input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif';
-    
-    input.addEventListener('change', function(e) {
+
+    input.addEventListener('change', function (e) {
         const files = Array.from(e.target.files);
         if (files.length > 0) {
             showNotification(`${files.length} archivo(s) subido(s) exitosamente`, 'success');
             loadFiles(); // Reload files
         }
     });
-    
+
     input.click();
 }
 
@@ -722,12 +714,12 @@ function getMessages() {
 function replyMessage(messageId) {
     // Get message data - try different selectors
     let messageItem = document.querySelector(`[data-message-id="${messageId}"]`);
-    
+
     if (!messageItem) {
         // Try to find by message ID in the messages list
         messageItem = document.querySelector(`.message-item[onclick*="${messageId}"]`);
     }
-    
+
     if (!messageItem) {
         // Fallback: get from the messages array
         const messages = getMessages();
@@ -737,7 +729,7 @@ function replyMessage(messageId) {
             return;
         }
     }
-    
+
     if (messageItem) {
         const userName = messageItem.querySelector('h4')?.textContent || 'Cliente';
         openChatPopup(userName, messageId);
@@ -753,18 +745,18 @@ function openChatPopup(userName, messageId) {
     const popupUserName = document.getElementById('popupUserName');
     const popupUserStatus = document.getElementById('popupUserStatus');
     const popupChatMessages = document.getElementById('popupChatMessages');
-    
+
     // Update popup header
     popupUserName.textContent = userName;
     popupUserStatus.textContent = 'En línea';
-    
+
     // Load chat messages
     loadPopupChatMessages(userName, messageId);
-    
+
     // Show popup
     popup.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Focus on input
     setTimeout(() => {
         document.getElementById('popupMessageInput').focus();
@@ -779,7 +771,7 @@ function closeChatPopup() {
 
 function loadPopupChatMessages(userName, messageId) {
     const popupChatMessages = document.getElementById('popupChatMessages');
-    
+
     // Simulate loading chat history
     const messages = [
         {
@@ -798,9 +790,9 @@ function loadPopupChatMessages(userName, messageId) {
             time: '14:35'
         }
     ];
-    
+
     popupChatMessages.innerHTML = '';
-    
+
     messages.forEach(message => {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${message.type}`;
@@ -812,7 +804,7 @@ function loadPopupChatMessages(userName, messageId) {
         `;
         popupChatMessages.appendChild(messageDiv);
     });
-    
+
     // Scroll to bottom
     popupChatMessages.scrollTop = popupChatMessages.scrollHeight;
 }
@@ -820,7 +812,7 @@ function loadPopupChatMessages(userName, messageId) {
 function sendPopupMessage() {
     const messageInput = document.getElementById('popupMessageInput');
     const message = messageInput.value.trim();
-    
+
     if (message) {
         const popupChatMessages = document.getElementById('popupChatMessages');
         const messageDiv = document.createElement('div');
@@ -832,16 +824,16 @@ function sendPopupMessage() {
             </div>
         `;
         popupChatMessages.appendChild(messageDiv);
-        
+
         // Clear input
         messageInput.value = '';
-        
+
         // Scroll to bottom
         popupChatMessages.scrollTop = popupChatMessages.scrollHeight;
-        
+
         // Show notification
         showNotification('Mensaje enviado', 'success');
-        
+
         // Simulate client response after 2 seconds
         setTimeout(() => {
             simulateClientResponse(popupChatMessages);
@@ -857,9 +849,9 @@ function simulateClientResponse(chatMessages) {
         'Excelente, continuemos así',
         '¿Hay algo más que deba saber?'
     ];
-    
+
     const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    
+
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message received';
     messageDiv.innerHTML = `
@@ -869,10 +861,10 @@ function simulateClientResponse(chatMessages) {
         </div>
     `;
     chatMessages.appendChild(messageDiv);
-    
+
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    
+
     // Show typing indicator
     showTypingIndicator(chatMessages);
 }
@@ -890,10 +882,10 @@ function showTypingIndicator(chatMessages) {
         </div>
     `;
     chatMessages.appendChild(typingDiv);
-    
+
     // Scroll to bottom
     chatMessages.scrollTop = chatMessages.scrollHeight;
-    
+
     // Remove typing indicator after 1.5 seconds
     setTimeout(() => {
         if (typingDiv.parentNode) {
@@ -903,26 +895,26 @@ function showTypingIndicator(chatMessages) {
 }
 
 // Setup popup message input
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const popupMessageInput = document.getElementById('popupMessageInput');
     if (popupMessageInput) {
-        popupMessageInput.addEventListener('keypress', function(e) {
+        popupMessageInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 sendPopupMessage();
             }
         });
     }
-    
+
     // Close popup when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const popup = document.getElementById('chatPopup');
         if (e.target === popup) {
             closeChatPopup();
         }
     });
-    
+
     // Close popup with Escape key
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeChatPopup();
         }
@@ -938,7 +930,7 @@ function openProjectUploadModal() {
     const modal = document.getElementById('projectUploadModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Reset form
     resetProjectUploadForm();
 }
@@ -947,14 +939,14 @@ function closeProjectUploadModal() {
     const modal = document.getElementById('projectUploadModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
+
     // Reset form
     resetProjectUploadForm();
 }
 
 function resetProjectUploadForm() {
     selectedProjectImage = null;
-    
+
     // Reset form fields
     document.getElementById('projectTitle').value = '';
     document.getElementById('projectDescription').value = '';
@@ -963,12 +955,12 @@ function resetProjectUploadForm() {
     document.getElementById('projectGithubUrl').value = '';
     document.getElementById('projectTechnologies').value = '';
     document.getElementById('projectStatus').value = 'completed';
-    
+
     // Reset image
     document.getElementById('projectImageInput').value = '';
     document.getElementById('projectImagePreview').innerHTML = '';
     document.getElementById('projectImagePreview').classList.remove('active');
-    
+
     // Disable upload button
     document.getElementById('uploadProjectBtn').disabled = true;
 }
@@ -976,41 +968,41 @@ function resetProjectUploadForm() {
 function handleProjectImageSelect(input) {
     const file = input.files[0];
     if (!file) return;
-    
+
     // Validate file type and size
     if (!validateProjectImage(file)) return;
-    
+
     selectedProjectImage = file;
-    
+
     // Show preview
     showProjectImagePreview(file);
-    
+
     // Enable upload button
     document.getElementById('uploadProjectBtn').disabled = false;
 }
 
 function validateProjectImage(file) {
     const maxSize = 5 * 1024 * 1024; // 5MB
-    
+
     if (file.size > maxSize) {
         showNotification('La imagen es demasiado grande. Máximo 5MB', 'error');
         return false;
     }
-    
+
     if (!file.type.startsWith('image/')) {
         showNotification('Por favor selecciona una imagen válida', 'error');
         return false;
     }
-    
+
     return true;
 }
 
 function showProjectImagePreview(file) {
     const previewContainer = document.getElementById('projectImagePreview');
     const fileSize = formatFileSize(file.size);
-    
+
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         previewContainer.innerHTML = `
             <div class="image-preview-item">
                 <img src="${e.target.result}" alt="Preview" class="image-preview-thumbnail">
@@ -1046,30 +1038,30 @@ async function uploadProject() {
     const price = parseFloat(document.getElementById('projectPrice').value) || 0;
     const userId = document.getElementById('projectUser').value;
     const status = document.getElementById('projectStatus').value;
-    
+
     if (!title || !description || !category || price <= 0 || !userId) {
         showNotification('Por favor completa todos los campos requeridos, asegúrate de que el precio sea mayor a 0 y selecciona un usuario', 'error');
         return;
     }
-    
+
     if (!selectedProjectImage) {
         showNotification('Por favor selecciona una imagen para el proyecto', 'error');
         return;
     }
-    
+
     try {
         // Show loading state
         const uploadBtn = document.getElementById('uploadProjectBtn');
         const originalText = uploadBtn.innerHTML;
         uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
         uploadBtn.disabled = true;
-        
+
         // Upload image to Backblaze B2
         const imageData = await uploadProjectImageToB2(selectedProjectImage);
-        
+
         // Get user info
         const selectedUser = users.find(user => user.id === userId);
-        
+
         // Save project to Firestore
         await saveProjectToFirestore({
             id: Date.now().toString(),
@@ -1090,16 +1082,16 @@ async function uploadProject() {
             updatedAt: new Date().toISOString(),
             featured: false
         });
-        
+
         showNotification('Proyecto subido exitosamente', 'success');
         closeProjectUploadModal();
         loadProjects(); // Reload projects list
         // Stats will be reloaded automatically
-        
+
     } catch (error) {
         console.error('Upload error:', error);
         showNotification('Error al subir proyecto: ' + error.message, 'error');
-        
+
         // Reset button
         const uploadBtn = document.getElementById('uploadProjectBtn');
         uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Subir Proyecto';
@@ -1112,23 +1104,23 @@ async function uploadProjectImageToB2(imageFile) {
     formData.append('file', imageFile);
     formData.append('userId', 'admin');
     formData.append('type', 'project-image');
-    
+
     const response = await fetch('http://localhost:3001/api/upload', {
         method: 'POST',
         body: formData
     });
-    
+
     if (!response.ok) {
         throw new Error('Error al subir imagen a B2');
     }
-    
+
     return await response.json();
 }
 
 async function saveProjectToFirestore(projectData) {
     const { addDoc, collection } = await import('firebase/firestore');
     const { db } = await import('./firebase-config.js');
-    
+
     await addDoc(collection(db, 'projects'), projectData);
 }
 
@@ -1136,14 +1128,14 @@ async function loadProjects() {
     try {
         const { getDocs, collection, orderBy } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const projectsQuery = collection(db, 'projects');
         const projectsSnapshot = await getDocs(projectsQuery);
         const projectsContainer = document.querySelector('.projects-grid');
-        
+
         if (projectsContainer) {
             projectsContainer.innerHTML = '';
-            
+
             if (projectsSnapshot.empty) {
                 projectsContainer.innerHTML = `
                     <div class="no-projects">
@@ -1163,9 +1155,9 @@ async function loadProjects() {
                     projectData.id = doc.id;
                     projects.push(projectData);
                 });
-                
+
                 projects.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
+
                 projects.forEach(project => {
                     console.log('Creating admin project card for:', project.title, 'Demo URL:', project.demoUrl);
                     const projectCard = createProjectCard(project);
@@ -1182,13 +1174,13 @@ async function loadProjects() {
 function createProjectCard(project) {
     const projectCard = document.createElement('div');
     projectCard.className = 'project-card';
-    
+
     const createdDate = new Date(project.createdAt).toLocaleDateString('es-ES');
-    const statusClass = project.status === 'completed' ? 'status-completed' : 
-                       project.status === 'in-progress' ? 'status-progress' : 'status-planned';
-    const statusText = project.status === 'completed' ? 'Completado' : 
-                      project.status === 'in-progress' ? 'En Progreso' : 'Planificado';
-    
+    const statusClass = project.status === 'completed' ? 'status-completed' :
+        project.status === 'in-progress' ? 'status-progress' : 'status-planned';
+    const statusText = project.status === 'completed' ? 'Completado' :
+        project.status === 'in-progress' ? 'En Progreso' : 'Planificado';
+
     projectCard.innerHTML = `
         <div class="project-header">
             <h3>${project.title}</h3>
@@ -1221,7 +1213,7 @@ function createProjectCard(project) {
             </button>
         </div>
     `;
-    
+
     return projectCard;
 }
 
@@ -1229,11 +1221,11 @@ async function deleteProject(projectId) {
     if (!confirm('¿Estás seguro de que quieres eliminar este proyecto?')) {
         return;
     }
-    
+
     try {
         const { deleteDoc, doc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         await deleteDoc(doc(db, 'projects', projectId));
         showNotification('Proyecto eliminado exitosamente', 'success');
         loadProjects(); // Reload projects
@@ -1248,16 +1240,16 @@ async function editProject(projectId) {
     try {
         const { doc, getDoc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const projectDoc = await getDoc(doc(db, 'projects', projectId));
         if (!projectDoc.exists()) {
             showNotification('Proyecto no encontrado', 'error');
             return;
         }
-        
+
         const project = projectDoc.data();
         currentEditingProjectId = projectId;
-        
+
         // Fill form with current project data
         document.getElementById('editProjectTitle').value = project.title || '';
         document.getElementById('editProjectDescription').value = project.description || '';
@@ -1266,7 +1258,7 @@ async function editProject(projectId) {
         document.getElementById('editProjectGithubUrl').value = project.githubUrl || '';
         document.getElementById('editProjectTechnologies').value = project.technologies ? project.technologies.join(', ') : '';
         document.getElementById('editProjectStatus').value = project.status || 'completed';
-        
+
         // Show current image
         if (project.imageUrl) {
             document.getElementById('editProjectImagePreview').innerHTML = `
@@ -1281,12 +1273,12 @@ async function editProject(projectId) {
             document.getElementById('editProjectImagePreview').classList.add('active');
             document.getElementById('editProjectImageActions').style.display = 'flex';
         }
-        
+
         // Open edit modal
         const modal = document.getElementById('projectEditModal');
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
-        
+
     } catch (error) {
         console.error('Error loading project for edit:', error);
         showNotification('Error al cargar proyecto para editar', 'error');
@@ -1297,7 +1289,7 @@ function closeProjectEditModal() {
     const modal = document.getElementById('projectEditModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
+
     // Reset form
     resetProjectEditForm();
 }
@@ -1305,7 +1297,7 @@ function closeProjectEditModal() {
 function resetProjectEditForm() {
     selectedEditProjectImage = null;
     currentEditingProjectId = null;
-    
+
     // Reset form fields
     document.getElementById('editProjectTitle').value = '';
     document.getElementById('editProjectDescription').value = '';
@@ -1314,7 +1306,7 @@ function resetProjectEditForm() {
     document.getElementById('editProjectGithubUrl').value = '';
     document.getElementById('editProjectTechnologies').value = '';
     document.getElementById('editProjectStatus').value = 'completed';
-    
+
     // Reset image
     document.getElementById('editProjectImageInput').value = '';
     document.getElementById('editProjectImagePreview').innerHTML = '';
@@ -1325,12 +1317,12 @@ function resetProjectEditForm() {
 function handleEditProjectImageSelect(input) {
     const file = input.files[0];
     if (!file) return;
-    
+
     // Validate file type and size
     if (!validateProjectImage(file)) return;
-    
+
     selectedEditProjectImage = file;
-    
+
     // Show preview
     showEditProjectImagePreview(file);
 }
@@ -1338,9 +1330,9 @@ function handleEditProjectImageSelect(input) {
 function showEditProjectImagePreview(file) {
     const previewContainer = document.getElementById('editProjectImagePreview');
     const fileSize = formatFileSize(file.size);
-    
+
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         previewContainer.innerHTML = `
             <div class="image-preview-item">
                 <img src="${e.target.result}" alt="New preview" class="image-preview-thumbnail">
@@ -1375,29 +1367,29 @@ async function updateProject() {
     const githubUrl = document.getElementById('editProjectGithubUrl').value.trim();
     const technologies = document.getElementById('editProjectTechnologies').value.trim();
     const status = document.getElementById('editProjectStatus').value;
-    
+
     if (!title || !description || !category) {
         showNotification('Por favor completa todos los campos requeridos', 'error');
         return;
     }
-    
+
     try {
         // Show loading state
         const updateBtn = document.getElementById('updateProjectBtn');
         const originalText = updateBtn.innerHTML;
         updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
         updateBtn.disabled = true;
-        
+
         let imageData = null;
         let removeImage = false;
-        
+
         // Handle image changes
         if (selectedEditProjectImage === 'REMOVE_IMAGE') {
             removeImage = true;
         } else if (selectedEditProjectImage) {
             imageData = await uploadProjectImageToB2(selectedEditProjectImage);
         }
-        
+
         // Prepare update data
         const updateData = {
             title: title,
@@ -1409,7 +1401,7 @@ async function updateProject() {
             status: status,
             updatedAt: new Date().toISOString()
         };
-        
+
         // Handle image updates
         if (removeImage) {
             updateData.imageUrl = null;
@@ -1418,18 +1410,18 @@ async function updateProject() {
             updateData.imageUrl = imageData.url;
             updateData.imageKey = imageData.key;
         }
-        
+
         // Update project in Firestore
         await updateProjectInFirestore(currentEditingProjectId, updateData);
-        
+
         showNotification('Proyecto actualizado exitosamente', 'success');
         closeProjectEditModal();
         loadProjects(); // Reload projects list
-        
+
     } catch (error) {
         console.error('Update error:', error);
         showNotification('Error al actualizar proyecto: ' + error.message, 'error');
-        
+
         // Reset button
         const updateBtn = document.getElementById('updateProjectBtn');
         updateBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
@@ -1440,7 +1432,7 @@ async function updateProject() {
 async function updateProjectInFirestore(projectId, updateData) {
     const { updateDoc, doc } = await import('firebase/firestore');
     const { db } = await import('./firebase-config.js');
-    
+
     await updateDoc(doc(db, 'projects', projectId), updateData);
 }
 
@@ -1453,20 +1445,20 @@ async function removeProjectImage() {
     if (!confirm('¿Estás seguro de que quieres eliminar la imagen actual del proyecto?')) {
         return;
     }
-    
+
     try {
         // Get current project data to find image key
         const { doc, getDoc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const projectDoc = await getDoc(doc(db, 'projects', currentEditingProjectId));
         if (!projectDoc.exists()) {
             showNotification('Proyecto no encontrado', 'error');
             return;
         }
-        
+
         const project = projectDoc.data();
-        
+
         // Delete image from B2 if it exists
         if (project.imageKey) {
             try {
@@ -1477,17 +1469,17 @@ async function removeProjectImage() {
                 console.warn('Error deleting image from B2:', error);
             }
         }
-        
+
         // Remove image from preview
         document.getElementById('editProjectImagePreview').innerHTML = '';
         document.getElementById('editProjectImagePreview').classList.remove('active');
         document.getElementById('editProjectImageActions').style.display = 'none';
-        
+
         // Mark image for removal
         selectedEditProjectImage = 'REMOVE_IMAGE';
-        
+
         showNotification('Imagen marcada para eliminación. Guarda los cambios para confirmar.', 'info');
-        
+
     } catch (error) {
         console.error('Error removing image:', error);
         showNotification('Error al eliminar imagen', 'error');
@@ -1502,7 +1494,7 @@ function openFileUploadModal() {
     const modal = document.getElementById('fileUploadModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Reset form
     resetFileUploadForm();
 }
@@ -1511,7 +1503,7 @@ function closeFileUploadModal() {
     const modal = document.getElementById('fileUploadModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
+
     // Reset form
     resetFileUploadForm();
 }
@@ -1519,17 +1511,17 @@ function closeFileUploadModal() {
 function resetFileUploadForm() {
     selectedFile = null;
     currentUploadType = 'photo';
-    
+
     // Reset file inputs
     document.getElementById('photoInput').value = '';
     document.getElementById('fileInput').value = '';
     document.getElementById('audioInput').value = '';
-    
+
     // Reset form fields
     document.getElementById('fileName').value = '';
     document.getElementById('fileDescription').value = '';
     document.getElementById('fileCategory').value = 'general';
-    
+
     // Reset previews
     document.getElementById('photoPreview').innerHTML = '';
     document.getElementById('photoPreview').classList.remove('active');
@@ -1537,31 +1529,31 @@ function resetFileUploadForm() {
     document.getElementById('filePreview').classList.remove('active');
     document.getElementById('audioPreview').innerHTML = '';
     document.getElementById('audioPreview').classList.remove('active');
-    
+
     // Reset tabs
     switchUploadTab('photo');
-    
+
     // Disable upload button
     document.getElementById('uploadBtn').disabled = true;
 }
 
 function switchUploadTab(type) {
     currentUploadType = type;
-    
+
     // Update tabs
     document.querySelectorAll('.upload-tab').forEach(tab => tab.classList.remove('active'));
     document.querySelector(`[onclick="switchUploadTab('${type}')"]`).classList.add('active');
-    
+
     // Update sections
     document.querySelectorAll('.upload-section').forEach(section => section.classList.remove('active'));
     document.getElementById(`${type}Upload`).classList.add('active');
-    
+
     // Clear previews
     document.querySelectorAll('.file-preview').forEach(preview => {
         preview.innerHTML = '';
         preview.classList.remove('active');
     });
-    
+
     // Reset selected file
     selectedFile = null;
     document.getElementById('uploadBtn').disabled = true;
@@ -1570,21 +1562,21 @@ function switchUploadTab(type) {
 function handleFileSelect(input, type) {
     const file = input.files[0];
     if (!file) return;
-    
+
     // Validate file type and size
     if (!validateFile(file, type)) return;
-    
+
     selectedFile = file;
-    
+
     // Show preview
     showFilePreview(file, type);
-    
+
     // Auto-fill filename if empty
     if (!document.getElementById('fileName').value) {
         const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
         document.getElementById('fileName').value = nameWithoutExt;
     }
-    
+
     // Enable upload button
     document.getElementById('uploadBtn').disabled = false;
 }
@@ -1595,23 +1587,23 @@ function validateFile(file, type) {
         file: 50 * 1024 * 1024,  // 50MB
         audio: 100 * 1024 * 1024 // 100MB
     };
-    
+
     if (file.size > maxSizes[type]) {
         showNotification(`El archivo es demasiado grande. Máximo ${maxSizes[type] / (1024 * 1024)}MB`, 'error');
         return false;
     }
-    
+
     return true;
 }
 
 function showFilePreview(file, type) {
     const previewContainer = document.getElementById(`${type}Preview`);
     const fileSize = formatFileSize(file.size);
-    
+
     let iconClass = 'fas fa-file';
     if (type === 'photo') iconClass = 'fas fa-image';
     else if (type === 'audio') iconClass = 'fas fa-music';
-    
+
     previewContainer.innerHTML = `
         <div class="file-preview-item">
             <div class="file-preview-icon">
@@ -1626,7 +1618,7 @@ function showFilePreview(file, type) {
             </button>
         </div>
     `;
-    
+
     previewContainer.classList.add('active');
 }
 
@@ -1651,30 +1643,30 @@ async function uploadFile() {
         showNotification('Por favor selecciona un archivo', 'error');
         return;
     }
-    
+
     const fileName = document.getElementById('fileName').value.trim();
     const description = document.getElementById('fileDescription').value.trim();
     const category = document.getElementById('fileCategory').value;
-    
+
     if (!fileName) {
         showNotification('Por favor ingresa un nombre para el archivo', 'error');
         return;
     }
-    
+
     try {
         // Show loading state
         const uploadBtn = document.getElementById('uploadBtn');
         const originalText = uploadBtn.innerHTML;
         uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
         uploadBtn.disabled = true;
-        
+
         // Get current user
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const userId = user.email || 'anonymous';
-        
+
         // Upload to Backblaze B2
         const fileData = await uploadFileToB2(selectedFile, userId);
-        
+
         // Save metadata to Firestore
         await saveFileMetadata({
             id: Date.now().toString(),
@@ -1692,16 +1684,16 @@ async function uploadFile() {
             uploadedAt: new Date().toISOString(),
             status: 'active'
         });
-        
+
         showNotification('Archivo subido exitosamente', 'success');
         closeFileUploadModal();
         loadFiles(); // Reload files list
         // Stats will be reloaded automatically
-        
+
     } catch (error) {
         console.error('Upload error:', error);
         showNotification('Error al subir archivo: ' + error.message, 'error');
-        
+
         // Reset button
         const uploadBtn = document.getElementById('uploadBtn');
         uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Subir Archivo';
@@ -1714,23 +1706,23 @@ async function uploadFileToB2(file, userId) {
     formData.append('file', file);
     formData.append('userId', userId);
     formData.append('type', currentUploadType);
-    
+
     const response = await fetch('http://localhost:3001/api/upload', {
         method: 'POST',
         body: formData
     });
-    
+
     if (!response.ok) {
         throw new Error('Error al subir archivo a B2');
     }
-    
+
     return await response.json();
 }
 
 async function saveFileMetadata(fileData) {
     const { addDoc, collection } = await import('firebase/firestore');
     const { db } = await import('./firebase-config.js');
-    
+
     await addDoc(collection(db, 'files'), fileData);
 }
 
@@ -1750,18 +1742,18 @@ async function logout() {
             // Import Firebase auth functions
             const { logout: firebaseLogout } = await import('./firebase-config.js');
             await firebaseLogout();
-            
+
             // Clear user data
             localStorage.removeItem('user');
-            
+
             // Show notification
             showNotification('Sesión cerrada exitosamente', 'success');
-            
+
             // Redirect to main page
             setTimeout(() => {
                 window.location.href = 'index.html';
             }, 1000);
-            
+
         } catch (error) {
             console.error('Logout error:', error);
             showNotification('Error al cerrar sesión: ' + error.message, 'error');
@@ -1779,7 +1771,7 @@ function showNotification(message, type = 'info') {
             <span>${message}</span>
         </div>
     `;
-    
+
     // Add styles
     notification.style.cssText = `
         position: fixed;
@@ -1794,9 +1786,9 @@ function showNotification(message, type = 'info') {
         animation: slideInRight 0.3s ease-out;
         max-width: 400px;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Remove after 5 seconds
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.3s ease-out';
@@ -1914,19 +1906,19 @@ async function loadUsersForProject() {
         // Load users from Firebase Firestore
         const { getDocs, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const usersQuery = collection(db, 'users');
         const usersSnapshot = await getDocs(usersQuery);
-        
+
         users = [];
         usersSnapshot.forEach(doc => {
             const userData = doc.data();
             userData.id = doc.id;
             users.push(userData);
         });
-        
+
         console.log('Loaded users from Firebase:', users);
-        
+
         const userSelect = document.getElementById('projectUser');
         if (userSelect) {
             // Clear existing options except the first two
@@ -1934,7 +1926,7 @@ async function loadUsersForProject() {
                 <option value="">Selecciona un usuario</option>
                 <option value="new">+ Crear nuevo usuario</option>
             `;
-            
+
             // Add existing users
             users.forEach(user => {
                 const option = document.createElement('option');
@@ -1942,13 +1934,13 @@ async function loadUsersForProject() {
                 option.textContent = `${user.name || user.email} (${user.email})`;
                 userSelect.appendChild(option);
             });
-            
+
             console.log(`Added ${users.length} users to dropdown`);
         }
     } catch (error) {
         console.error('Error loading users from Firebase:', error);
         showNotification('Error al cargar usuarios desde Firebase', 'error');
-        
+
         // Fallback to localStorage if Firebase fails
         users = JSON.parse(localStorage.getItem('users') || '[]');
         console.log('Using localStorage fallback:', users);
@@ -1959,7 +1951,7 @@ async function loadUsersForProject() {
 function handleUserSelection() {
     const userSelect = document.getElementById('projectUser');
     const newUserForm = document.getElementById('newUserForm');
-    
+
     if (userSelect.value === 'new') {
         newUserForm.style.display = 'block';
     } else {
@@ -1971,14 +1963,14 @@ function handleUserSelection() {
 function checkUserExists() {
     const email = document.getElementById('newUserEmail').value;
     const userStatus = document.getElementById('userStatus');
-    
+
     if (!email) {
         userStatus.innerHTML = '';
         return;
     }
-    
+
     const existingUser = users.find(user => user.email === email);
-    
+
     if (existingUser) {
         userStatus.innerHTML = '✅ Usuario ya existe';
         userStatus.className = 'user-status success';
@@ -1993,26 +1985,26 @@ async function createNewUser() {
     const email = document.getElementById('newUserEmail').value;
     const name = document.getElementById('newUserName').value;
     const userStatus = document.getElementById('userStatus');
-    
+
     if (!email) {
         userStatus.innerHTML = '❌ Email es requerido';
         userStatus.className = 'user-status error';
         return;
     }
-    
+
     // Check if user already exists
     const existingUser = users.find(user => user.email === email);
     if (existingUser) {
         userStatus.innerHTML = '✅ Usuario ya existe';
         userStatus.className = 'user-status success';
-        
+
         // Update the select to show this user
         const userSelect = document.getElementById('projectUser');
         userSelect.value = existingUser.id;
         document.getElementById('newUserForm').style.display = 'none';
         return;
     }
-    
+
     // Create new user
     const newUser = {
         email: email.toLowerCase().trim(), // Normalize email
@@ -2024,54 +2016,54 @@ async function createNewUser() {
         waitingForRegistration: true,
         projects: [] // Array to store project IDs when user registers
     };
-    
+
     try {
         // Save user to Firebase Firestore
         const { addDoc, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const docRef = await addDoc(collection(db, 'users'), newUser);
         newUser.id = docRef.id; // Get the Firebase document ID
-        
+
         users.push(newUser);
-        
+
         userStatus.innerHTML = '✅ Usuario creado exitosamente en Firebase';
         userStatus.className = 'user-status success';
-        
+
         console.log('User created in Firebase:', newUser);
     } catch (error) {
         console.error('Error creating user in Firebase:', error);
-        
+
         // Fallback to localStorage if Firebase fails
         newUser.id = Date.now().toString();
         users.push(newUser);
         localStorage.setItem('users', JSON.stringify(users));
-        
+
         userStatus.innerHTML = '✅ Usuario creado en modo offline';
         userStatus.className = 'user-status warning';
     }
-    
+
     // Update the select to show this user
     const userSelect = document.getElementById('projectUser');
     userSelect.innerHTML = `
         <option value="">Selecciona un usuario</option>
         <option value="new">+ Crear nuevo usuario</option>
     `;
-    
+
     users.forEach(user => {
         const option = document.createElement('option');
         option.value = user.id;
         option.textContent = `${user.name || user.email} (${user.email})`;
         userSelect.appendChild(option);
     });
-    
+
     userSelect.value = newUser.id;
     document.getElementById('newUserForm').style.display = 'none';
-    
+
     // Clear form
     document.getElementById('newUserEmail').value = '';
     document.getElementById('newUserName').value = '';
-    
+
     // Reload data
     loadUsers();
     // Stats will be updated automatically
@@ -2083,10 +2075,10 @@ async function viewUserPanel(userId, userEmail) {
         // Get user data from Firebase to have complete information
         const { getDocs, collection, query, where } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const usersQuery = query(collection(db, 'users'), where('email', '==', userEmail));
         const usersSnapshot = await getDocs(usersQuery);
-        
+
         let userData = {
             id: userId,
             email: userEmail,
@@ -2098,7 +2090,7 @@ async function viewUserPanel(userId, userEmail) {
             originalUserId: userId, // Store original user ID
             originalUserEmail: userEmail // Store original user email
         };
-        
+
         // If user exists in Firebase, use their data
         if (!usersSnapshot.empty) {
             const userDoc = usersSnapshot.docs[0];
@@ -2111,27 +2103,27 @@ async function viewUserPanel(userId, userEmail) {
                 originalUserEmail: userEmail
             };
         }
-        
+
         // Store user data in localStorage for the panel
         localStorage.setItem('user', JSON.stringify(userData));
-        
+
         // Open user panel in new window
         const userPanelUrl = window.location.origin + '/dashboard.html';
         const newWindow = window.open(userPanelUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
-        
+
         if (newWindow) {
             newWindow.focus();
             showNotification(`Panel de usuario abierto para ${userEmail}`, 'success');
-            
+
             // Add a note to the new window about developer mode
-            newWindow.addEventListener('load', function() {
+            newWindow.addEventListener('load', function () {
                 console.log('Panel de usuario abierto en modo desarrollador para:', userEmail);
                 console.log('Datos del usuario:', userData);
             });
         } else {
             showNotification('No se pudo abrir el panel de usuario. Verifica que los pop-ups estén habilitados.', 'error');
         }
-        
+
     } catch (error) {
         console.error('Error opening user panel:', error);
         showNotification('Error al abrir el panel de usuario: ' + error.message, 'error');
@@ -2143,14 +2135,14 @@ async function loadAdminRequirements() {
     try {
         const { getDocs, collection, query, orderBy } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const requirementsQuery = query(collection(db, 'requirements'), orderBy('createdAt', 'desc'));
         const requirementsSnapshot = await getDocs(requirementsQuery);
         const requirementsList = document.getElementById('adminRequirementsList');
-        
+
         if (requirementsList) {
             requirementsList.innerHTML = '';
-            
+
             if (requirementsSnapshot.empty) {
                 requirementsList.innerHTML = `
                     <div class="no-data">
@@ -2178,14 +2170,14 @@ async function loadAdminCosts() {
     try {
         const { getDocs, collection, query, orderBy } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const costsQuery = query(collection(db, 'costs'), orderBy('createdAt', 'desc'));
         const costsSnapshot = await getDocs(costsQuery);
         const costsList = document.getElementById('adminCostsList');
-        
+
         if (costsList) {
             costsList.innerHTML = '';
-            
+
             if (costsSnapshot.empty) {
                 costsList.innerHTML = `
                     <div class="no-data">
@@ -2213,14 +2205,14 @@ async function loadAdminCosts() {
 function createAdminRequirementCard(requirement) {
     const card = document.createElement('div');
     card.className = 'admin-requirement-card';
-    
+
     const priorityClass = {
         'low': 'priority-low',
         'medium': 'priority-medium',
         'high': 'priority-high',
         'urgent': 'priority-urgent'
     }[requirement.priority] || 'priority-medium';
-    
+
     const statusClass = {
         'pending': 'status-pending',
         'approved': 'status-approved',
@@ -2228,7 +2220,7 @@ function createAdminRequirementCard(requirement) {
         'in-progress': 'status-progress',
         'completed': 'status-completed'
     }[requirement.status] || 'status-pending';
-    
+
     const statusText = {
         'pending': 'Pendiente',
         'approved': 'Aprobado',
@@ -2236,16 +2228,16 @@ function createAdminRequirementCard(requirement) {
         'in-progress': 'En Progreso',
         'completed': 'Completado'
     }[requirement.status] || 'Pendiente';
-    
+
     const priorityText = {
         'low': 'Baja',
         'medium': 'Media',
         'high': 'Alta',
         'urgent': 'Urgente'
     }[requirement.priority] || 'Media';
-    
+
     const createdDate = new Date(requirement.createdAt).toLocaleDateString('es-ES');
-    
+
     card.innerHTML = `
         <div class="requirement-header">
             <div class="requirement-info">
@@ -2283,7 +2275,7 @@ function createAdminRequirementCard(requirement) {
             </button>
         </div>
     `;
-    
+
     return card;
 }
 
@@ -2291,35 +2283,35 @@ function createAdminRequirementCard(requirement) {
 function createAdminCostCard(cost) {
     const card = document.createElement('div');
     card.className = 'admin-cost-card';
-    
+
     const statusClass = {
         'pending': 'status-pending',
         'approved': 'status-approved',
         'rejected': 'status-rejected'
     }[cost.status] || 'status-pending';
-    
+
     const statusText = {
         'pending': 'Pendiente',
         'approved': 'Aprobado',
         'rejected': 'Rechazado'
     }[cost.status] || 'Pendiente';
-    
+
     const priorityClass = {
         'low': 'priority-low',
         'medium': 'priority-medium',
         'high': 'priority-high',
         'urgent': 'priority-urgent'
     }[cost.priority] || 'priority-medium';
-    
+
     const priorityText = {
         'low': 'Baja',
         'medium': 'Media',
         'high': 'Alta',
         'urgent': 'Urgente'
     }[cost.priority] || 'Media';
-    
+
     const createdDate = new Date(cost.createdAt).toLocaleDateString('es-ES');
-    
+
     card.innerHTML = `
         <div class="cost-header">
             <div class="cost-info">
@@ -2349,7 +2341,7 @@ function createAdminCostCard(cost) {
             </button>
         </div>
     `;
-    
+
     return card;
 }
 
@@ -2358,15 +2350,15 @@ async function updateRequirementStatus(requirementId, newStatus) {
     try {
         const { updateDoc, doc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         await updateDoc(doc(db, 'requirements', requirementId), {
             status: newStatus,
             updatedAt: new Date().toISOString()
         });
-        
+
         showNotification('Estado del requerimiento actualizado', 'success');
         loadAdminRequirements();
-        
+
     } catch (error) {
         console.error('Error updating requirement status:', error);
         showNotification('Error al actualizar estado: ' + error.message, 'error');
@@ -2378,15 +2370,15 @@ async function updateCostStatus(costId, newStatus) {
     try {
         const { updateDoc, doc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         await updateDoc(doc(db, 'costs', costId), {
             status: newStatus,
             updatedAt: new Date().toISOString()
         });
-        
+
         showNotification('Estado del costo actualizado', 'success');
         loadAdminCosts();
-        
+
     } catch (error) {
         console.error('Error updating cost status:', error);
         showNotification('Error al actualizar estado: ' + error.message, 'error');
@@ -2398,17 +2390,17 @@ function openCostCreationModal() {
     const modal = document.getElementById('costCreationModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Load users for the select
     loadUsersForCostCreation();
-    
+
     // Add event listener manually as backup
     const userSelect = document.getElementById('adminCostUser');
     if (userSelect) {
         userSelect.removeEventListener('change', loadUserProjectsAndRequirements);
         userSelect.addEventListener('change', loadUserProjectsAndRequirements);
         console.log('Event listener added to user select');
-        
+
         // Test the function
         setTimeout(() => {
             console.log('Testing loadUserProjectsAndRequirements function...');
@@ -2426,7 +2418,7 @@ function closeCostCreationModal() {
     const modal = document.getElementById('costCreationModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
+
     // Reset form
     document.getElementById('adminCostTitle').value = '';
     document.getElementById('adminCostDescription').value = '';
@@ -2443,25 +2435,25 @@ async function loadUsersForCostCreation() {
         console.log('Loading users for cost creation...');
         const { getDocs, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const usersSnapshot = await getDocs(collection(db, 'users'));
         console.log('Found users:', usersSnapshot.size);
-        
+
         const userSelect = document.getElementById('adminCostUser');
-        
+
         if (userSelect) {
             userSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
-            
+
             usersSnapshot.forEach((doc, index) => {
                 const userData = doc.data();
                 console.log(`User ${index + 1}:`, userData.email, 'Name:', userData.name);
-                
+
                 const option = document.createElement('option');
                 option.value = userData.email;
                 option.textContent = `${userData.name || userData.email} (${userData.email})`;
                 userSelect.appendChild(option);
             });
-            
+
             console.log('Users loaded successfully');
         } else {
             console.error('User select element not found');
@@ -2475,21 +2467,21 @@ async function loadUsersForCostCreation() {
 // Load projects and requirements for selected user
 async function loadUserProjectsAndRequirements() {
     console.log('loadUserProjectsAndRequirements called');
-    
+
     const userSelect = document.getElementById('adminCostUser');
     if (!userSelect) {
         console.error('adminCostUser element not found');
         return;
     }
-    
+
     const selectedUserEmail = userSelect.value;
     console.log('Loading projects and requirements for user:', selectedUserEmail);
-    
+
     if (!selectedUserEmail) {
         // Clear projects and requirements
         const projectSelect = document.getElementById('adminCostProject');
         const requirementSelect = document.getElementById('adminCostRequirement');
-        
+
         if (projectSelect) {
             projectSelect.innerHTML = '<option value="">Seleccionar proyecto</option>';
         }
@@ -2498,32 +2490,32 @@ async function loadUserProjectsAndRequirements() {
         }
         return;
     }
-    
+
     try {
         console.log('Starting to load projects and requirements...');
         const { getDocs, collection, query, where } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         console.log('Firebase imported successfully');
         console.log('Loading projects for user:', selectedUserEmail);
-        
+
         // Load projects for the selected user
         const projectsQuery = query(
             collection(db, 'projects'),
             where('userEmail', '==', selectedUserEmail)
         );
-        
+
         console.log('Executing projects query...');
         const projectsSnapshot = await getDocs(projectsQuery);
         console.log('Projects query executed. Found projects:', projectsSnapshot.size);
-        
+
         const projectSelect = document.getElementById('adminCostProject');
         console.log('Project select element found:', !!projectSelect);
-        
+
         if (projectSelect) {
             projectSelect.innerHTML = '<option value="">Seleccionar proyecto</option>';
             console.log('Cleared project select options');
-            
+
             if (projectsSnapshot.empty) {
                 const option = document.createElement('option');
                 option.value = '';
@@ -2536,7 +2528,7 @@ async function loadUserProjectsAndRequirements() {
                 projectsSnapshot.forEach((doc, index) => {
                     const project = doc.data();
                     console.log(`Project ${index + 1}:`, project.title, 'ID:', doc.id);
-                    
+
                     const option = document.createElement('option');
                     option.value = doc.id;
                     option.textContent = project.title;
@@ -2548,22 +2540,22 @@ async function loadUserProjectsAndRequirements() {
         } else {
             console.error('Project select element not found');
         }
-        
+
         console.log('Loading requirements for user:', selectedUserEmail);
-        
+
         // Load requirements for the selected user
         const requirementsQuery = query(
             collection(db, 'requirements'),
             where('userEmail', '==', selectedUserEmail)
         );
         const requirementsSnapshot = await getDocs(requirementsQuery);
-        
+
         console.log('Found requirements:', requirementsSnapshot.size);
-        
+
         const requirementSelect = document.getElementById('adminCostRequirement');
         if (requirementSelect) {
             requirementSelect.innerHTML = '<option value="">Seleccionar requerimiento</option>';
-            
+
             if (requirementsSnapshot.empty) {
                 const option = document.createElement('option');
                 option.value = '';
@@ -2584,7 +2576,7 @@ async function loadUserProjectsAndRequirements() {
         } else {
             console.error('Requirement select element not found');
         }
-        
+
     } catch (error) {
         console.error('Error loading user projects and requirements:', error);
         showNotification('Error al cargar proyectos y requerimientos: ' + error.message, 'error');
@@ -2600,27 +2592,27 @@ async function submitAdminCost() {
     const amount = parseFloat(document.getElementById('adminCostAmount').value);
     const priority = document.getElementById('adminCostPriority').value;
     const description = document.getElementById('adminCostDescription').value.trim();
-    
+
     // Validar campos obligatorios
     if (!userEmail) {
         showNotification('Por favor selecciona un usuario', 'error');
         return;
     }
-    
+
     if (!title) {
         showNotification('Por favor ingresa el título del costo', 'error');
         return;
     }
-    
+
     if (isNaN(amount) || amount <= 0) {
         showNotification('Por favor ingresa un monto válido', 'error');
         return;
     }
-    
+
     try {
         const { addDoc, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const costData = {
             title: title,
             description: description,
@@ -2634,13 +2626,13 @@ async function submitAdminCost() {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
-        
+
         await addDoc(collection(db, 'costs'), costData);
-        
+
         showNotification('Costo creado exitosamente', 'success');
         closeCostCreationModal();
         loadAdminCosts();
-        
+
     } catch (error) {
         console.error('Error creating cost:', error);
         showNotification('Error al crear costo: ' + error.message, 'error');
@@ -2652,7 +2644,7 @@ function openMultimediaUploadModal() {
     const modal = document.getElementById('multimediaUploadModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Load users for the select
     loadUsersForMultimedia();
 }
@@ -2661,7 +2653,7 @@ function closeMultimediaUploadModal() {
     const modal = document.getElementById('multimediaUploadModal');
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
-    
+
     // Reset form
     document.getElementById('multimediaUser').value = '';
     document.getElementById('multimediaType').value = '';
@@ -2669,7 +2661,7 @@ function closeMultimediaUploadModal() {
     document.getElementById('multimediaDescription').value = '';
     document.getElementById('multimediaFile').value = '';
     document.getElementById('multimediaRelatedProject').value = '';
-    
+
     // Hide preview
     document.getElementById('multimediaPreview').style.display = 'none';
     document.getElementById('uploadMultimediaBtn').disabled = true;
@@ -2680,13 +2672,13 @@ async function loadUsersForMultimedia() {
     try {
         const { getDocs, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const usersSnapshot = await getDocs(collection(db, 'users'));
         const userSelect = document.getElementById('multimediaUser');
-        
+
         if (userSelect) {
             userSelect.innerHTML = '<option value="">Seleccionar usuario</option>';
-            
+
             usersSnapshot.forEach(doc => {
                 const userData = doc.data();
                 const option = document.createElement('option');
@@ -2705,7 +2697,7 @@ async function loadUsersForMultimedia() {
 function updateFileInput() {
     const type = document.getElementById('multimediaType').value;
     const fileInput = document.getElementById('multimediaFile');
-    
+
     if (type === 'video') {
         fileInput.accept = 'video/*';
         fileInput.setAttribute('data-type', 'video');
@@ -2725,30 +2717,30 @@ function previewMultimedia() {
     const preview = document.getElementById('multimediaPreview');
     const videoPreview = document.getElementById('videoPreview');
     const audioPreview = document.getElementById('audioPreview');
-    
+
     if (!file) {
         preview.style.display = 'none';
         document.getElementById('uploadMultimediaBtn').disabled = true;
         return;
     }
-    
+
     // Show preview
     preview.style.display = 'block';
-    
+
     // Update file info
     const fileName = preview.querySelector('.file-name');
     const fileSize = preview.querySelector('.file-size');
-    
+
     fileName.textContent = file.name;
     fileSize.textContent = formatFileSize(file.size);
-    
+
     // Create preview URL
     const url = URL.createObjectURL(file);
-    
+
     // Hide both previews first
     videoPreview.style.display = 'none';
     audioPreview.style.display = 'none';
-    
+
     // Show appropriate preview
     if (file.type.startsWith('video/')) {
         videoPreview.src = url;
@@ -2757,7 +2749,7 @@ function previewMultimedia() {
         audioPreview.src = url;
         audioPreview.style.display = 'block';
     }
-    
+
     // Enable upload button
     document.getElementById('uploadMultimediaBtn').disabled = false;
 }
@@ -2779,47 +2771,47 @@ async function uploadMultimediaProject() {
     const description = document.getElementById('multimediaDescription').value.trim();
     const fileInput = document.getElementById('multimediaFile');
     const relatedProject = document.getElementById('multimediaRelatedProject').value;
-    
+
     // Validate required fields
     if (!userEmail || !type || !title || !fileInput.files[0]) {
         showNotification('Por favor completa todos los campos requeridos', 'error');
         return;
     }
-    
+
     const file = fileInput.files[0];
-    
+
     // Validate file type
     if (type === 'video' && !file.type.startsWith('video/')) {
         showNotification('Por favor selecciona un archivo de video válido', 'error');
         return;
     }
-    
+
     if (type === 'audio' && !file.type.startsWith('audio/')) {
         showNotification('Por favor selecciona un archivo de audio válido', 'error');
         return;
     }
-    
+
     try {
         // Upload file to server
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folder', 'multimedia');
-        
+
         const uploadResponse = await fetch('http://localhost:3001/upload', {
             method: 'POST',
             body: formData
         });
-        
+
         if (!uploadResponse.ok) {
             throw new Error('Error al subir el archivo');
         }
-        
+
         const uploadResult = await uploadResponse.json();
-        
+
         // Save multimedia project data to Firestore
         const { addDoc, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const multimediaData = {
             title: title,
             description: description,
@@ -2834,13 +2826,13 @@ async function uploadMultimediaProject() {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
-        
+
         await addDoc(collection(db, 'multimedia'), multimediaData);
-        
+
         showNotification('Proyecto multimedia subido exitosamente', 'success');
         closeMultimediaUploadModal();
         loadMultimediaProjects();
-        
+
     } catch (error) {
         console.error('Error uploading multimedia project:', error);
         showNotification('Error al subir proyecto multimedia: ' + error.message, 'error');
@@ -2852,14 +2844,14 @@ async function loadMultimediaProjects() {
     try {
         const { getDocs, collection, query, orderBy } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const multimediaQuery = query(collection(db, 'multimedia'), orderBy('createdAt', 'desc'));
         const multimediaSnapshot = await getDocs(multimediaQuery);
         const multimediaList = document.getElementById('adminMultimediaList');
-        
+
         if (multimediaList) {
             multimediaList.innerHTML = '';
-            
+
             if (multimediaSnapshot.empty) {
                 multimediaList.innerHTML = `
                     <div class="no-data">
@@ -2887,11 +2879,11 @@ async function loadMultimediaProjects() {
 function createAdminMultimediaCard(multimedia) {
     const card = document.createElement('div');
     card.className = 'admin-multimedia-card';
-    
+
     const typeIcon = multimedia.type === 'video' ? 'fas fa-video' : 'fas fa-music';
     const typeText = multimedia.type === 'video' ? 'Video' : 'Audio';
     const createdDate = new Date(multimedia.createdAt).toLocaleDateString('es-ES');
-    
+
     card.innerHTML = `
         <div class="multimedia-header">
             <div class="multimedia-info">
@@ -2920,7 +2912,7 @@ function createAdminMultimediaCard(multimedia) {
             </div>
         </div>
     `;
-    
+
     return card;
 }
 
@@ -2936,16 +2928,16 @@ async function deleteMultimedia(multimediaId) {
     if (!confirm('¿Estás seguro de que quieres eliminar este proyecto multimedia?')) {
         return;
     }
-    
+
     try {
         const { deleteDoc, doc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         await deleteDoc(doc(db, 'multimedia', multimediaId));
-        
+
         showNotification('Proyecto multimedia eliminado', 'success');
         loadMultimediaProjects();
-        
+
     } catch (error) {
         console.error('Error deleting multimedia:', error);
         showNotification('Error al eliminar proyecto multimedia: ' + error.message, 'error');
@@ -2960,7 +2952,7 @@ function openUserEditModal(userId) {
     const modal = document.getElementById('userEditModal');
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Load user data
     loadUserDataForEdit(userId);
 }
@@ -2970,7 +2962,7 @@ function closeUserEditModal() {
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
     currentEditingUserId = null;
-    
+
     // Reset form
     document.getElementById('editUserName').value = '';
     document.getElementById('editUserEmail').value = '';
@@ -2984,12 +2976,12 @@ async function loadUserDataForEdit(userId) {
     try {
         const { getDoc, doc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const userDoc = await getDoc(doc(db, 'users', userId));
-        
+
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            
+
             // Populate form with user data
             document.getElementById('editUserName').value = userData.name || '';
             document.getElementById('editUserEmail').value = userData.email || '';
@@ -2997,7 +2989,7 @@ async function loadUserDataForEdit(userId) {
             document.getElementById('editUserStatus').value = userData.status || 'active';
             document.getElementById('editUserRole').value = userData.role || 'client';
             document.getElementById('editUserNotes').value = userData.notes || '';
-            
+
             console.log('User data loaded for editing:', userData);
         } else {
             showNotification('Usuario no encontrado', 'error');
@@ -3014,28 +3006,28 @@ async function saveUserChanges() {
         showNotification('Error: No hay usuario seleccionado para editar', 'error');
         return;
     }
-    
+
     const name = document.getElementById('editUserName').value.trim();
     const email = document.getElementById('editUserEmail').value.trim();
     const phone = document.getElementById('editUserPhone').value.trim();
     const status = document.getElementById('editUserStatus').value;
     const role = document.getElementById('editUserRole').value;
     const notes = document.getElementById('editUserNotes').value.trim();
-    
+
     if (!name || !email) {
         showNotification('Por favor completa el nombre y correo electrónico', 'error');
         return;
     }
-    
+
     if (!isValidEmail(email)) {
         showNotification('Por favor ingresa un correo electrónico válido', 'error');
         return;
     }
-    
+
     try {
         const { updateDoc, doc } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const updateData = {
             name: name,
             email: email,
@@ -3045,13 +3037,13 @@ async function saveUserChanges() {
             notes: notes,
             updatedAt: new Date().toISOString()
         };
-        
+
         await updateDoc(doc(db, 'users', currentEditingUserId), updateData);
-        
+
         showNotification('Usuario actualizado exitosamente', 'success');
         closeUserEditModal();
         loadUsers(); // Reload users list
-        
+
     } catch (error) {
         console.error('Error updating user:', error);
         showNotification('Error al actualizar usuario: ' + error.message, 'error');
@@ -3067,25 +3059,25 @@ function isValidEmail(email) {
 async function linkPendingUser(userEmail, userId) {
     try {
         console.log('Linking pending user:', userEmail, 'to user ID:', userId);
-        
+
         const { getDocs, collection, updateDoc, doc, query, where } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         // Search for pending user with this email
         const pendingUsersQuery = query(
             collection(db, 'users'),
             where('email', '==', userEmail.toLowerCase().trim()),
             where('waitingForRegistration', '==', true)
         );
-        
+
         const pendingUsersSnapshot = await getDocs(pendingUsersQuery);
-        
+
         if (!pendingUsersSnapshot.empty) {
             const pendingUserDoc = pendingUsersSnapshot.docs[0];
             const pendingUserData = pendingUserDoc.data();
-            
+
             console.log('Found pending user:', pendingUserData);
-            
+
             // Update the pending user with the new user ID and status
             await updateDoc(doc(db, 'users', pendingUserDoc.id), {
                 status: 'active',
@@ -3093,7 +3085,7 @@ async function linkPendingUser(userEmail, userId) {
                 linkedUserId: userId,
                 linkedAt: new Date().toISOString()
             });
-            
+
             // Also update the new user with admin-created data
             await updateDoc(doc(db, 'users', userId), {
                 name: pendingUserData.name,
@@ -3102,11 +3094,11 @@ async function linkPendingUser(userEmail, userId) {
                 adminCreatedAt: pendingUserData.createdAt,
                 linkedFromPending: true
             });
-            
+
             console.log('Successfully linked pending user to new registration');
             return true;
         }
-        
+
         return false;
     } catch (error) {
         console.error('Error linking pending user:', error);
@@ -3127,8 +3119,8 @@ async function checkAndLinkPendingUser(userEmail, userId) {
 // Load section-specific data
 function loadSectionData(sectionName) {
     console.log('Loading data for section:', sectionName);
-    
-    switch(sectionName) {
+
+    switch (sectionName) {
         case 'users':
             loadUsersData();
             break;
@@ -3161,14 +3153,14 @@ async function loadUsersData() {
     try {
         const { getDocs, collection } = await import('firebase/firestore');
         const { db } = await import('./firebase-config.js');
-        
+
         const usersQuery = collection(db, 'users');
         const usersSnapshot = await getDocs(usersQuery);
-        
+
         const usersContainer = document.getElementById('usersTableBody');
         if (usersContainer) {
             usersContainer.innerHTML = '';
-            
+
             if (usersSnapshot.empty) {
                 usersContainer.innerHTML = `
                     <tr>
