@@ -420,13 +420,7 @@ async function loadFiles() {
     }
 }
 
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
+// formatFileSize duplicate removed (1) -> using version at end of file
 
 async function downloadFileFromAdmin(url, filename) {
     try {
@@ -671,27 +665,10 @@ function viewProject(projectId) {
     showNotification(`Viendo proyecto ${projectId}`, 'info');
 }
 
-function editProject(projectId) {
-    showNotification(`Editando proyecto ${projectId}`, 'info');
-}
+// editProject placeholder removed - using async version below
 
 // File management functions
-function uploadFile() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.multiple = true;
-    input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif';
-
-    input.addEventListener('change', function (e) {
-        const files = Array.from(e.target.files);
-        if (files.length > 0) {
-            showNotification(`${files.length} archivo(s) subido(s) exitosamente`, 'success');
-            loadFiles(); // Reload files
-        }
-    });
-
-    input.click();
-}
+// uploadFile duplicate removed -> using async version
 
 function downloadFile(fileName) {
     showNotification(`Descargando ${fileName}...`, 'info');
@@ -1630,13 +1607,7 @@ function removeFilePreview(type) {
     document.getElementById('uploadBtn').disabled = true;
 }
 
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
+// formatFileSize duplicate removed (2) -> using version at end of file
 
 async function uploadFile() {
     if (!selectedFile) {
