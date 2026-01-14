@@ -145,8 +145,8 @@ Las contribuciones son bienvenidas. Por favor, abre un issue o pull request para
 
 **Freedom Labs**
 - Email: contacto@freedomlabs.com
-- Teléfono: +1 (555) 123-4567
-- Ubicación: Ciudad de México, México
+- Teléfono: +15513014573
+- Ubicación: Paterson New Jersey
 
 ---
 

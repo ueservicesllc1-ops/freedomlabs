@@ -7,6 +7,7 @@
     <title>Freedom Labs - Admin</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="productivity-styles.css">
+    <link rel="stylesheet" href="chat-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Firebase SDK -->
@@ -79,6 +80,14 @@
                         <i class="fas fa-bell"></i>
                         <span>Notificaciones</span>
                     </a>
+                    <a href="#" class="nav-item" data-view="chat">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat</span>
+                    </a>
+                    <a href="#" class="nav-item" data-view="accounting">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>Contabilidad</span>
+                    </a>
                     <a href="#" class="nav-item" data-view="settings">
                         <i class="fas fa-cog"></i>
                         <span>Configuración</span>
@@ -143,12 +152,18 @@
                                 <label>Rol</label>
                                 <select id="createUserRole" required>
                                     <option value="">Selecciona un rol</option>
+                                    <option value="project_manager">Project Manager</option>
                                     <option value="designer">Diseñador Gráfico</option>
                                     <option value="community_manager">Community Manager</option>
                                     <option value="digitizer">Digitador</option>
                                     <option value="videografo">Videógrafo</option>
                                     <option value="desarrollador">Desarrollador</option>
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Salario por Hora ($)</label>
+                                <input type="number" id="createUserHourlyRate" placeholder="Ej: 5.00" step="0.01"
+                                    min="0">
                             </div>
                             <div id="createUserError" class="error-message"></div>
                             <div id="createUserSuccess" class="success-message"></div>
@@ -210,6 +225,7 @@
                                     <option value="today">Hoy</option>
                                     <option value="week">Esta semana</option>
                                     <option value="month">Este mes</option>
+                                    <option value="daily">Por Día (últimos 30 días)</option>
                                 </select>
                             </div>
                             <button id="refreshProductivityBtn" class="btn-primary" style="padding: 8px 16px;">
@@ -236,6 +252,16 @@
 
                     <div id="notificationsList" style="margin-top: 20px;">
                         <div class="loading-message">Cargando notificaciones...</div>
+                    </div>
+                </div>
+
+                <!-- Accounting View -->
+                <div id="accountingView" class="view">
+                    <div class="view-header">
+                        <h2>💰 Sistema de Contabilidad y Nómina</h2>
+                    </div>
+                    <div id="accountingContent">
+                        <div class="loading-message">Cargando sistema contable...</div>
                     </div>
                 </div>
 
@@ -289,12 +315,24 @@
                     <label>Rol</label>
                     <select id="editAssistantRole" required>
                         <option value="">Selecciona un rol</option>
+                        <option value="project_manager">Project Manager</option>
                         <option value="designer">Diseñador Gráfico</option>
                         <option value="community_manager">Community Manager</option>
                         <option value="digitizer">Digitador</option>
                         <option value="videografo">Videógrafo</option>
                         <option value="desarrollador">Desarrollador</option>
                     </select>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Salario por Hora ($)</label>
+                    <input type="number" id="editAssistantHourlyRate" placeholder="Ej: 5.00" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Total Horas Trabajadas</label>
+                    <input type="number" id="editAssistantTotalHours" placeholder="Ej: 120.5" step="0.1" min="0">
+                    <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;">Puedes ajustar
+                        manualmente el total de horas trabajadas</p>
                 </div>
                 <div id="editAssistantError" class="error-message"></div>
                 <div id="editAssistantSuccess" class="success-message"></div>
@@ -426,6 +464,36 @@
         </div>
     </div>
 
+    <!-- Edit Project Basic Info Modal -->
+    <div id="editProjectModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-edit-project">&times;</span>
+            <h2>Editar Proyecto</h2>
+            <form id="editProjectForm" class="create-user-form">
+                <div class="form-group">
+                    <label>Nombre del Proyecto</label>
+                    <input type="text" id="editProjectName" placeholder="Ej: Sitio Web Corporativo" required
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label>Descripción / Detalles</label>
+                    <textarea id="editProjectDescription" placeholder="Describe el proyecto..." rows="4"
+                        style="padding: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: white; font-size: 14px; font-family: inherit; resize: vertical; width: 100%;"></textarea>
+                </div>
+                <div id="editProjectError" class="error-message"></div>
+                <div id="editProjectSuccess" class="success-message"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="closeEditProjectModal()" style="flex: 1;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Create Notification Modal -->
     <div id="createNotificationModal" class="modal" style="display: none;">
         <div class="modal-content" style="max-width: 600px;">
@@ -499,8 +567,36 @@
         </div>
     </div>
 
+    <!-- Edit Daily Hours Modal -->
+    <div id="editDailyHoursModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="closeEditDailyHoursModal()">&times;</span>
+            <h2>Editar Horas Trabajadas</h2>
+            <form id="editDailyHoursForm" style="margin-top: 20px;">
+                <div class="form-group">
+                    <label id="editHoursDateLabel">Fecha</label>
+                    <input type="number" id="editHoursInput" placeholder="Ej: 8.5" step="0.1" min="0" max="24" required
+                        style="width: 100%; padding: 10px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 16px;">
+                    <p style="font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 5px;">Ingresa las horas
+                        realmente trabajadas</p>
+                </div>
+                <div id="editHoursError" class="error-message"></div>
+                <div id="editHoursSuccess" class="success-message"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn-primary" style="flex: 1;">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="closeEditDailyHoursModal()" style="flex: 1;">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="firebase-config-web.js"></script>
     <script src="productivity-dashboard.js"></script>
+    <script src="accounting-system.js"></script>
     <script src="app.js"></script>
 </body>
 

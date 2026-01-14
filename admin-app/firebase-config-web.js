@@ -29,19 +29,19 @@ const signIn = async (email, password) => {
 
 
 // Create new assistant user (no admin auth needed, just PIN)
-const createAssistant = async (name, email, username, password, role) => {
+const createAssistant = async (name, email, username, password, role, hourlyRate = 0) => {
   try {
-    console.log('Creating new assistant:', { name, email, username, role });
-    
+    console.log('Creating new assistant:', { name, email, username, role, hourlyRate });
+
     // Create user in Firebase Auth (this will sign in as the new user)
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
     const userId = userCredential.user.uid;
-    
+
     // Update user profile with name
     await userCredential.user.updateProfile({
       displayName: name
     });
-    
+
     // Create assistant document in Firestore
     await db.collection("assistants").add({
       userId: userId,
@@ -49,17 +49,18 @@ const createAssistant = async (name, email, username, password, role) => {
       email: email,
       username: username,
       role: role, // 'designer', 'community_manager', 'digitizer'
+      hourlyRate: parseFloat(hourlyRate) || 0,
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       isOnline: false,
       totalHoursWorked: 0,
       lastSeen: null
     });
-    
+
     console.log('Assistant created successfully:', userId);
-    
+
     // Sign out the newly created user (admin doesn't need to be logged in)
     await auth.signOut();
-    
+
     return { success: true, userId: userId };
   } catch (error) {
     console.error('Create Assistant Error:', error);
@@ -114,14 +115,14 @@ const watchAssistants = (callback) => {
 // Get work sessions for an assistant
 const getWorkSessions = async (userId, startDate, endDate) => {
   let q = db.collection("workSessions").where("userId", "==", userId);
-  
+
   if (startDate) {
     q = q.where("date", ">=", startDate);
   }
   if (endDate) {
     q = q.where("date", "<=", endDate);
   }
-  
+
   q = q.orderBy("date", "desc");
   const querySnapshot = await q.get();
   const sessions = [];
@@ -210,10 +211,10 @@ const createProject = async (name, description, assignedAssistants, files = [], 
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
       files: files // Array of file objects with url, key, fileName, etc.
     };
-    
+
     const docRef = await db.collection("projects").add(projectData);
     console.log('Project created with ID:', docRef.id);
-    
+
     // Also save file metadata to projectFiles collection
     if (files.length > 0) {
       for (const file of files) {
@@ -228,7 +229,7 @@ const createProject = async (name, description, assignedAssistants, files = [], 
         });
       }
     }
-    
+
     return { success: true, projectId: docRef.id };
   } catch (error) {
     console.error('Error creating project:', error);
@@ -242,14 +243,14 @@ const uploadFilesToB2 = async (files, projectId, folder = 'projects') => {
     // Try Railway URL first, then fallback to localhost
     const RAILWAY_URL = 'https://freedomlabs-production.up.railway.app';
     const LOCAL_URL = 'http://localhost:3001';
-    
+
     let PROXY_SERVER_URL = null;
-    
+
     // Try Railway first
     try {
       const railwayController = new AbortController();
       const railwayTimeout = setTimeout(() => railwayController.abort(), 3000);
-      const railwayHealth = await fetch(`${RAILWAY_URL}/health`, { 
+      const railwayHealth = await fetch(`${RAILWAY_URL}/health`, {
         method: 'GET',
         signal: railwayController.signal
       });
@@ -260,13 +261,13 @@ const uploadFilesToB2 = async (files, projectId, folder = 'projects') => {
     } catch (railwayError) {
       console.log('Railway server not available, trying localhost...');
     }
-    
+
     // Fallback to localhost if Railway is not available
     if (!PROXY_SERVER_URL) {
       try {
         const localController = new AbortController();
         const localTimeout = setTimeout(() => localController.abort(), 2000);
-        const localHealth = await fetch(`${LOCAL_URL}/health`, { 
+        const localHealth = await fetch(`${LOCAL_URL}/health`, {
           method: 'GET',
           signal: localController.signal
         });
@@ -278,31 +279,31 @@ const uploadFilesToB2 = async (files, projectId, folder = 'projects') => {
         throw new Error('No se puede conectar al servidor. Por favor, asegúrate de que el servidor esté desplegado en Railway o corriendo localmente en el puerto 3001.');
       }
     }
-    
+
     if (!PROXY_SERVER_URL) {
       throw new Error('No se puede conectar al servidor. Por favor, asegúrate de que el servidor esté desplegado en Railway o corriendo localmente.');
     }
-    
+
     const formData = new FormData();
-    
+
     files.forEach(file => {
       formData.append('files', file);
     });
     formData.append('projectId', projectId || 'updates');
     formData.append('folder', folder);
-    
+
     const response = await fetch(`${PROXY_SERVER_URL}/api/upload-multiple`, {
       method: 'POST',
       body: formData
     });
-    
+
     // Check if response is OK and is JSON
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Server error response:', errorText);
       throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
     }
-    
+
     // Check content type to ensure it's JSON
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
@@ -310,9 +311,9 @@ const uploadFilesToB2 = async (files, projectId, folder = 'projects') => {
       console.error('Non-JSON response:', errorText.substring(0, 200));
       throw new Error('El servidor devolvió una respuesta no válida. Verifica que el servidor esté funcionando correctamente.');
     }
-    
+
     const result = await response.json();
-    
+
     if (result.success && result.files) {
       return result.files;
     } else {
@@ -356,20 +357,41 @@ const updateProjectDriveFolder = async (projectId, driveFolderUrl) => {
   }
 };
 
+// Update project basic info (name and description)
+const updateProject = async (projectId, data) => {
+  try {
+    const projectRef = db.collection("projects").doc(projectId);
+    const updateData = {
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    // Only update fields that are provided
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description;
+
+    await projectRef.update(updateData);
+    console.log('Project updated:', projectId);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating project:', error);
+    throw error;
+  }
+};
+
 // Delete project file from Firestore and B2
 const deleteProjectFile = async (fileId, storagePath) => {
   try {
     // Try Railway URL first, then fallback to localhost
     const RAILWAY_URL = 'https://freedomlabs-production.up.railway.app';
     const LOCAL_URL = 'http://localhost:3001';
-    
+
     let PROXY_SERVER_URL = null;
-    
+
     // Try Railway first
     try {
       const railwayController = new AbortController();
       const railwayTimeout = setTimeout(() => railwayController.abort(), 3000);
-      const railwayHealth = await fetch(`${RAILWAY_URL}/health`, { 
+      const railwayHealth = await fetch(`${RAILWAY_URL}/health`, {
         method: 'GET',
         signal: railwayController.signal
       });
@@ -380,13 +402,13 @@ const deleteProjectFile = async (fileId, storagePath) => {
     } catch (railwayError) {
       console.log('Railway server not available, trying localhost...');
     }
-    
+
     // Fallback to localhost if Railway is not available
     if (!PROXY_SERVER_URL) {
       try {
         const localController = new AbortController();
         const localTimeout = setTimeout(() => localController.abort(), 2000);
-        const localHealth = await fetch(`${LOCAL_URL}/health`, { 
+        const localHealth = await fetch(`${LOCAL_URL}/health`, {
           method: 'GET',
           signal: localController.signal
         });
@@ -398,18 +420,18 @@ const deleteProjectFile = async (fileId, storagePath) => {
         throw new Error('No se puede conectar al servidor para eliminar el archivo.');
       }
     }
-    
+
     if (!PROXY_SERVER_URL) {
       throw new Error('No se puede conectar al servidor.');
     }
-    
+
     // Delete from B2 if storagePath is provided
     if (storagePath) {
       try {
         const response = await fetch(`${PROXY_SERVER_URL}/api/delete/${encodeURIComponent(storagePath)}`, {
           method: 'DELETE'
         });
-        
+
         if (!response.ok) {
           console.warn('Warning: Could not delete file from B2:', response.statusText);
           // Continue to delete from Firestore even if B2 deletion fails
@@ -421,11 +443,11 @@ const deleteProjectFile = async (fileId, storagePath) => {
         // Continue to delete from Firestore even if B2 deletion fails
       }
     }
-    
+
     // Delete from Firestore
     await db.collection("projectFiles").doc(fileId).delete();
     console.log('File deleted from Firestore:', fileId);
-    
+
     return { success: true };
   } catch (error) {
     console.error('Error deleting project file:', error);
@@ -461,7 +483,7 @@ const createNotification = async (title, message, type, targetUsers, downloadLin
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       createdBy: 'admin'
     };
-    
+
     const docRef = await db.collection("notifications").add(notificationData);
     console.log('Notification created:', docRef.id);
     return docRef.id;
@@ -476,7 +498,7 @@ const getAllNotifications = async () => {
   try {
     const notificationsRef = db.collection("notifications");
     const querySnapshot = await notificationsRef.orderBy("createdAt", "desc").limit(100).get();
-    
+
     const notifications = [];
     querySnapshot.forEach(doc => {
       notifications.push({
@@ -484,7 +506,7 @@ const getAllNotifications = async () => {
         ...doc.data()
       });
     });
-    
+
     return notifications;
   } catch (error) {
     console.error('Error getting notifications:', error);
@@ -535,6 +557,7 @@ window.firebaseConfig = {
   getAssignedProjects,
   createProject,
   uploadFilesToB2,
+  updateProject,
   updateProjectAssignments,
   updateProjectDriveFolder,
   deleteProjectFile,

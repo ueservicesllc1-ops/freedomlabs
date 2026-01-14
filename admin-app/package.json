@@ -1,7 +1,7 @@
 {
   "name": "freedomlabs-admin-app",
-  "version": "1.0.16",
-  "buildNumber": 19,
+  "version": "2.0.16",
+  "buildNumber": 38,
   "description": "Freedom Labs - Admin Desktop App",
   "main": "main.js",
   "scripts": {
@@ -29,11 +29,11 @@
     "electron-updater": "^6.6.2"
   },
   "build": {
-    "appId": "com.freedomlabs.admin",
-    "productName": "Freedom Labs Admin",
+    "appId": "com.freedomlabs.admin.v2",
+    "productName": "Freedom Labs Admin v2",
     "win": {
       "target": "nsis",
-      "artifactName": "Freedom Labs Admin Setup.exe"
+      "artifactName": "Freedom Labs Admin v2 Setup.exe"
     },
     "nsis": {
       "oneClick": false,

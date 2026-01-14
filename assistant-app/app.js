@@ -10,6 +10,8 @@ let lastActivityTime = Date.now();
 let isWindowMinimized = false;
 let isSystemActive = true;
 let productivityTracker = null; // Productivity tracking instance
+let projectManagerModule = null; // Project Manager module instance
+let chatSystem = null; // Chat system instance
 const INACTIVITY_TIMEOUT = 20 * 60 * 1000; // 20 minutes in milliseconds
 
 // Initialize app
@@ -190,8 +192,22 @@ function switchView(view) {
     } else if (view === 'user') {
         loadUserDataView();
     } else if (view === 'chat') {
-        // Chat functionality - por implementar
-        console.log('Chat view selected - functionality not implemented yet');
+        // Chat System - load contacts if initialized
+        if (chatSystem) {
+            chatSystem.renderContacts();
+        }
+    } else if (view === 'tasks' && projectManagerModule) {
+        // Project Manager: Load tasks
+        projectManagerModule.loadTasks();
+    } else if (view === 'team' && projectManagerModule) {
+        // Project Manager: Load team
+        projectManagerModule.loadTeamView();
+    } else if (view === 'all-projects' && projectManagerModule) {
+        // Project Manager: Load all projects
+        projectManagerModule.loadAllProjects();
+    } else if (view === 'create-project' && projectManagerModule) {
+        // Project Manager: Load create project view
+        projectManagerModule.loadCreateProjectView();
     }
 }
 
@@ -375,6 +391,28 @@ function checkAuthState() {
                     console.error('Error starting productivity tracker:', error);
                 }
             }
+
+            // Initialize Project Manager module
+            if (window.ProjectManagerModule && window.firebaseConfig) {
+                try {
+                    projectManagerModule = new window.ProjectManagerModule(user.uid, window.firebaseConfig);
+                    await projectManagerModule.initialize();
+                    console.log('Project Manager module initialized');
+                } catch (error) {
+                    console.error('Error initializing Project Manager module:', error);
+                }
+            }
+
+            // Initialize Chat System
+            if (window.ChatSystem && window.firebaseConfig) {
+                try {
+                    chatSystem = new window.ChatSystem(user.uid, window.firebaseConfig);
+                    await chatSystem.initialize();
+                    console.log('Chat System initialized');
+                } catch (error) {
+                    console.error('Error initializing Chat System:', error);
+                }
+            }
         } else {
             currentUser = null;
             showLogin();
@@ -532,6 +570,36 @@ async function showProjectDetails(project) {
         }
     }
 
+    // Get tasks assigned to this user
+    let assignedTasks = [];
+    try {
+        const tasksRef = window.firebaseConfig.db.collection('tasks');
+        const q = tasksRef.where('assigneeUserId', '==', currentUser.uid);
+        const querySnapshot = await q.get();
+
+        querySnapshot.forEach((doc) => {
+            const taskData = { id: doc.id, ...doc.data() };
+            // Filter by project if specified, or show all tasks
+            if (!taskData.projectId || taskData.projectId === project.id) {
+                assignedTasks.push(taskData);
+            }
+        });
+
+        // Sort by completion status, then by due date
+        assignedTasks.sort((a, b) => {
+            if (a.status === 'completado' && b.status !== 'completado') return 1;
+            if (a.status !== 'completado' && b.status === 'completado') return -1;
+            if (a.dueDate && b.dueDate) {
+                return new Date(a.dueDate) - new Date(b.dueDate);
+            }
+            return 0;
+        });
+
+        console.log('Loaded assigned tasks:', assignedTasks);
+    } catch (error) {
+        console.error('Error loading assigned tasks:', error);
+    }
+
     // Categorize admin files (only if not community_manager)
     const adminVideos = !isCommunityManager ? adminFiles.filter(f =>
         f.fileType === 'video' || f.fileName?.match(/\.(mp4|avi|mov|wmv|flv|webm)$/i)
@@ -576,6 +644,17 @@ async function showProjectDetails(project) {
                 <button class="btn-primary open-drive-btn" style="padding: 10px 20px; display: inline-flex; align-items: center; gap: 8px; background: #4285f4; border: none; cursor: pointer;" data-drive-url="${project.driveFolderUrl.replace(/"/g, '&quot;')}">
                     <i class="fab fa-google-drive"></i> Abrir Carpeta de Drive
                 </button>
+            </div>
+        </div>
+        ` : ''}
+        
+        ${assignedTasks.length > 0 ? `
+        <div style="margin-bottom: 40px; padding: 25px; background: rgba(139, 92, 246, 0.05); border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.2);">
+            <h3 style="margin-bottom: 20px; font-size: 18px; color: #a78bfa;">
+                <i class="fas fa-tasks"></i> Tareas Asignadas (${assignedTasks.length})
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                ${assignedTasks.map(task => createTaskCard(task)).join('')}
             </div>
         </div>
         ` : ''}
@@ -722,6 +801,71 @@ function createFileItem(file, isCompleted) {
             <a href="${file.downloadURL}" target="_blank" class="btn-secondary" style="padding: 6px 12px; text-decoration: none;">
                 <i class="fas fa-download"></i> Ver
             </a>
+        </div>
+    `;
+}
+
+function createTaskCard(task) {
+    const statusColors = {
+        'diseño': { bg: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', label: 'Diseño' },
+        'nuevo': { bg: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', label: 'Nuevo' },
+        'contenido': { bg: 'rgba(139, 92, 246, 0.2)', color: '#a78bfa', label: 'Contenido' },
+        'corrección': { bg: 'rgba(239, 68, 68, 0.2)', color: '#f87171', label: 'Corrección' },
+        'aprobación': { bg: 'rgba(139, 92, 246, 0.2)', color: '#c084fc', label: 'Aprobación' },
+        'pausado': { bg: 'rgba(100, 116, 139, 0.2)', color: '#94a3b8', label: 'Pausado' },
+        'completado': { bg: 'rgba(16, 185, 129, 0.2)', color: '#10b981', label: 'Completado' }
+    };
+
+    const priorityColors = {
+        'baja': { bg: 'rgba(16, 185, 129, 0.15)', color: '#10b981' },
+        'media': { bg: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b' },
+        'alta': { bg: 'rgba(239, 68, 68, 0.15)', color: '#ef4444' },
+        'urgente': { bg: 'rgba(220, 38, 38, 0.2)', color: '#dc2626' }
+    };
+
+    const status = statusColors[task.status] || statusColors['diseño'];
+    const priority = priorityColors[task.priority] || priorityColors['media'];
+
+    let dueDateHtml = '';
+    if (task.dueDate) {
+        const dueDate = new Date(task.dueDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const isOverdue = dueDate < today && task.status !== 'completado';
+
+        dueDateHtml = `
+            <div style="display: flex; align-items: center; gap: 5px; font-size: 12px; ${isOverdue ? 'color: #ef4444;' : 'color: rgba(255,255,255,0.7);'}">
+                <i class="fas fa-calendar"></i>
+                ${dueDate.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                ${isOverdue ? '<span style="color: #ef4444; font-weight: 600; margin-left: 5px;">⚠ VENCIDA</span>' : ''}
+            </div>
+        `;
+    }
+
+    return `
+        <div style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 15px; border: 1px solid rgba(255,255,255,0.08);">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                    <h4 style="color: white; font-size: 15px; margin: 0 0 8px 0; font-weight: 600;">${task.name}</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+                        <span style="background: ${status.bg}; color: ${status.color}; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+                            ${status.label}
+                        </span>
+                        <span style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; padding: 4px 10px; border-radius: 6px; font-size: 11px;">
+                            ${task.type}
+                        </span>
+                        <span style="background: ${priority.bg}; color: ${priority.color}; padding: 4px 10px; border-radius: 6px; font-size: 11px; text-transform: capitalize;">
+                            ${task.priority}
+                        </span>
+                    </div>
+                </div>
+                ${dueDateHtml}
+            </div>
+            ${task.details ? `
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 0; line-height: 1.5; white-space: pre-wrap;">${task.details}</p>
+                </div>
+            ` : ''}
         </div>
     `;
 }

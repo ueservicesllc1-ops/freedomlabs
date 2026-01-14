@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freedom Labs - Assistant</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="chat-styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Firebase SDK -->
@@ -88,6 +89,30 @@
                         <i class="fas fa-comments"></i>
                         <span>Chat</span>
                     </a>
+                    <!-- Project Manager Only Items -->
+                    <div id="projectManagerNav" style="display: none;">
+                        <div style="border-top: 1px solid rgba(255,255,255,0.1); margin: 10px 0; padding-top: 10px;">
+                            <p
+                                style="font-size: 11px; color: rgba(255,255,255,0.4); padding: 5px 15px; text-transform: uppercase; letter-spacing: 1px;">
+                                Project Manager</p>
+                        </div>
+                        <a href="#" class="nav-item" data-view="tasks">
+                            <i class="fas fa-tasks"></i>
+                            <span>Gestión de Tareas</span>
+                        </a>
+                        <a href="#" class="nav-item" data-view="create-project">
+                            <i class="fas fa-folder-plus"></i>
+                            <span>Crear Proyecto</span>
+                        </a>
+                        <a href="#" class="nav-item" data-view="team">
+                            <i class="fas fa-users"></i>
+                            <span>Mi Equipo</span>
+                        </a>
+                        <a href="#" class="nav-item" data-view="all-projects">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Todos los Proyectos</span>
+                        </a>
+                    </div>
                 </nav>
             </aside>
 
@@ -168,16 +193,173 @@
                     </div>
                 </div>
 
-                <!-- Chat View -->
+                <!-- Chat View (MSN Messenger Style) -->
                 <div id="chatView" class="view">
-                    <h2>Chat</h2>
-                    <div
-                        style="display: flex; align-items: center; justify-content: center; height: 60vh; flex-direction: column; gap: 20px;">
-                        <i class="fas fa-comments" style="font-size: 64px; color: rgba(255,255,255,0.3);"></i>
-                        <p style="color: rgba(255,255,255,0.5); font-size: 18px; text-align: center;">
-                            Funcionalidad por implementar
-                        </p>
+                    <div style="display: flex; height: calc(100vh - 120px); gap: 20px;">
+                        <!-- Contacts List (Left Side) -->
+                        <div class="chat-contacts-panel">
+                            <div class="chat-panel-header">
+                                <h3><i class="fas fa-users"></i> Contactos</h3>
+                                <span id="chatOnlineCount" class="status-badge online">0 online</span>
+                            </div>
+                            <div id="chatContactsList" class="chat-contacts-list">
+                                <div class="loading-message">
+                                    <i class="fas fa-spinner fa-spin"></i> Cargando contactos...
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Window (Right Side) -->
+                        <div class="chat-window-panel">
+                            <div id="chatWelcome" class="chat-welcome">
+                                <i class="fas fa-comments" style="font-size: 64px; color: rgba(255,255,255,0.3);"></i>
+                                <p style="color: rgba(255,255,255,0.5); font-size: 18px; margin-top: 20px;">
+                                    Selecciona un contacto para comenzar a chatear
+                                </p>
+                            </div>
+
+                            <div id="chatConversation" class="chat-conversation" style="display: none;">
+                                <div class="chat-conversation-header">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div class="status-indicator online" id="chatRecipientStatus"></div>
+                                        <div>
+                                            <h3 id="chatRecipientName">Usuario</h3>
+                                            <span id="chatRecipientRole"
+                                                style="font-size: 12px; color: rgba(255,255,255,0.6);"></span>
+                                        </div>
+                                    </div>
+                                    <button id="chatCloseBtn" class="btn-secondary" style="padding: 8px 12px;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+
+                                <div id="chatMessages" class="chat-messages-container"></div>
+
+                                <div class="chat-input-container">
+                                    <div style="position: relative; flex: 1; display: flex; gap: 8px;">
+                                        <button id="chatEmojiBtn" class="btn-secondary"
+                                            style="padding: 12px; border-radius: 25px; position: relative;">
+                                            <i class="fas fa-smile"></i>
+                                        </button>
+
+                                        <!-- Emoji Picker Panel -->
+                                        <div id="chatEmojiPanel" class="chat-emoji-panel" style="display: none;">
+                                            <div class="chat-emoji-grid">
+                                                <!-- Emojis Clásicos MSN -->
+                                                <span class="emoji-item" data-emoji="😊">😊</span>
+                                                <span class="emoji-item" data-emoji="😂">😂</span>
+                                                <span class="emoji-item" data-emoji="😍">😍</span>
+                                                <span class="emoji-item" data-emoji="😎">😎</span>
+                                                <span class="emoji-item" data-emoji="😢">😢</span>
+                                                <span class="emoji-item" data-emoji="😭">😭</span>
+                                                <span class="emoji-item" data-emoji="😡">😡</span>
+                                                <span class="emoji-item" data-emoji="😱">😱</span>
+                                                <span class="emoji-item" data-emoji="🤔">🤔</span>
+                                                <span class="emoji-item" data-emoji="😴">😴</span>
+                                                <span class="emoji-item" data-emoji="🤗">🤗</span>
+                                                <span class="emoji-item" data-emoji="🥳">🥳</span>
+                                                <span class="emoji-item" data-emoji="😜">😜</span>
+                                                <span class="emoji-item" data-emoji="🤣">🤣</span>
+                                                <span class="emoji-item" data-emoji="😇">😇</span>
+                                                <span class="emoji-item" data-emoji="🙄">🙄</span>
+                                                <span class="emoji-item" data-emoji="😏">😏</span>
+                                                <span class="emoji-item" data-emoji="🤨">🤨</span>
+                                                <span class="emoji-item" data-emoji="😤">😤</span>
+                                                <span class="emoji-item" data-emoji="🤐">🤐</span>
+                                                <span class="emoji-item" data-emoji="👍">👍</span>
+                                                <span class="emoji-item" data-emoji="👎">👎</span>
+                                                <span class="emoji-item" data-emoji="👏">👏</span>
+                                                <span class="emoji-item" data-emoji="🙌">🙌</span>
+                                                <span class="emoji-item" data-emoji="❤️">❤️</span>
+                                                <span class="emoji-item" data-emoji="💔">💔</span>
+                                                <span class="emoji-item" data-emoji="🔥">🔥</span>
+                                                <span class="emoji-item" data-emoji="⭐">⭐</span>
+                                                <span class="emoji-item" data-emoji="✨">✨</span>
+                                                <span class="emoji-item" data-emoji="💯">💯</span>
+                                            </div>
+                                        </div>
+
+                                        <input type="text" id="chatMessageInput" placeholder="Escribe un mensaje..."
+                                            autocomplete="off" style="flex: 1;" />
+                                    </div>
+                                    <button id="chatNudgeBtn" class="btn-secondary"
+                                        style="padding: 12px; border-radius: 25px;" title="Enviar Zumbido">
+                                        <i class="fas fa-bell"></i>
+                                    </button>
+                                    <button id="chatFileBtn" class="btn-secondary"
+                                        style="padding: 12px; border-radius: 25px;" title="Enviar Archivo">
+                                        <i class="fas fa-paperclip"></i>
+                                    </button>
+                                    <input type="file" id="chatFileInput" style="display: none;" />
+                                    <button id="chatSendBtn" class="btn-primary">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Tasks Management View (Project Manager) -->
+                <div id="tasksView" class="view">
+                    <div class="view-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2><i class="fas fa-tasks"></i> Gestión de Tareas</h2>
+                        <button id="createTaskBtn" class="btn-primary">
+                            <i class="fas fa-plus"></i> Nueva Tarea
+                        </button>
+                    </div>
+                    <div id="tasksList" class="tasks-container"></div>
+                </div>
+
+                <!-- Create Project View (Project Manager) -->
+                <div id="create-projectView" class="view">
+                    <h2><i class="fas fa-folder-plus"></i> Crear Nuevo Proyecto</h2>
+                    <div class="create-project-container" style="max-width: 700px; margin: 20px auto;">
+                        <form id="pmCreateProjectForm" class="create-user-form">
+                            <div class="form-group">
+                                <label>Nombre del Proyecto</label>
+                                <input type="text" id="pmProjectName" placeholder="Ej: Campaña de Marketing" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Descripción</label>
+                                <textarea id="pmProjectDescription" placeholder="Describe el proyecto..." rows="4"
+                                    required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Carpeta de Google Drive (Opcional)</label>
+                                <input type="url" id="pmProjectDriveFolder"
+                                    placeholder="https://drive.google.com/drive/folders/...">
+                                <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 5px;">
+                                    Comparte la carpeta de Drive y pega el enlace aquí
+                                </p>
+                            </div>
+                            <div class="form-group">
+                                <label>Asignar a Miembros del Equipo</label>
+                                <div id="pmAssistantsCheckboxList"
+                                    style="max-height: 200px; overflow-y: auto; background: rgba(255, 255, 255, 0.03); padding: 15px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                                    <p style="color: rgba(255,255,255,0.5);">Cargando equipo...</p>
+                                </div>
+                            </div>
+                            <div id="pmCreateProjectError" class="error-message"></div>
+                            <div id="pmCreateProjectSuccess" class="success-message"></div>
+                            <button type="submit" class="btn-primary" style="width: 100%;">
+                                <i class="fas fa-save"></i> Crear Proyecto
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Team Management View (Project Manager) -->
+                <div id="teamView" class="view">
+                    <h2><i class="fas fa-users"></i> Mi Equipo</h2>
+                    <div id="teamList" class="team-grid" style="margin-top: 20px;"></div>
+                </div>
+
+                <!-- All Projects View (Project Manager) -->
+                <div id="all-projectsView" class="view">
+                    <h2><i class="fas fa-clipboard-list"></i> Todos los Proyectos</h2>
+                    <div id="allProjectsList" class="projects-grid" style="margin-top: 20px;"></div>
                 </div>
             </div>
         </main>
@@ -208,10 +390,101 @@
                 </div>
             </div>
         </div>
+
+        <!-- Create/Edit Task Modal (Project Manager) -->
+        <div id="taskModal" class="modal" style="display: none;">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h2 id="taskModalTitle">Nueva Tarea</h2>
+                    <button class="modal-close" id="closeTaskModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="taskForm" class="create-user-form">
+                        <div class="form-group">
+                            <label>Nombre del Contenido/Tarea</label>
+                            <input type="text" id="taskName" placeholder="Ej: Presentación de la Carpintería" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo de Contenido</label>
+                            <select id="taskType" required>
+                                <option value="HISTORIA">Historia</option>
+                                <option value="VIDEO">Video</option>
+                                <option value="CARRUSEL">Carrusel</option>
+                                <option value="FEED">Feed (diseño)</option>
+                                <option value="BLOG">Blog/Artículo</option>
+                                <option value="EDICION">Edición</option>
+                                <option value="OTRO">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Detalles/Descripción</label>
+                            <textarea id="taskDetails" placeholder="Slide 1: Con más de 30 años..." rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Asignar a (Propietario)</label>
+                            <select id="taskAssignee" required>
+                                <option value="">Seleccionar miembro...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <select id="taskStatus" required>
+                                <option value="diseño">Diseño</option>
+                                <option value="contenido">Contenido</option>
+                                <option value="corrección">Corrección</option>
+                                <option value="aprobación">Aprobación</option>
+                                <option value="pausado">Pausado</option>
+                                <option value="completado">Completado</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fecha de Entrega</label>
+                            <input type="date" id="taskDueDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Prioridad</label>
+                            <select id="taskPriority">
+                                <option value="baja">Baja</option>
+                                <option value="media" selected>Media</option>
+                                <option value="alta">Alta</option>
+                                <option value="urgente">Urgente</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Proyecto Relacionado (Opcional)</label>
+                            <select id="taskProject">
+                                <option value="">Sin proyecto específico</option>
+                            </select>
+                        </div>
+
+                        <div id="taskError" class="error-message"></div>
+                        <div id="taskSuccess" class="success-message"></div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button type="submit" class="btn-primary" style="flex: 1;">
+                                <i class="fas fa-save"></i> Guardar Tarea
+                            </button>
+                            <button type="button" class="btn-secondary" id="cancelTaskBtn" style="flex: 1;">
+                                Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="firebase-config-web.js"></script>
     <script src="productivity-tracker.js"></script>
+    <script src="project-manager.js"></script>
+    <script src="chat-system.js"></script>
     <script src="app.js"></script>
 </body>
 

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Freedom Labs</title>
     <link rel="stylesheet" href="dashboard-styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Import Map for Firebase ES Modules -->
     <script type="importmap">
@@ -19,12 +21,13 @@
     }
     </script>
 </head>
+
 <body>
     <!-- Dashboard Header -->
     <header class="dashboard-header">
         <div class="header-content">
             <div class="logo">
-                <img src="public/images/logowhite.png" alt="Freedom Labs" class="logo-img">
+                <img src="public/images/freedom_labs_logo.png" alt="Freedom Labs" class="logo-img">
             </div>
             <div class="user-info">
                 <div class="user-avatar">
@@ -330,7 +333,8 @@
         <section id="costs" class="dashboard-section">
             <div class="section-header">
                 <h1>Costos Adicionales</h1>
-                <p class="section-description">Revisa y aprueba los costos adicionales propuestos por el administrador</p>
+                <p class="section-description">Revisa y aprueba los costos adicionales propuestos por el administrador
+                </p>
             </div>
 
             <div class="costs-list" id="costsList">
@@ -385,7 +389,7 @@
                         Audio
                     </button>
                 </div>
-                
+
                 <div class="upload-content">
                     <!-- Photo Upload -->
                     <div class="upload-section active" id="photoUpload">
@@ -394,10 +398,11 @@
                             <p>Arrastra una foto aquí o haz clic para seleccionar</p>
                             <span>Soporta: JPG, PNG, GIF (máx. 10MB)</span>
                         </div>
-                        <input type="file" id="photoInput" accept="image/*" style="display: none;" onchange="handleFileSelect(this, 'photo')">
+                        <input type="file" id="photoInput" accept="image/*" style="display: none;"
+                            onchange="handleFileSelect(this, 'photo')">
                         <div class="file-preview" id="photoPreview"></div>
                     </div>
-                    
+
                     <!-- File Upload -->
                     <div class="upload-section" id="fileUpload">
                         <div class="upload-area" onclick="document.getElementById('fileInput').click()">
@@ -405,10 +410,11 @@
                             <p>Arrastra un archivo aquí o haz clic para seleccionar</p>
                             <span>Soporta: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX (máx. 50MB)</span>
                         </div>
-                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" style="display: none;" onchange="handleFileSelect(this, 'file')">
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                            style="display: none;" onchange="handleFileSelect(this, 'file')">
                         <div class="file-preview" id="filePreview"></div>
                     </div>
-                    
+
                     <!-- Audio Upload -->
                     <div class="upload-section" id="audioUpload">
                         <div class="upload-area" onclick="document.getElementById('audioInput').click()">
@@ -416,11 +422,12 @@
                             <p>Arrastra un audio aquí o haz clic para seleccionar</p>
                             <span>Soporta: MP3, WAV, M4A, OGG (máx. 100MB)</span>
                         </div>
-                        <input type="file" id="audioInput" accept="audio/*" style="display: none;" onchange="handleFileSelect(this, 'audio')">
+                        <input type="file" id="audioInput" accept="audio/*" style="display: none;"
+                            onchange="handleFileSelect(this, 'audio')">
                         <div class="file-preview" id="audioPreview"></div>
                     </div>
                 </div>
-                
+
                 <div class="file-details">
                     <div class="form-group">
                         <label for="fileName">Nombre del archivo:</label>
@@ -490,7 +497,7 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="chat-preview" id="chatPreview" style="display: none;">
                     <div class="chat-preview-header">
                         <div class="chat-user-info">
@@ -602,4 +609,5 @@
     <script src="dashboard-script.js"></script>
     <script src="complete-translations.js"></script>
 </body>
+
 </html>

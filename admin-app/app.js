@@ -137,6 +137,25 @@ function setupEventListeners() {
         });
     }
 
+    // Edit project basic info modal
+    const editProjectForm = document.getElementById('editProjectForm');
+    const closeEditProject = document.querySelector('.close-edit-project');
+    const editProjectModal = document.getElementById('editProjectModal');
+
+    if (editProjectForm) {
+        editProjectForm.addEventListener('submit', handleEditProject);
+    }
+    if (closeEditProject) {
+        closeEditProject.addEventListener('click', closeEditProjectModal);
+    }
+    if (editProjectModal) {
+        editProjectModal.addEventListener('click', (e) => {
+            if (e.target.id === 'editProjectModal') {
+                closeEditProjectModal();
+            }
+        });
+    }
+
     // Project files input
     const projectFilesInput = document.getElementById('projectFilesInput');
     const projectFilesDropZone = document.getElementById('projectFilesDropZone');
@@ -249,6 +268,9 @@ function switchView(view) {
         const successDiv = document.getElementById('createUserSuccess');
         if (errorDiv) errorDiv.classList.remove('show');
         if (successDiv) successDiv.classList.remove('show');
+    } else if (view === 'accounting') {
+        // Initialize accounting system
+        initializeAccountingSystem();
     }
 }
 
@@ -467,6 +489,7 @@ async function handleCreateUser(e) {
     const username = document.getElementById('createUserUsername').value.trim();
     const password = document.getElementById('createUserPassword').value;
     const role = document.getElementById('createUserRole').value;
+    const hourlyRate = document.getElementById('createUserHourlyRate').value;
 
     if (errorDiv) {
         errorDiv.classList.remove('show');
@@ -503,7 +526,7 @@ async function handleCreateUser(e) {
             throw new Error('Firebase config no disponible');
         }
 
-        const result = await window.firebaseConfig.createAssistant(name, email, username, password, role);
+        const result = await window.firebaseConfig.createAssistant(name, email, username, password, role, hourlyRate);
         console.log('User created successfully:', result);
 
         if (successDiv) {
@@ -661,8 +684,29 @@ function displayAssistants(assistants) {
         // Read online status from Firestore.
         // Prefer "isOnline" but also support legacy/alternative "online" field.
         const rawStatus = assistant.isOnline !== undefined ? assistant.isOnline : assistant.online;
+
         // Check both boolean true, string "true" and numeric 1
-        const isOnline = rawStatus === true || rawStatus === 'true' || rawStatus === 1;
+        let isOnline = rawStatus === true || rawStatus === 'true' || rawStatus === 1;
+
+        // CRITICAL: Check for zombie connections (marked online but no heartbeat)
+        // If lastSeen is older than 2 minutes, force offline status
+        if (isOnline && assistant.lastSeen) {
+            const lastSeenDate = assistant.lastSeen.toDate ? assistant.lastSeen.toDate() : new Date(assistant.lastSeen);
+            const now = new Date();
+            const timeSinceLastSeen = now - lastSeenDate;
+            const twoMinutesInMs = 2 * 60 * 1000;
+
+            if (timeSinceLastSeen > twoMinutesInMs) {
+                console.warn('⚠️ Zombie connection detected:', {
+                    name: assistant.name || assistant.username,
+                    lastSeen: lastSeenDate,
+                    minutesSinceLastSeen: Math.floor(timeSinceLastSeen / 60000),
+                    forcingOffline: true
+                });
+                isOnline = false; // Force offline if no heartbeat in 2+ minutes
+            }
+        }
+
         console.log('Assistant status check:', {
             name: assistant.name || assistant.username,
             isOnline: assistant.isOnline,
@@ -674,6 +718,7 @@ function displayAssistants(assistants) {
         const lastSeen = assistant.lastSeen ? formatDate(assistant.lastSeen.toDate()) : 'Nunca';
         const hoursWorked = (assistant.totalHoursWorked || 0).toFixed(1);
         const roleNames = {
+            'project_manager': 'Project Manager',
             'designer': 'Diseñador Gráfico',
             'community_manager': 'Community Manager',
             'digitizer': 'Digitador',
@@ -755,6 +800,8 @@ function displayAssistants(assistants) {
             const editAssistantEmail = document.getElementById('editAssistantEmail');
             const editAssistantUsername = document.getElementById('editAssistantUsername');
             const editAssistantRole = document.getElementById('editAssistantRole');
+            const editAssistantHourlyRate = document.getElementById('editAssistantHourlyRate');
+            const editAssistantTotalHours = document.getElementById('editAssistantTotalHours');
             const editAssistantForm = document.getElementById('editAssistantForm');
 
             if (editAssistantForm) {
@@ -765,6 +812,8 @@ function displayAssistants(assistants) {
             if (editAssistantEmail) editAssistantEmail.value = assistant.email || '';
             if (editAssistantUsername) editAssistantUsername.value = assistant.username || '';
             if (editAssistantRole) editAssistantRole.value = assistant.role || '';
+            if (editAssistantHourlyRate) editAssistantHourlyRate.value = assistant.hourlyRate || '';
+            if (editAssistantTotalHours) editAssistantTotalHours.value = assistant.totalHoursWorked || 0;
 
             if (editAssistantModal) {
                 editAssistantModal.classList.add('active');
@@ -795,7 +844,7 @@ function updateStats(assistants) {
 }
 
 // Helper function to calculate hours by period
-function calculateHoursByPeriod(sessions) {
+function calculateHoursByPeriod(sessions, currentSessionStart = null) {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const weekAgo = new Date(today);
@@ -807,6 +856,7 @@ function calculateHoursByPeriod(sessions) {
     let hoursWeek = 0;
     let hoursMonth = 0;
 
+    // Add completed sessions
     sessions.forEach(session => {
         const startTime = session.startTime?.toDate ? session.startTime.toDate() : new Date(session.startTime);
         const hours = session.hoursWorked || 0;
@@ -822,7 +872,25 @@ function calculateHoursByPeriod(sessions) {
         }
     });
 
+    // Add current live session if active
+    if (currentSessionStart) {
+        const start = currentSessionStart.toDate ? currentSessionStart.toDate() : new Date(currentSessionStart);
+        const diffMs = now - start;
+        const hours = diffMs / (1000 * 60 * 60); // Convert to hours
+
+        if (hours > 0) {
+            console.log(`Adding live session hours: ${hours.toFixed(2)} based on start time ${start}`);
+            hoursToday += hours; // Current session is always "today" (or overlapping, but simplified to today)
+            hoursWeek += hours;
+            hoursMonth += hours;
+        }
+    }
+
     return { hoursToday, hoursWeek, hoursMonth };
+}
+
+function calculatePayment(hours, rate) {
+    return (hours * (rate || 0)).toFixed(2);
 }
 
 async function showAssistantDetails(assistant) {
@@ -845,16 +913,20 @@ async function showAssistantDetails(assistant) {
 
     modalNameEl.textContent = assistant.name || assistant.username || assistant.email;
 
-    // Normalizar estado online también aquí
-    const rawStatus = assistant.isOnline !== undefined ? assistant.isOnline : assistant.online;
-    const isOnline = rawStatus === true || rawStatus === 'true' || rawStatus === 1;
-
     // Get all data
     let sessions = [], files = [], projects = [];
 
     try {
         if (window.firebaseConfig && window.firebaseConfig.getWorkSessions) {
             sessions = await window.firebaseConfig.getWorkSessions(assistant.userId);
+
+            // DEBUG: Log sessions to understand why they might be missing or date mismatch
+            console.log(`[DEBUG] Sessions for ${assistant.name || assistant.username}:`, sessions.map(s => ({
+                id: s.id,
+                date: s.date ? (s.date.toDate ? s.date.toDate() : s.date) : 'No Date',
+                startTime: s.startTime ? (s.startTime.toDate ? s.startTime.toDate() : s.startTime) : 'No Start',
+                hoursWorked: s.hoursWorked
+            })));
         }
     } catch (error) {
         console.error('Error getting work sessions:', error);
@@ -878,25 +950,103 @@ async function showAssistantDetails(assistant) {
 
     console.log('Loaded data:', { sessions: sessions.length, files: files.length, projects: projects.length });
 
-    // Calculate hours by period
-    const { hoursToday, hoursWeek, hoursMonth } = calculateHoursByPeriod(sessions);
+    // Normalizar estado online también aquí
+    const rawStatus = assistant.isOnline !== undefined ? assistant.isOnline : assistant.online;
+    let isOnline = rawStatus === true || rawStatus === 'true' || rawStatus === 1;
 
-    // Format sessions
-    const sessionsHtml = sessions.length > 0
-        ? sessions.slice(0, 20).map(session => {
-            const startTime = session.startTime?.toDate ? session.startTime.toDate() : new Date(session.startTime);
-            const endTime = session.endTime?.toDate ? session.endTime.toDate() : new Date(session.endTime);
-            const hours = session.hoursWorked || 0;
+    // CRITICAL: Check for zombie connections (marked online but no heartbeat)
+    // If lastSeen is older than 2 minutes, force offline status
+    if (isOnline && assistant.lastSeen) {
+        const lastSeenDate = assistant.lastSeen.toDate ? assistant.lastSeen.toDate() : new Date(assistant.lastSeen);
+        const now = new Date();
+        const timeSinceLastSeen = now - lastSeenDate;
+        const twoMinutesInMs = 2 * 60 * 1000;
 
-            return `
-                <div class="session-item">
-                    <div>
-                        <div style="font-weight: 600;">${formatDate(startTime)}</div>
+        if (timeSinceLastSeen > twoMinutesInMs) {
+            console.warn('⚠️ Zombie connection detected in details:', {
+                name: assistant.name || assistant.username,
+                lastSeen: lastSeenDate,
+                minutesSinceLastSeen: Math.floor(timeSinceLastSeen / 60000),
+                forcingOffline: true
+            });
+            isOnline = false; // Force offline if no heartbeat in 2+ minutes
+        }
+    }
+
+    // Calculate hours by period including live session ONLY if truly online
+    const { hoursToday, hoursWeek, hoursMonth } = calculateHoursByPeriod(
+        sessions,
+        isOnline ? assistant.currentSessionStart : null // Only count current session if online
+    );
+
+    // Add current session to total hours ONLY if truly online
+    let totalHours = assistant.totalHoursWorked || 0;
+    if (isOnline && assistant.currentSessionStart) {
+        const start = assistant.currentSessionStart.toDate ? assistant.currentSessionStart.toDate() : new Date(assistant.currentSessionStart);
+        const now = new Date();
+        const diffMs = now - start;
+        const currentHours = diffMs / (1000 * 60 * 60);
+        if (currentHours > 0) {
+            totalHours += currentHours;
+        }
+    }
+
+    // Group sessions by day to show daily hours
+    const sessionsByDay = {};
+    sessions.forEach(session => {
+        const startTime = session.startTime?.toDate ? session.startTime.toDate() : new Date(session.startTime);
+        const dateKey = startTime.toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+
+        if (!sessionsByDay[dateKey]) {
+            sessionsByDay[dateKey] = {
+                sessions: [],
+                totalHours: 0,
+                date: startTime
+            };
+        }
+
+        sessionsByDay[dateKey].sessions.push(session);
+        sessionsByDay[dateKey].totalHours += (session.hoursWorked || 0);
+    });
+
+    // Sort days by date (most recent first)
+    const sortedDays = Object.entries(sessionsByDay).sort((a, b) => b[1].date - a[1].date);
+
+    // Format sessions grouped by day
+    const sessionsHtml = sortedDays.length > 0
+        ? sortedDays.slice(0, 30).map(([dateKey, dayData]) => {
+            // Sort sessions within the day by start time
+            const sortedSessions = dayData.sessions.sort((a, b) => {
+                const aStart = a.startTime?.toDate ? a.startTime.toDate() : new Date(a.startTime);
+                const bStart = b.startTime?.toDate ? b.startTime.toDate() : new Date(b.startTime);
+                return aStart - bStart; // Ascending order (earliest first)
+            });
+
+            const sessionsForDay = sortedSessions.map(session => {
+                const startTime = session.startTime?.toDate ? session.startTime.toDate() : new Date(session.startTime);
+                const endTime = session.endTime?.toDate ? session.endTime.toDate() : new Date(session.endTime);
+                const hours = session.hoursWorked || 0;
+
+                return `
+                    <div style="padding-left: 20px; margin-top: 5px; border-left: 2px solid rgba(245, 158, 11, 0.3);">
                         <div style="font-size: 12px; color: rgba(255,255,255,0.7);">
-                            ${formatTime(startTime)} - ${formatTime(endTime)}
+                            ${formatTime(startTime)} - ${formatTime(endTime)} • ${hours.toFixed(2)}h
                         </div>
                     </div>
-                    <div style="font-weight: 600; color: #f59e0b;">${hours.toFixed(2)}h</div>
+                `;
+            }).join('');
+
+            return `
+                <div class="session-item" style="flex-direction: column; align-items: flex-start; padding: 15px;">
+                    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-weight: 600; font-size: 14px;">${dateKey}</div>
+                        <div style="font-weight: 700; color: #f59e0b; font-size: 18px;">${dayData.totalHours.toFixed(2)}h</div>
+                    </div>
+                    ${sessionsForDay}
                 </div>
             `;
         }).join('')
@@ -942,6 +1092,28 @@ async function showAssistantDetails(assistant) {
         'community_manager': 'Community Manager',
         'digitizer': 'Digitador'
     };
+
+    // Calculate time connected today
+    let timeConnectedToday = 0;
+    if (assistant.currentSessionStart) {
+        const start = assistant.currentSessionStart.toDate ? assistant.currentSessionStart.toDate() : new Date(assistant.currentSessionStart);
+        const now = new Date();
+        const diffMs = now - start;
+        timeConnectedToday = diffMs / (1000 * 60 * 60); // Convert to hours
+    }
+
+    // Format last connection time
+    let lastConnectionText = 'Nunca';
+    if (assistant.lastSeen) {
+        const lastSeenDate = assistant.lastSeen.toDate ? assistant.lastSeen.toDate() : new Date(assistant.lastSeen);
+        lastConnectionText = lastSeenDate.toLocaleString('es-ES', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
 
     // Format location info - only show if online
     const location = isOnline ? (assistant.location || assistant.lastLocation) : null;
@@ -1001,6 +1173,10 @@ async function showAssistantDetails(assistant) {
                 <span class="info-value">${roleNames[assistant.role] || assistant.role || 'N/A'}</span>
             </div>
             <div class="info-row">
+                <span class="info-label">Salario/Hora:</span>
+                <span class="info-value">$${parseFloat(assistant.hourlyRate || 0).toFixed(2)}</span>
+            </div>
+            <div class="info-row">
                 <span class="info-label">Estado:</span>
                 <span class="info-value">
                     <span class="status-badge ${isOnline ? 'online' : 'offline'}">
@@ -1008,25 +1184,44 @@ async function showAssistantDetails(assistant) {
                     </span>
                 </span>
             </div>
+            <div class="info-row">
+                <span class="info-label">Última Conexión:</span>
+                <span class="info-value">${lastConnectionText}</span>
+            </div>
+            ${assistant.currentSessionStart ? `
+            <div class="info-row">
+                <span class="info-label">Sesión Actual:</span>
+                <span class="info-value" style="color: #f59e0b;">En curso (desde ${formatTime(assistant.currentSessionStart)})</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Tiempo Conectado Hoy:</span>
+                <span class="info-value" style="color: #10b981; font-weight: 600;">${timeConnectedToday.toFixed(2)} horas</span>
+            </div>
+            ` : ''}
             ${locationHtml}
         </div>
+        
         
         <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center;">
                 <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Hoy</div>
                 <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">${hoursToday.toFixed(1)}h</div>
+                <div style="font-size: 14px; color: #10b981; margin-top: 5px;">$${(hoursToday * (parseFloat(assistant.hourlyRate) || 0)).toFixed(2)}</div>
             </div>
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center;">
                 <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Esta Semana</div>
                 <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">${hoursWeek.toFixed(1)}h</div>
+                <div style="font-size: 14px; color: #10b981; margin-top: 5px;">$${(hoursWeek * (parseFloat(assistant.hourlyRate) || 0)).toFixed(2)}</div>
             </div>
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center;">
                 <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Este Mes</div>
                 <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">${hoursMonth.toFixed(1)}h</div>
+                <div style="font-size: 14px; color: #10b981; margin-top: 5px;">$${(hoursMonth * (parseFloat(assistant.hourlyRate) || 0)).toFixed(2)}</div>
             </div>
             <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center;">
                 <div style="font-size: 12px; color: rgba(255,255,255,0.7); margin-bottom: 5px;">Total</div>
-                <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">${(assistant.totalHoursWorked || 0).toFixed(1)}h</div>
+                <div style="font-size: 24px; font-weight: 700; color: #f59e0b;">${totalHours.toFixed(1)}h</div>
+                <div style="font-size: 14px; color: #10b981; margin-top: 5px;">$${(totalHours * (parseFloat(assistant.hourlyRate) || 0)).toFixed(2)}</div>
             </div>
         </div>
         
@@ -1045,7 +1240,7 @@ async function showAssistantDetails(assistant) {
         </div>
         
         <div style="margin-top: 30px;">
-            <h3 style="margin-bottom: 15px;">Sesiones de Trabajo (${sessions.length})</h3>
+            <h3 style="margin-bottom: 15px;">📅 Horas Trabajadas por Día (${sortedDays.length} días)</h3>
             <div class="sessions-list">
                 ${sessionsHtml}
             </div>
@@ -1097,6 +1292,8 @@ async function handleEditAssistant(e) {
     const email = document.getElementById('editAssistantEmail')?.value.trim();
     const username = document.getElementById('editAssistantUsername')?.value.trim();
     const role = document.getElementById('editAssistantRole')?.value;
+    const hourlyRate = document.getElementById('editAssistantHourlyRate')?.value;
+    const totalHoursWorked = document.getElementById('editAssistantTotalHours')?.value;
 
     if (!name || !email || !username || !role) {
         if (errorDiv) {
@@ -1121,7 +1318,9 @@ async function handleEditAssistant(e) {
             name,
             email,
             username,
-            role
+            role,
+            hourlyRate: parseFloat(hourlyRate) || 0,
+            totalHoursWorked: parseFloat(totalHoursWorked) || 0
         });
 
         if (successDiv) {
@@ -1458,7 +1657,10 @@ async function showProjectDetails(project) {
             : '<span style="color: rgba(255,255,255,0.5);">Ningún asistente asignado</span>'}
                     </span>
                 </div>
-                <div style="margin-top: 15px;">
+                <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <button class="btn-secondary" onclick="openEditProjectModal('${project.id}')" style="padding: 8px 16px; font-size: 13px;">
+                        <i class="fas fa-edit"></i> Editar Proyecto
+                    </button>
                     <button class="btn-primary" onclick="openEditProjectAssignments('${project.id}')" style="padding: 8px 16px; font-size: 13px;">
                         <i class="fas fa-user-edit"></i> Editar Asignaciones
                     </button>
@@ -1813,6 +2015,128 @@ async function handleEditDriveFolder(e) {
         submitBtn.innerHTML = originalText;
     }
 }
+
+// Edit project basic info functions
+window.openEditProjectModal = async function (projectId) {
+    currentEditingProjectId = projectId;
+    const modal = document.getElementById('editProjectModal');
+    const nameInput = document.getElementById('editProjectName');
+    const descriptionInput = document.getElementById('editProjectDescription');
+    const errorDiv = document.getElementById('editProjectError');
+    const successDiv = document.getElementById('editProjectSuccess');
+
+    if (!modal || !nameInput || !descriptionInput) return;
+
+    // Get current project data
+    try {
+        const projects = await window.firebaseConfig.getAllProjects();
+        const project = projects.find(p => p.id === projectId);
+
+        if (project) {
+            nameInput.value = project.name || '';
+            descriptionInput.value = project.description || '';
+        }
+    } catch (error) {
+        console.error('Error loading project data:', error);
+    }
+
+    // Clear messages
+    if (errorDiv) errorDiv.classList.remove('show');
+    if (successDiv) successDiv.classList.remove('show');
+
+    modal.classList.add('active');
+};
+
+window.closeEditProjectModal = function () {
+    const modal = document.getElementById('editProjectModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    currentEditingProjectId = null;
+};
+
+async function handleEditProject(e) {
+    e.preventDefault();
+
+    const errorDiv = document.getElementById('editProjectError');
+    const successDiv = document.getElementById('editProjectSuccess');
+    const form = e.target;
+    const nameInput = document.getElementById('editProjectName');
+    const descriptionInput = document.getElementById('editProjectDescription');
+
+    if (!currentEditingProjectId) {
+        if (errorDiv) {
+            errorDiv.textContent = 'No se pudo identificar el proyecto';
+            errorDiv.classList.add('show');
+        }
+        return;
+    }
+
+    const projectName = nameInput.value.trim();
+    const projectDescription = descriptionInput.value.trim();
+
+    if (!projectName) {
+        if (errorDiv) {
+            errorDiv.textContent = 'El nombre del proyecto es requerido';
+            errorDiv.classList.add('show');
+        }
+        return;
+    }
+
+    if (errorDiv) errorDiv.classList.remove('show');
+    if (successDiv) successDiv.classList.remove('show');
+
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+
+    try {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+        // Update project in Firebase
+        if (!window.firebaseConfig || !window.firebaseConfig.updateProject) {
+            throw new Error('Firebase config no disponible para actualizar proyecto');
+        }
+
+        await window.firebaseConfig.updateProject(currentEditingProjectId, {
+            name: projectName,
+            description: projectDescription
+        });
+
+        if (successDiv) {
+            successDiv.textContent = 'Proyecto actualizado exitosamente';
+            successDiv.classList.add('show');
+        }
+
+        // Reload project details if we're viewing it
+        if (currentProjectDetails && currentProjectDetails.id === currentEditingProjectId) {
+            // Update the current project details object
+            currentProjectDetails.name = projectName;
+            currentProjectDetails.description = projectDescription;
+            await showProjectDetails(currentProjectDetails);
+        }
+
+        // Reload projects list
+        await loadProjects();
+
+        // Close modal after 1.5 seconds
+        setTimeout(() => {
+            closeEditProjectModal();
+            if (successDiv) successDiv.classList.remove('show');
+        }, 1500);
+
+    } catch (error) {
+        console.error('Error updating project:', error);
+        if (errorDiv) {
+            errorDiv.textContent = 'Error al actualizar proyecto: ' + (error.message || 'Intenta nuevamente');
+            errorDiv.classList.add('show');
+        }
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+    }
+}
+
 
 window.openEditProjectAssignments = async function (projectId) {
     currentEditingProjectId = projectId;
@@ -2281,3 +2605,50 @@ window.handleDeleteNotification = handleDeleteNotification;
 window.openCreateNotificationModal = openCreateNotificationModal;
 window.closeCreateNotificationModal = closeCreateNotificationModal;
 
+// Accounting System
+let accountingSystem = null;
+
+async function initializeAccountingSystem() {
+    try {
+        console.log('Initializing accounting system...');
+
+        if (!window.AccountingSystem) {
+            console.error('AccountingSystem class not loaded!');
+            document.getElementById('accountingContent').innerHTML =
+                '<p style="color: #ef4444; text-align: center; padding: 40px;">Error: Sistema contable no disponible. Recarga la aplicación.</p>';
+            return;
+        }
+
+        if (!window.firebaseConfig) {
+            console.error('Firebase not loaded!');
+            document.getElementById('accountingContent').innerHTML =
+                '<p style="color: #ef4444; text-align: center; padding: 40px;">Error: Firebase no disponible.</p>';
+            return;
+        }
+
+        // Create accounting system instance if not exists
+        if (!accountingSystem) {
+            accountingSystem = new window.AccountingSystem(window.firebaseConfig);
+            // Expose globally for onclick handlers
+            window.accountingSystem = accountingSystem;
+        }
+
+        // Initialize the view
+        await accountingSystem.initializeView();
+
+        console.log('Accounting system initialized successfully');
+    } catch (error) {
+        console.error('Error initializing accounting system:', error);
+        document.getElementById('accountingContent').innerHTML =
+            `<p style="color: #ef4444; text-align: center; padding: 40px;">Error al cargar sistema contable: ${error.message}</p>`;
+    }
+}
+
+window.initializeAccountingSystem = initializeAccountingSystem;
+
+// Productivity Dashboard - Edit Hours Modal
+window.closeEditDailyHoursModal = function () {
+    if (window.productivityDashboard) {
+        window.productivityDashboard.closeEditDailyHoursModal();
+    }
+};

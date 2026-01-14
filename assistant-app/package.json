@@ -1,7 +1,7 @@
 {
   "name": "freedomlabs-assistant-app",
-  "version": "1.0.14",
-  "buildNumber": 23,
+  "version": "1.0.25",
+  "buildNumber": 34,
   "description": "Freedom Labs - Assistant Desktop App",
   "main": "main.js",
   "scripts": {

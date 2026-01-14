@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,12 +8,13 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
         <nav class="nav">
             <div class="nav-brand">
-                <img src="public/images/logowhite.png" alt="Freedom Labs" class="nav-logo">
+                <img src="public/images/freedom_labs_logo.png" alt="Freedom Labs" class="nav-logo">
             </div>
             <div class="nav-links">
                 <a href="index.html" class="nav-link">Inicio</a>
@@ -44,8 +46,8 @@
                                 <p>ventas@freedomlabs.com</p>
                             </div>
                         </div>
-                        
-                        
+
+
                         <div class="contact-method">
                             <div class="contact-icon">
                                 <i class="fas fa-map-marker-alt"></i>
@@ -56,7 +58,7 @@
                                 <p>Oficina Central</p>
                             </div>
                         </div>
-                        
+
                         <div class="contact-method">
                             <div class="contact-icon">
                                 <i class="fas fa-clock"></i>
@@ -134,7 +136,9 @@
 
                         <div class="form-group">
                             <label for="message">Mensaje *</label>
-                            <textarea id="message" name="message" class="form-input form-textarea" rows="5" placeholder="Cuéntanos sobre tu proyecto, objetivos, funcionalidades específicas, etc." required></textarea>
+                            <textarea id="message" name="message" class="form-input form-textarea" rows="5"
+                                placeholder="Cuéntanos sobre tu proyecto, objetivos, funcionalidades específicas, etc."
+                                required></textarea>
                         </div>
 
                         <div class="form-group">
@@ -162,7 +166,8 @@
                             <label class="checkbox-label">
                                 <input type="checkbox" id="privacy" name="privacy" required>
                                 <span class="checkmark"></span>
-                                Acepto la <a href="politica-privacidad.html" target="_blank">Política de Privacidad</a> *
+                                Acepto la <a href="politica-privacidad.html" target="_blank">Política de Privacidad</a>
+                                *
                             </label>
                         </div>
 
@@ -185,17 +190,17 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <div class="footer-logo">
-                        <img src="public/images/logoblack.png" alt="Freedom Labs" class="footer-logo-img">
+                        <img src="public/images/freedom_labs_logo.png" alt="Freedom Labs" class="footer-logo-img">
                     </div>
                 </div>
-                
+
                 <div class="footer-links">
                     <a href="quienes-somos.html" class="footer-link">Quiénes Somos</a>
                     <a href="terminos-condiciones.html" class="footer-link">Términos y Condiciones</a>
                     <a href="politica-privacidad.html" class="footer-link">Política de Privacidad</a>
                     <a href="contacto.html" class="footer-link">Contacto</a>
                 </div>
-                
+
                 <div class="footer-social">
                     <a href="#" class="social-link">
                         <i class="fab fa-facebook"></i>
@@ -208,7 +213,7 @@
                     </a>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
                 <p>&copy; 2024 Freedom Labs. Todos los derechos reservados.</p>
             </div>
@@ -221,7 +226,7 @@
             // Get form data
             const form = document.querySelector('.contact-form');
             const formData = new FormData(form);
-            
+
             // Create contact object
             const contact = {
                 id: Date.now(),
@@ -238,24 +243,25 @@
                 privacy: formData.get('privacy') === 'on',
                 date: new Date().toISOString()
             };
-            
+
             // Save to localStorage
             let contacts = JSON.parse(localStorage.getItem('contacts')) || [];
             contacts.push(contact);
             localStorage.setItem('contacts', JSON.stringify(contacts));
-            
+
             console.log('Contact form submitted:', contact);
             alert('¡Gracias! Hemos recibido tu mensaje. Te contactaremos pronto.');
-            
+
             // Reset form
             form.reset();
         }
-        
+
         function resetForm() {
             document.querySelector('.contact-form').reset();
         }
     </script>
-    
+
     <script src="complete-translations.js"></script>
 </body>
+
 </html>

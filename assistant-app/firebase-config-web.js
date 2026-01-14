@@ -36,9 +36,9 @@ const onAuthChange = (callback) => {
 };
 
 // Assistant functions
-const updateAssistantStatus = async (userId, isOnline, locationData = null) => {
+const updateAssistantStatus = async (userId, isOnline, locationData = null, sessionStart = null) => {
   try {
-    console.log('Updating assistant status:', { userId, isOnline, hasLocation: !!locationData });
+    console.log('Updating assistant status:', { userId, isOnline, hasLocation: !!locationData, hasSessionStart: !!sessionStart });
     if (locationData) {
       console.log('Location data to save:', locationData);
     }
@@ -61,6 +61,14 @@ const updateAssistantStatus = async (userId, isOnline, locationData = null) => {
         updateData.location = locationData;
         updateData.lastLocation = locationData;
         console.log('Adding location to update:', locationData);
+      }
+
+      // Add session start time if provided (only when going online)
+      if (isOnline && sessionStart) {
+        updateData.currentSessionStart = new Date(sessionStart);
+      } else if (!isOnline) {
+        // Clear session start when going offline
+        updateData.currentSessionStart = null;
       }
 
       console.log('Updating document with:', updateData);
@@ -420,6 +428,22 @@ auth.getRedirectResult().then((result) => {
 });
 
 
+// Get all projects (for Project Manager)
+const getAllProjects = async () => {
+  try {
+    const projectsRef = db.collection("projects");
+    const querySnapshot = await projectsRef.get();
+    const projects = [];
+    querySnapshot.forEach((doc) => {
+      projects.push({ id: doc.id, ...doc.data() });
+    });
+    return projects;
+  } catch (error) {
+    console.error('Error getting all projects:', error);
+    throw error;
+  }
+};
+
 // Export all functions
 window.firebaseConfig = {
   auth,
@@ -432,6 +456,7 @@ window.firebaseConfig = {
   updateAssistantStatus,
   recordWorkSession,
   getAssignedProjects,
+  getAllProjects,
   uploadFile,
   getProjectFiles,
   getAssistantFiles,

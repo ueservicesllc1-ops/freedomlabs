@@ -14,7 +14,7 @@ class CompleteLanguageSwitcher {
         'nav.portfolio': 'Portfolio',
         'nav.admin': 'Admin',
         'nav.dashboard': 'Dashboard',
-        
+
         // Auth
         'auth.login': 'Iniciar Sesión',
         'auth.register': 'Registrarse',
@@ -27,7 +27,7 @@ class CompleteLanguageSwitcher {
         'auth.loginButton': 'Iniciar Sesión',
         'auth.registerButton': 'Crear Cuenta',
         'auth.close': 'Cerrar',
-        
+
         // Hero Section
         'hero.startProject': 'Iniciar Proyecto',
         'hero.contactNow': 'Contactar Ahora',
@@ -35,7 +35,7 @@ class CompleteLanguageSwitcher {
         'hero.transform': 'Transformamos ideas en',
         'hero.solutions': 'soluciones digitales',
         'hero.technology': 'con las últimas tecnologías',
-        
+
         // Services
         'services.title': 'Nuestros Servicios',
         'services.subtitle': 'Lo que hacemos para tu negocio',
@@ -71,7 +71,7 @@ class CompleteLanguageSwitcher {
         'services.church_mobile.desc': 'Aplicaciones móviles para iglesias',
         'services.church_web': 'Webs para Iglesias',
         'services.church_web.desc': 'Sitios web para iglesias',
-        
+
         // Contact
         'contact.title': '¿Listo para tu próximo proyecto?',
         'contact.subtitle': 'Transformemos tu idea en una solución tecnológica innovadora.',
@@ -79,9 +79,9 @@ class CompleteLanguageSwitcher {
         'contact.email': 'Tu email',
         'contact.message': 'Cuéntanos sobre tu proyecto',
         'contact.send': 'Enviar Mensaje',
-        'contact.location': 'Ciudad de México, México',
-        'contact.phone': '+1 (555) 123-4567',
-        
+        'contact.location': 'Paterson New Jersey',
+        'contact.phone': '+15513014573',
+
         // Quote Modal
         'quote.title': 'Solicitar Cotización',
         'quote.subtitle': 'Cuéntanos sobre tu proyecto para darte la mejor cotización',
@@ -110,7 +110,7 @@ class CompleteLanguageSwitcher {
         'quote.companyPlaceholder': 'Ej: Mi Empresa S.A.',
         'quote.projectDetailsPlaceholder': 'Describe tu proyecto, objetivos, funcionalidades específicas, etc.',
         'quote.objectivesPlaceholder': 'Describe qué quieres lograr con este proyecto, qué problemas resuelve, etc.',
-        
+
         // Footer
         'footer.rights': 'Todos los derechos reservados.',
         'footer.weCanDesign': 'Podemos diseñar lo que te puedas imaginar',
@@ -119,7 +119,7 @@ class CompleteLanguageSwitcher {
         'footer.advancedTech': 'Tecnología avanzada',
         'footer.customDesign': 'Diseño personalizado',
         'footer.uniqueFeatures': 'Funcionalidades únicas',
-        
+
         // About Page
         'about.title': 'Quiénes Somos',
         'about.subtitle': 'Conoce más sobre Freedom Labs',
@@ -132,7 +132,7 @@ class CompleteLanguageSwitcher {
         'about.projects': 'Proyectos Completados',
         'about.clients': 'Clientes Satisfechos',
         'about.team': 'Miembros del Equipo',
-        
+
         // Admin Panel
         'admin.dashboard': 'Dashboard',
         'admin.quotes': 'Cotizaciones',
@@ -148,7 +148,7 @@ class CompleteLanguageSwitcher {
         'admin.panel': 'Panel de Administración',
         'admin.subtitle': 'Gestiona las cotizaciones y solicitudes de clientes',
         'admin.backToSite': 'Volver al Sitio',
-        
+
         // Dashboard translations
         'dashboard.client': 'Cliente',
         'dashboard.clientEmail': 'cliente@ejemplo.com',
@@ -230,12 +230,12 @@ class CompleteLanguageSwitcher {
         'dashboard.projectType': 'Tipo de Proyecto:',
         'dashboard.projectStatus': 'Estado:',
         'dashboard.projectValue': 'Valor del Proyecto:',
-        
+
         // Modal translations
         'modal.whatIncludes': '¿Qué incluye?',
         'modal.technologies': 'Tecnologías',
         'modal.deliveryTime': 'Tiempo de entrega',
-        
+
         // Project Management translations
         'project.title': 'Gestión de Proyecto',
         'project.subtitle': 'Configura el valor del proyecto y los extras',
@@ -278,7 +278,7 @@ class CompleteLanguageSwitcher {
         'nav.portfolio': 'Portfolio',
         'nav.admin': 'Admin',
         'nav.dashboard': 'Dashboard',
-        
+
         // Auth
         'auth.login': 'Login',
         'auth.register': 'Register',
@@ -291,7 +291,7 @@ class CompleteLanguageSwitcher {
         'auth.loginButton': 'Login',
         'auth.registerButton': 'Create Account',
         'auth.close': 'Close',
-        
+
         // Hero Section
         'hero.startProject': 'Start Project',
         'hero.contactNow': 'Contact Now',
@@ -299,7 +299,7 @@ class CompleteLanguageSwitcher {
         'hero.transform': 'We transform ideas into',
         'hero.solutions': 'digital solutions',
         'hero.technology': 'with the latest technologies',
-        
+
         // Services
         'services.title': 'Our Services',
         'services.subtitle': 'What we do for your business',
@@ -335,7 +335,7 @@ class CompleteLanguageSwitcher {
         'services.church_mobile.desc': 'Mobile applications for churches',
         'services.church_web': 'Church Websites',
         'services.church_web.desc': 'Websites for churches',
-        
+
         // Contact
         'contact.title': 'Ready for your next project?',
         'contact.subtitle': 'Let\'s transform your idea into an innovative technological solution.',
@@ -343,9 +343,9 @@ class CompleteLanguageSwitcher {
         'contact.email': 'Your email',
         'contact.message': 'Tell us about your project',
         'contact.send': 'Send Message',
-        'contact.location': 'Mexico City, Mexico',
-        'contact.phone': '+1 (555) 123-4567',
-        
+        'contact.location': 'Paterson New Jersey',
+        'contact.phone': '+15513014573',
+
         // Quote Modal
         'quote.title': 'Request Quote',
         'quote.subtitle': 'Tell us about your project to get the best quote',
@@ -374,7 +374,7 @@ class CompleteLanguageSwitcher {
         'quote.companyPlaceholder': 'Ex: My Company Inc.',
         'quote.projectDetailsPlaceholder': 'Describe your project, objectives, specific functionalities, etc.',
         'quote.objectivesPlaceholder': 'Describe what you want to achieve with this project, what problems it solves, etc.',
-        
+
         // Footer
         'footer.rights': 'All rights reserved.',
         'footer.weCanDesign': 'We can design anything you can imagine',
@@ -383,7 +383,7 @@ class CompleteLanguageSwitcher {
         'footer.advancedTech': 'Advanced Technology',
         'footer.customDesign': 'Custom Design',
         'footer.uniqueFeatures': 'Unique Features',
-        
+
         // About Page
         'about.title': 'About Us',
         'about.subtitle': 'Learn more about Freedom Labs',
@@ -396,7 +396,7 @@ class CompleteLanguageSwitcher {
         'about.projects': 'Completed Projects',
         'about.clients': 'Satisfied Clients',
         'about.team': 'Team Members',
-        
+
         // Admin Panel
         'admin.dashboard': 'Dashboard',
         'admin.quotes': 'Quotes',
@@ -412,7 +412,7 @@ class CompleteLanguageSwitcher {
         'admin.panel': 'Admin Panel',
         'admin.subtitle': 'Manage quotes and client requests',
         'admin.backToSite': 'Back to Site',
-        
+
         // Dashboard translations
         'dashboard.client': 'Client',
         'dashboard.clientEmail': 'client@example.com',
@@ -494,12 +494,12 @@ class CompleteLanguageSwitcher {
         'dashboard.projectType': 'Project Type:',
         'dashboard.projectStatus': 'Status:',
         'dashboard.projectValue': 'Project Value:',
-        
+
         // Modal translations
         'modal.whatIncludes': 'What includes?',
         'modal.technologies': 'Technologies',
         'modal.deliveryTime': 'Delivery time',
-        
+
         // Project Management translations
         'project.title': 'Project Management',
         'project.subtitle': 'Configure project value and extras',
@@ -532,7 +532,7 @@ class CompleteLanguageSwitcher {
         'project.userCreated': 'User created successfully - Will be linked automatically when they register'
       }
     };
-    
+
     this.init();
   }
 
@@ -543,11 +543,11 @@ class CompleteLanguageSwitcher {
 
   createSwitcher() {
     console.log('Creating language switcher...');
-    
+
     // Check if switcher already exists in the page
     const existingSwitcher = document.getElementById('languageSwitcher');
     const userSwitcher = document.getElementById('userLanguageSwitcher');
-    
+
     if (existingSwitcher || userSwitcher) {
       console.log('Language switcher already exists, using existing one');
       // Just add event listeners to existing switcher
@@ -576,7 +576,7 @@ class CompleteLanguageSwitcher {
     // Add event listeners to both switchers
     const switcher = document.getElementById('languageSwitcher');
     const userSwitcher = document.getElementById('userLanguageSwitcher');
-    
+
     if (switcher) {
       switcher.addEventListener('click', (e) => {
         const button = e.target.closest('.lang-btn');
@@ -585,7 +585,7 @@ class CompleteLanguageSwitcher {
         }
       });
     }
-    
+
     if (userSwitcher) {
       userSwitcher.addEventListener('click', (e) => {
         const button = e.target.closest('.lang-btn');
@@ -599,7 +599,7 @@ class CompleteLanguageSwitcher {
   changeLanguage(lang) {
     this.currentLang = lang;
     localStorage.setItem('language', lang);
-    
+
     // Update active button
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.classList.remove('active');
